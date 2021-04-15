@@ -1,0 +1,13 @@
+input:not([type]),
+input[type]:not(.browser-default),
+textarea.materialize-textarea {
+  width: auto;
+  transition: width 0.2s;
+
+  &.valid ~ .helper-text[data-success],
+  &:focus.valid ~ .helper-text[data-success],
+  &.invalid ~ .helper-text[data-error],
+  &:focus.invalid ~ .helper-text[data-error] {
+    width: 0;
+  }
+}

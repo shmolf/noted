@@ -1,0 +1,3 @@
+admin.accounts:
+  resource: 'accounts.yaml'
+  prefix: /users

@@ -1,0 +1,18 @@
+{
+    "compilerOptions": {
+      "target": "es6",
+      "allowSyntheticDefaultImports": true,
+      "checkJs": true,
+      "baseUrl": "./",
+      "paths": {
+        "JS/*": ["./assets/js/*"],
+        "CSS/*": ["./assets/css/*"],
+        "Images/*": ["./assets/images/*"],
+        "NODE/*": ["./node_modules/*"]
+      }
+    },
+    "exclude": [
+        "node_modules",
+        "html/dist/**/*"
+    ]
+  }

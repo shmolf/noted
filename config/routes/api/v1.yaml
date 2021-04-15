@@ -1,0 +1,3 @@
+api.v1.account:
+  path: /account
+  controller: App\Controller\Users\AccountController::accountApi
