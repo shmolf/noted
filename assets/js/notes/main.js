@@ -7,16 +7,15 @@ import mdItEmoji from 'markdown-it-emoji';
 import twemoji from 'twemoji';
 import mdItFrontMatter from 'markdown-it-front-matter';
 import { loadFront } from 'yaml-front-matter';
-// import mdItPrism from 'markdown-it-prism';
-// import loadLanguages from 'prismjs/components/';
-
-import hljs from 'highlightjs';
+import hljs from 'highlight.js';
+import 'NODE/highlight.js/styles/gruvbox-dark.css';
 import CodeMirror from './code-mirror-assets';
+// import prismjs from './prism-assets';
+// @ts-ignore
+import sample from './sample.md';
+
 
 import 'CSS/notes.scss';
-
-// Prevent console errors from unknown languages
-// loadLanguages.silent = true;
 
 /** @type {JQuery} */
 let $editor;
@@ -37,60 +36,33 @@ M.Modal.init($settingsModal, {
   onOpenEnd: () => $settingsModal.scrollTop(0),
 });
 
-const markdownTest = `
-Doctrine Setup
-
-Create a new Schema
-\`\`\`bash
-php bin/console doctrine:database:create
-\`\`\`
-
-Create a new Entity
-\`\`\`bash
-php bin/console make:entity
-\`\`\`
-
-Create the migration
-\`\`\`bash
-php bin/console make:migration
-\`\`\`
-
-Apply the Migration
-\`\`\`bash
-php bin/console doctrine:migrations:migrate
-\`\`\`
-
-\`\`\`js
-$(() => {
-  $editor = $('#markdown-input');
-  $mdView = $('#markdown-output');
-  initCodeMirror();
-  initMarkdownIt();
-  $mdView.on('click', () => renderMarkdown());
-});
-\`\`\`
-`;
-
 $(() => {
   $settingsModal = $('#settings-popup');
   $editor = $('#markdown-input');
   $mdView = $('#markdown-output');
   initCodeMirror();
   initMarkdownIt();
-  $mdView.on('click', () => renderMarkdown());
   $('#codemirror-theme').on('change', (e) => {
-    const theme = $(e.currentTarget).val();
-    codeMirrorEditor.setOption('theme', theme);
+    const theme = String($(e.currentTarget).val());
+    setCodeMirrorTheme(theme);
   });
+
+  renderMarkdown(sample);
 });
 
 /**
  * Grabs the input from Code Mirror, and uses Markdown-It to render the output.
+ * @param {string} markdown
  */
-function renderMarkdown() {
-  const parsedMarkdown = parseFrontMatter(markdownTest); // codeMirrorEditor.getValue());
+function renderMarkdown(markdown) {
+  const parsedMarkdown = parseFrontMatter(markdown); // codeMirrorEditor.getValue());
   const render = md.render(parsedMarkdown);
   $mdView.html(render);
+  // $mdView.find('pre code').each((i, elem) => prismjs.highlightElement(elem));
+  $mdView.find('pre code').each((i, elem) => {
+    const codeBlock = elem;
+    codeBlock.innerHTML = hljs.highlightAuto(elem.textContent).value;
+  });
 }
 
 /**
@@ -116,22 +88,25 @@ function parseFrontMatter(markdown) {
  */
 function initMarkdownIt() {
   const umlOptions = {
-    openMarker: '@startditaa',
-    closeMarker: '@endditaa',
-    diagramName: 'ditaa',
-    imageFormat: 'png',
+    // openMarker: '@startditaa',
+    // closeMarker: '@endditaa',
+    // diagramName: 'ditaa',
+    // imageFormat: 'png',
   };
 
   const markdownItOptions = {
-    highlight: (str, lang) => {
-      if (lang && hljs.getLanguage(lang)) {
-        try {
-          return `<pre class="hljs"><code>${hljs.highlight(lang, str, true).value}</code></pre>`;
-        } catch (__) {}
-      }
+    // highlight: (str, lang) => {
+    //   if (lang) {
+    //     try {
+    //       console.log(prismjs.highlight(str, prismjs.languages[lang], lang));
+    //       return `<pre><code>${prismjs.highlight(str, prismjs.languages[lang], lang)}</code></pre>`;
+    //     } catch (__) {
+    //       return `<pre><code>${md.utils.escapeHtml(str)}</code></pre>`;
+    //     }
+    //   }
 
-      return `<pre class="hljs"><code>${md.utils.escapeHtml(str)}</code></pre>`;
-    },
+    //   return `<pre><code>${md.utils.escapeHtml(str)}</code></pre>`;
+    // },
   };
 
   md = mdIt(markdownItOptions)
@@ -141,7 +116,6 @@ function initMarkdownIt() {
       const fm = frontMatter.split(/\n/);
       console.log(fm);
     });
-    // .use(mdItPrism);
 
   md.renderer.rules.emoji = (token, idx) => twemoji.parse(token[idx].content);
 }
@@ -174,6 +148,11 @@ function initCodeMirror() {
   };
 
   codeMirrorEditor = CodeMirror.fromTextArea(/** @type {HTMLTextAreaElement} */($editor.get(0)), cmOptions);
+
+  codeMirrorEditor.on('change', (editor, changes) => {
+    const markdown = editor.getValue();
+    renderMarkdown(markdown);
+  });
 }
 
 /**

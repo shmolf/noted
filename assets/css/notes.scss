@@ -2,12 +2,12 @@
 
 // When using twemoji you can make image height match the line height with this style
 :root {
-  --color-1: rbg(#ccd5ae);
-  --color-1: rbg(#e9edc9);
-  --color-1: rbg(#fefae0);
-  --color-1: rbg(#faedcd);
-  --color-1: rbg(#d4a373);
-  --editor-background: var(--color-1);
+  --note-color-1: #ccd5ae;
+  --note-color-2: #e9edc9;
+  --note-color-3: #fefae0;
+  --note-color-4: #faedcd;
+  --note-color-5: #d4a373;
+  --editor-background: var(--note-color-1);
 }
 
 nav .brand-logo, code {

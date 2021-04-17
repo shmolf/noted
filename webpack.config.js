@@ -88,6 +88,8 @@ Encore
       maxSize: 4096
     })
 
+    .addLoader({ test: /\.md$/, loader: 'raw-loader' })
+
     // uncomment if you use TypeScript
     //.enableTypeScriptLoader()
 
