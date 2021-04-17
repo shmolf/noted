@@ -3,7 +3,7 @@
 <head>
     <meta charset='UTF-8'>
     <meta name= 'viewport' content = 'width = device-width'>
-    <title>{% block title %}Note Keeper{% endblock %}</title>
+    <title>{% block title %}Note'd{% endblock %}</title>
     {% block stylesheets %}
         {{ encore_entry_link_tags('app') }}
     {% endblock %}
@@ -12,8 +12,9 @@
     <nav>
         <div class="nav-wrapper">
             <a href="/" class="brand-logo">
-                Gatorville {% block pageContext %}{% endblock %}
+                Note'd {% block pageContext %}{% endblock %}
             </a>
+            {% block navitems %}{% endblock %}
             <ul id="nav-mobile" class="right">
             {% if is_granted('ROLE_USER') %}
                 {% if is_granted('ROLE_ADMIN') %}
@@ -41,10 +42,8 @@
             </ul>
         </div>
     </nav>
-    <main class="row">
-        <div class="col s12">
-            {% block body %}{% endblock %}
-        </div>
+    <main>
+        {% block body %}{% endblock %}
     </main>
     <footer class="page-footer">
         {% block footerContent %}{% endblock %}

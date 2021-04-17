@@ -1,0 +1,69 @@
+@import url(https://cdn.jsdelivr.net/gh/tonsky/FiraCode@4/distr/fira_code.css);
+
+// When using twemoji you can make image height match the line height with this style
+:root {
+  --color-1: rbg(#ccd5ae);
+  --color-1: rbg(#e9edc9);
+  --color-1: rbg(#fefae0);
+  --color-1: rbg(#faedcd);
+  --color-1: rbg(#d4a373);
+  --editor-background: var(--color-1);
+}
+
+nav .brand-logo, code {
+  font-family: 'Fira Code', monospace;
+}
+
+@supports (font-variation-settings: normal) {
+  nav .brand-logo, code { font-family: 'Fira Code VF', monospace; }
+}
+
+.emoji {
+  height: 1.2em;
+}
+
+#markdown-output {
+  width: 100px;
+  height: 100px;
+  border: solid 3px purple;
+}
+
+#note-settings-btn {
+  right: 75px;
+  position: absolute;
+  background: none;
+  border: none;
+  padding: 0 15px;
+  cursor: pointer;
+}
+
+main {
+  display: flex;
+  flex-direction: column;
+
+  #noted {
+    display: flex;
+    flex-direction: column;
+    flex: 1 0 100%;
+
+    #input-wrap, #output-wrap {
+      flex: 1 0 50%;
+      display: flex;
+      width: 100%;
+      position: relative;
+    }
+  }
+}
+
+.CodeMirror-wrap, #markdown-output {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+}
+
+#markdown-output {
+  overflow: auto;
+  background-color: var(--editor-background);
+}

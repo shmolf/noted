@@ -1,7 +1,6 @@
 // @ts-nocheck
 var Encore = require('@symfony/webpack-encore');
 var path = require('path');
-var UrlLoader = require('url-loader');
 
 // Manually configure the runtime environment if not already configured yet by the "encore" command.
 // It's useful when you use tools that rely on webpack.config.js file.
@@ -18,10 +17,10 @@ Encore
     //.setManifestKeyPrefix('build/')
 
     .addAliases({
-      JS: path.resolve(__dirname, 'assets/js/'),
-      CSS: path.resolve(__dirname, 'assets/css/'),
-      NODE: path.resolve(__dirname, 'nope_modules/'),
-      Images: path.resolve(__dirname, 'assets/images/')
+      JS: path.resolve(__dirname, './assets/js/'),
+      CSS: path.resolve(__dirname, './assets/css/'),
+      NODE: path.resolve(__dirname, './node_modules/'),
+      Images: path.resolve(__dirname, './assets/images/')
     })
 
     .copyFiles({
@@ -41,6 +40,7 @@ Encore
      */
     .addEntry('app', './assets/js/app.js')
     .addEntry('welcome', './assets/js/welcome.js')
+    .addEntry('notes', './assets/js/notes/main.js')
     .addEntry('user-admin', './assets/js/users/admin.js')
     .addEntry('user-create', './assets/js/users/create.js')
     .addEntry('user-edit', './assets/js/users/edit.js')

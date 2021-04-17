@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\UserAccountRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
@@ -60,6 +62,22 @@ class UserAccount implements UserInterface
      * @Groups("main")
      */
     public ?string $lastName;
+
+    /**
+     * @ORM\OneToMany(targetEntity=MarkdownNote::class, mappedBy="userId", orphanRemoval=true)
+     */
+    private $markdownNotes;
+
+    /**
+     * @ORM\OneToMany(targetEntity=NoteTag::class, mappedBy="userId", orphanRemoval=true)
+     */
+    private $noteTags;
+
+    public function __construct()
+    {
+        $this->markdownNotes = new ArrayCollection();
+        $this->noteTags = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -144,5 +162,65 @@ class UserAccount implements UserInterface
             'email' => $this->email,
             'createdDate' => $this->createdDate,
         ];
+    }
+
+    /**
+     * @return Collection|MarkdownNote[]
+     */
+    public function getMarkdownNotes(): Collection
+    {
+        return $this->markdownNotes;
+    }
+
+    public function addMarkdownNote(MarkdownNote $markdownNote): self
+    {
+        if (!$this->markdownNotes->contains($markdownNote)) {
+            $this->markdownNotes[] = $markdownNote;
+            $markdownNote->setUserId($this);
+        }
+
+        return $this;
+    }
+
+    public function removeMarkdownNote(MarkdownNote $markdownNote): self
+    {
+        if ($this->markdownNotes->removeElement($markdownNote)) {
+            // set the owning side to null (unless already changed)
+            if ($markdownNote->getUserId() === $this) {
+                $markdownNote->setUserId(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|NoteTag[]
+     */
+    public function getNoteTags(): Collection
+    {
+        return $this->noteTags;
+    }
+
+    public function addNoteTag(NoteTag $noteTag): self
+    {
+        if (!$this->noteTags->contains($noteTag)) {
+            $this->noteTags[] = $noteTag;
+            $noteTag->setUserId($this);
+        }
+
+        return $this;
+    }
+
+    public function removeNoteTag(NoteTag $noteTag): self
+    {
+        if ($this->noteTags->removeElement($noteTag)) {
+            // set the owning side to null (unless already changed)
+            if ($noteTag->getUserId() === $this) {
+                $noteTag->setUserId(null);
+            }
+        }
+
+        return $this;
     }
 }

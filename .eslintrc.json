@@ -48,6 +48,17 @@
     ],
     "settings": {
         "import/resolver": "webpack",
+        // "import/resolver": {
+        //     "alias": {
+        //         "map": [
+        //             ["JS", "./assets/js/"],
+        //             ["CSS", "./assets/css/"],
+        //             ["NODE", "./node_modules/"],
+        //             ["Images", "./assets/images/"]
+        //         ],
+        //         "extensions": [".scss", ".css", ".js", ".png", ".jpg", ".jpeg", ".json"]
+        //     }
+        // },
         "jsdoc": {
             // Examples can be found in the codeblock of https://github.com/gajus/eslint-plugin-jsdoc/blob/bd11a73ef0e80f8c133f13de0119e5017e20a2ad/README.md#options-6
             "preferredTypes": {

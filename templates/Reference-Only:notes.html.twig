@@ -1,0 +1,202 @@
+{% extends 'generic.html' %}
+
+{% block head %}
+    {{ parent() }}
+    {{ include('notes/cd_assets.html') }}
+    <!-- Page Specific CSS -->
+    <link rel="stylesheet" href="{{ autoVer(d.assetRoot ~ 'css/vendor/prism.css') }}" />
+    <link rel="stylesheet" href="{{ autoVer(d.assetRoot ~ 'css/sketchpad.css') }}" />
+    <!-- Page Specific JS -->
+    <script src="//twemoji.maxcdn.com/2/twemoji.min.js?11.4"></script>
+    <script src="{{ autoVer(d.assetRoot ~ 'js/vendor/signature_pad.umd.js') }}"></script>
+    <script src="{{ autoVer(d.assetRoot ~ 'js/vendor/taggle.js') }}"></script>
+    <script src="{{ autoVer(d.assetRoot ~ 'js/vendor/md5.js') }}"></script>
+    <script src="{{ autoVer(d.assetRoot ~ 'js/vendor/prism.min.js') }}"></script>
+    <script src="{{ autoVer(d.assetRoot ~ 'js/vendor/markdown-it.min.js') }}"></script>
+    <script src="{{ autoVer(d.assetRoot ~ 'js/vendor/markdown-it-task-lists.min.js') }}"></script>
+    <script src="{{ autoVer(d.assetRoot ~ 'js/vendor/markdown-it-emoji.min.js') }}"></script>
+    <script src="{{ autoVer(d.assetRoot ~ 'js/geo.js') }}"></script>
+    <script src="{{ autoVer(d.assetRoot ~ 'js/notes/sketchWork.js') }}"></script>
+    <script src="{{ autoVer(d.assetRoot ~ 'js/notes/basic.js') }}"></script>
+{% endblock head %}
+
+{% block content %}
+    {{ parent() }}
+    <!-- Always wrap checkbox and radio inputs in a label and use a <span class="label-body"> inside of it -->
+    <!-- Note: The class .u-full-width is just a utility class shorthand for width: 100% -->
+    <datalist id="noteTagList">
+        {% for tag in p.tagList %}
+        <option value="{{ tag.tag_name }}">{{ tag.tag_name }}</option>
+        {% endfor %}
+    </datalist>
+    <div id="uiContainer" class="full-height">
+        <div id="menuGroup">
+            <div id="menuAction" class="full-height">
+                <div class="w3-row w3-hide-large">
+                    <div class="w3-right w3-margin-bottom">
+                        <button type="button" id="toggleMenu" class="toggle-menu">
+                            <i class="fas fa-angle-double-left"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="w3-row-padding">
+                    <button type="button" id="newNote" class="action-btn">
+                        <i class="fas fa-plus"></i> <i class="fas fa-scroll"></i> New Note
+                    </button>
+                    <button type="button" id="newSketch" class="action-btn">
+                        <i class="fas fa-plus"></i> <i class="fas fa-pen-alt"></i> New Sketch
+                    </button>
+                </div>
+                <div id="tagFilterWrap" class="w3-row">
+                    <div id="tagFilters" class="w3-row">
+                    {% for tag in p.tagList %}
+                        <button value="{{ tag.tag_name }}" class="filter-tag">{{ tag.tag_name }}</button>
+                    {% endfor %}
+                    </div>
+                </div>
+            </div>
+            <div id="noteGroupsWrap">
+                <div id="noteGroups" class="full-height"></div>
+            </div>
+        </div>
+        <div id="markdownIO" class="full-height">
+            <div class="markdown-input-container full-height" data-noteref="">
+                <div id="noteTags">
+                    <div id="noteTagsInp"></div>
+                </div>
+                <div id="noteActionsWrap">
+                    <input class="markdown-input-title" contenteditable tabindex="0" placeholder="Note Title" />
+                    <div id="noteActionBtns">
+                        <button id="trashNote" class="action-btn" disabled tabindex="4">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                        <button id="cmView" class="action-btn" tabindex="3">
+                            <i class="fas fa-expand"></i>
+                        </button>
+                    </div>
+                </div>
+                <textarea id="cm_inp" class="markdown-input full-height" data-noteref=""
+                    data-theme="{{ p.themeEditor }}" placeholder="Markdown note goes here..."></textarea>
+                <div id="customEditorSettings" class="w3-bar">
+                    <div class="w3-bar-item w3-mobile">
+                        <label>
+                            Theme
+                        </label>
+                        <select id="selectTheme" tabindex="2">
+                            <option selected>default</option>
+                            <option>3024-day</option>
+                            <option>3024-night</option>
+                            <option>abcdef</option>
+                            <option>ambiance</option>
+                            <option>base16-dark</option>
+                            <option>base16-light</option>
+                            <option>bespin</option>
+                            <option>blackboard</option>
+                            <option>cobalt</option>
+                            <option>colorforth</option>
+                            <option>darcula</option>
+                            <option>dracula</option>
+                            <option>duotone-dark</option>
+                            <option>duotone-light</option>
+                            <option>eclipse</option>
+                            <option>elegant</option>
+                            <option>erlang-dark</option>
+                            <option>gruvbox-dark</option>
+                            <option>hopscotch</option>
+                            <option>icecoder</option>
+                            <option>idea</option>
+                            <option>isotope</option>
+                            <option>lesser-dark</option>
+                            <option>liquibyte</option>
+                            <option>lucario</option>
+                            <option>material</option>
+                            <option>mbo</option>
+                            <option>mdn-like</option>
+                            <option>midnight</option>
+                            <option>monokai</option>
+                            <option>neat</option>
+                            <option>neo</option>
+                            <option>night</option>
+                            <option>nord</option>
+                            <option>oceanic-next</option>
+                            <option>panda-syntax</option>
+                            <option>paraiso-dark</option>
+                            <option>paraiso-light</option>
+                            <option>pastel-on-dark</option>
+                            <option>railscasts</option>
+                            <option>rubyblue</option>
+                            <option>seti</option>
+                            <option>shadowfox</option>
+                            <option>solarized dark</option>
+                            <option>solarized light</option>
+                            <option>the-matrix</option>
+                            <option>tomorrow-night-bright</option>
+                            <option>tomorrow-night-eighties</option>
+                            <option>ttcn</option>
+                            <option>twilight</option>
+                            <option>vibrant-ink</option>
+                            <option>xq-dark</option>
+                            <option>xq-light</option>
+                            <option>yeti</option>
+                            <option>yonce</option>
+                            <option>zenburn</option>
+                        </select>
+                    </div>
+                    <div class="w3-bar-item w3-margin-left w3-right w3-mobile">
+                        <label>
+                            Background
+                            <span id="bgroundSrc" class="w3-hide">
+                                (<a target="_blank" href="" tabindex="2">Credit</a>)
+                            </span>
+                        </label>
+                        <select id="editorBackground" data-selected="{{ p.backgroundEditor }}" tabindex="2">
+                            {% for background in p.backgrounds %}
+                            {% if not background.restricted %}
+                            <option value="{{ background.val }}" {{ background.selected ? 'selected' : '' }} data-src="{{
+                                    background.source }}">
+                                {{ background.userDisp }}
+                            </option>
+                            {% endif %}
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div id="adjustGridWrap" class="w3-hide-large w3-center">
+                <div id="openSideMenuBtn" class="w3-hide-large">
+                    <button type="button" id="toggleMenu" class="toggle-menu">
+                        <i class="fas fa-angle-double-right"></i>
+                    </button>
+                </div>
+                - - <i class="fas fa-arrows-alt-v" id="adjustGrid"></i> - -
+            </div>
+            <div class="markdown-output-wrap view-container inset-shd-s">
+                <div class="view-btn fa fa-expand"></div>
+                <div id="cm_out" class="w3-container markdown-output"></div>
+            </div>
+        </div>
+        <div id="sketchPadWrap" class="w3-hide">
+            <div class="w3-row">
+                <div class="w3-hide-large">
+                    <button type="button" class="toggle-menu">
+                        <i class="fas fa-angle-double-right"></i>
+                    </button>
+                </div>
+                <a target="_blank" href="https://github.com/szimek/signature_pad">Sketchpad Package</a>
+            </div>
+            <div id="sketchPadArea">
+                <canvas id="sketchPad" class="signature-pad"></canvas>
+                <div class="w3-container w3-section">
+                    <button class="action-btn margin-seq-s" data-action="save-png">Save as PNG</button>
+                    <button class="action-btn margin-seq-s" data-action="save-jpg">Save as JPEG</button>
+                    <button class="action-btn margin-seq-s" data-action="save-svg">Save as SVG</button>
+                    <button class="action-btn margin-seq-s" data-action="draw">Draw</button>
+                    <button class="action-btn margin-seq-s" data-action="erase">Erase</button>
+                    <button class="action-btn margin-seq-s" data-action="clear">Clear</button>
+                    <button class="action-btn margin-seq-s" data-action="undo">Undo</button>
+                    <button class="action-btn margin-seq-s" data-action="change-color">Change Color</button>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}

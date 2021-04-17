@@ -2,6 +2,7 @@
     "compilerOptions": {
       "target": "es6",
       "allowSyntheticDefaultImports": true,
+      "esModuleInterop": true,
       "checkJs": true,
       "baseUrl": "./",
       "paths": {
@@ -13,6 +14,7 @@
     },
     "exclude": [
         "node_modules",
-        "html/dist/**/*"
+        "public/build/**/*",
+        "packages-cache"
     ]
   }

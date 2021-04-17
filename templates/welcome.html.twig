@@ -1,16 +1,71 @@
 {% extends 'base.html.twig' %}
+{% import "codemirror.macros.html.twig" as cmMacros %}
 
 {% block stylesheets %}
     {{ parent() }}
-    {{ encore_entry_link_tags('welcome') }}
+    {% if is_granted('ROLE_USER') %}
+        {{ encore_entry_link_tags('notes') }}
+    {% else %}
+        {{ encore_entry_link_tags('welcome') }}
+    {% endif %}
 {% endblock %}
 
 
 {% block javascripts %}
     {{ parent() }}
-    {{ encore_entry_script_tags('welcome') }}
+    {% if is_granted('ROLE_USER') %}
+        {{ encore_entry_script_tags('notes') }}
+    {% else %}
+        {{ encore_entry_script_tags('welcome') }}
+    {% endif %}
+{% endblock %}
+
+{% block navitems %}
+    {% if is_granted('ROLE_USER') %}
+        <button type="button" id="note-settings-btn" class="modal-trigger" data-target="settings-popup">
+            <i class="fas fa-cog"></i>
+        </button>
+    {% endif %}
 {% endblock %}
 
 {% block body %}
-    Nothing to see here
+    {% if is_granted('ROLE_USER') %}
+        {{ _self.productPopup() }}
+        <div id="noted">
+            <div id="input-wrap">
+                <textarea id="markdown-input" data-noteref="" data-theme="" placeholder="Markdown note goes here..."></textarea>
+            </div>
+            <div id="output-wrap">
+                <div id="markdown-output"></div>
+            </div>
+        </div>
+    {% else %}
+        Please <a href="{{ path('login') }}">Login</a> to see your notes.
+    {% endif %}
 {% endblock %}
+
+{% macro productPopup() %}
+    <div id="settings-popup" class="modal modal-fixed-footer">
+        <div class="modal-content">
+            <div class="row">
+                <div class="col s12">
+                    <div class="row">
+                        <div id="prod-title" class="col s12"></div>
+                        <div id="prod-description" class="col s12"></div>
+                    </div>
+                    <div class="row">
+                        <div class="col s6">
+                            Input theme:
+                        </div>
+                        <div class="col s6">
+                            {{ cmMacros.codemirrorThemeSelect() }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="modal-close waves-effect waves-green btn-flat right">Close</button>
+        </div>
+    </div>
+{% endmacro %}
