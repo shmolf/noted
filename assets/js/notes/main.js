@@ -2,7 +2,10 @@ import $ from 'jquery';
 import M from 'materialize-css';
 
 import mdIt from 'markdown-it';
-import mdItUml from 'markdown-it-plantuml';
+// import mdItUml from 'markdown-it-plantuml';
+import mdItGraphs from 'markvis';
+import * as d3 from 'd3';
+import markdownItApexCharts, { ApexRender } from 'markdown-it-apexcharts';
 import mdItEmoji from 'markdown-it-emoji';
 import twemoji from 'twemoji';
 import mdItFrontMatter from 'markdown-it-front-matter';
@@ -10,10 +13,8 @@ import { loadFront } from 'yaml-front-matter';
 import hljs from 'highlight.js';
 import 'NODE/highlight.js/styles/gruvbox-dark.css';
 import CodeMirror from './code-mirror-assets';
-// import prismjs from './prism-assets';
 // @ts-ignore
 import sample from './sample.md';
-
 
 import 'CSS/notes.scss';
 
@@ -48,6 +49,7 @@ $(() => {
   });
 
   renderMarkdown(sample);
+  codeMirrorEditor.setValue(sample);
 });
 
 /**
@@ -55,9 +57,10 @@ $(() => {
  * @param {string} markdown
  */
 function renderMarkdown(markdown) {
-  const parsedMarkdown = parseFrontMatter(markdown); // codeMirrorEditor.getValue());
-  const render = md.render(parsedMarkdown);
+  const parsedMarkdown = parseFrontMatter(markdown);
+  const render = md.render(parsedMarkdown, { d3 });
   $mdView.html(render);
+  ApexRender();
   // $mdView.find('pre code').each((i, elem) => prismjs.highlightElement(elem));
   $mdView.find('pre code').each((i, elem) => {
     const codeBlock = elem;
@@ -110,7 +113,9 @@ function initMarkdownIt() {
   };
 
   md = mdIt(markdownItOptions)
-    .use(mdItUml, umlOptions)
+    // .use(mdItUml, umlOptions)
+    .use(markdownItApexCharts)
+    .use(mdItGraphs)
     .use(mdItEmoji)
     .use(mdItFrontMatter, (frontMatter) => {
       const fm = frontMatter.split(/\n/);
