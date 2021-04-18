@@ -1,3 +1,36 @@
+Doctrine Setup
+
+Create a new Schema
+```bash
+echo "php bin/console doctrine:database:create"
+```
+
+Create a new Entity
+```bash
+php bin/console make:entity
+```
+
+Create the migration
+```bash
+php bin/console make:migration
+```
+
+Apply the Migration
+```bash
+php bin/console doctrine:migrations:migrate
+```
+
+```js
+$(() => {
+  $editor = $('#markdown-input');
+  $mdView = $('#markdown-output');
+  initCodeMirror();
+  initMarkdownIt();
+  $mdView.on('click', () => renderMarkdown());
+});
+```
+For more Apex example: https://apexcharts.com/javascript-chart-demos/
+
 ```apex
 {
     "chart": {
@@ -122,27 +155,7 @@
 }
 ```
 
-Doctrine Setup
-
-Create a new Schema
-```bash
-echo "php bin/console doctrine:database:create"
-```
-
-Create a new Entity
-```bash
-php bin/console make:entity
-```
-
-Create the migration
-```bash
-php bin/console make:migration
-```
-
-Apply the Migration
-```bash
-php bin/console doctrine:migrations:migrate
-```
+Visit (https://markvis.js.org/#/?id=usage) for usage instructions.
 
 ```vis
 layout: bar
@@ -170,28 +183,4 @@ data: [
 { key: 6, value: 10 },
 { key: 7, value: 60 }
 ]
-```
-
-```vis
-layout: no_layout
-data: [
-{ key: 0, value: 5 },
-{ key: 1, value: 4 },
-{ key: 2, value: 7 },
-{ key: 3, value: 2 },
-{ key: 4, value: 4 },
-{ key: 5, value: 8 },
-{ key: 6, value: 3 },
-{ key: 7, value: 6 }
-]
-```
-
-```js
-$(() => {
-  $editor = $('#markdown-input');
-  $mdView = $('#markdown-output');
-  initCodeMirror();
-  initMarkdownIt();
-  $mdView.on('click', () => renderMarkdown());
-});
 ```

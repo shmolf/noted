@@ -43,6 +43,7 @@
         </div>
     </nav>
     <main>
+        {{ _self.cookiePopup() }}
         {% block body %}{% endblock %}
     </main>
     <footer class="page-footer">
@@ -58,3 +59,9 @@
     {% endblock %}
 </body>
 </html>
+
+{% macro cookiePopup() %}
+    <div id="cookie-popup" class="modal bottom-sheet">
+        <div class="modal-content"></div>
+    </div>
+{% endmacro %}

@@ -902,6 +902,18 @@
     lodash "^4.17.15"
     revalidator "^0.3.1"
 
+"@grrr/cookie-consent@^1.0.4":
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/@grrr/cookie-consent/-/cookie-consent-1.0.4.tgz#10a1583a817a922e867450e4ebdabd058c2bb2c0"
+  integrity sha512-5K9SQsHaw9+LhYWq2BJBMEHgAk9I4/9vKFHFrK811PJX4wwrGHbeiSoIp4DzmLW4LBEyRTgIue9AhAHNI5fFkA==
+  dependencies:
+    "@grrr/utils" "^2.3.0"
+
+"@grrr/utils@^2.3.0":
+  version "2.4.2"
+  resolved "https://registry.yarnpkg.com/@grrr/utils/-/utils-2.4.2.tgz#59bd1bcd739348f11586c668e632faa4c32ab1c5"
+  integrity sha512-NaIcHH6PuUGB6PhoN1NeYX6RTBlS2H/iL3BHdCs1B9peUtBPOYrX7z0Xo01hFFHuC9kPLsoAXYhd6R9eC2ZOsQ==
+
 "@iktakahiro/markdown-it-katex@^4.0.1":
   version "4.0.1"
   resolved "https://registry.yarnpkg.com/@iktakahiro/markdown-it-katex/-/markdown-it-katex-4.0.1.tgz#65ff9d12afd4c0b7684dd247abe7ce42fc1edac3"
@@ -2056,6 +2068,11 @@ codemirror-minified@^5.60.0:
   resolved "https://registry.yarnpkg.com/codemirror-minified/-/codemirror-minified-5.60.0.tgz#d0d8b62ab6d50864903f812cd203b97193b1fb75"
   integrity sha512-Ru9aChh07DwYrUEfI+LznD3l8GxOPlYKAqcG8qxIlxRZTyw4BPfZsV5m1oUz1y6knxaPxa23FwM/R5rWggRnKg==
 
+codemirror@^5.60.0:
+  version "5.60.0"
+  resolved "https://registry.yarnpkg.com/codemirror/-/codemirror-5.60.0.tgz#00a8cfd287d5d8737ceb73987f04aee2fe5860da"
+  integrity sha512-AEL7LhFOlxPlCL8IdTcJDblJm8yrAGib7I+DErJPdZd4l6imx8IMgKK3RblVgBQqz3TZJR4oknQ03bz+uNjBYA==
+
 color-convert@^1.9.0, color-convert@^1.9.1:
   version "1.9.3"
   resolved "https://registry.yarnpkg.com/color-convert/-/color-convert-1.9.3.tgz#bb71850690e1f136567de629d2d5471deda4c1e8"
@@ -3169,6 +3186,11 @@ detect-node@^2.0.4:
   version "2.0.5"
   resolved "https://registry.yarnpkg.com/detect-node/-/detect-node-2.0.5.tgz#9d270aa7eaa5af0b72c4c9d9b814e7f4ce738b79"
   integrity sha512-qi86tE6hRcFHy8jI1m2VG+LaPUR1LhqDa5G8tVjuUXmOrpuAgqsA1pN0+ldgr3aKUH+QLI9hCY/OcRYisERejw==
+
+dexie@^3.0.3:
+  version "3.0.3"
+  resolved "https://registry.yarnpkg.com/dexie/-/dexie-3.0.3.tgz#ede63849dfe5f07e13e99bb72a040e8ac1d29dab"
+  integrity sha512-BSFhGpngnCl1DOr+8YNwBDobRMH0ziJs2vts69VilwetHYOtEDcLqo7d/XiIphM0tJZ2rPPyAGd31lgH2Ln3nw==
 
 diffie-hellman@^5.0.0:
   version "5.0.3"
@@ -4865,6 +4887,11 @@ jest-worker@^26.3.0, jest-worker@^26.6.2:
     "@types/node" "*"
     merge-stream "^2.0.0"
     supports-color "^7.0.0"
+
+jquery.cookie@^1.4.1:
+  version "1.4.1"
+  resolved "https://registry.yarnpkg.com/jquery.cookie/-/jquery.cookie-1.4.1.tgz#d63dce209eab691fe63316db08ca9e47e0f9385b"
+  integrity sha1-1j3OIJ6raR/mMxbbCMqeR+D5OFs=
 
 jquery@^3.5.1:
   version "3.6.0"

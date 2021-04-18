@@ -3,8 +3,10 @@ import M from 'materialize-css';
 
 import mdIt from 'markdown-it';
 // import mdItUml from 'markdown-it-plantuml';
+// @ts-ignore
 import mdItGraphs from 'markvis';
 import * as d3 from 'd3';
+// @ts-ignore
 import markdownItApexCharts, { ApexRender } from 'markdown-it-apexcharts';
 import mdItEmoji from 'markdown-it-emoji';
 import twemoji from 'twemoji';
@@ -12,11 +14,15 @@ import mdItFrontMatter from 'markdown-it-front-matter';
 import { loadFront } from 'yaml-front-matter';
 import hljs from 'highlight.js';
 import 'NODE/highlight.js/styles/gruvbox-dark.css';
+// Don't need the cookie functions, but let's load it anyways.
+import 'JS/lib/cookie';
 import CodeMirror from './code-mirror-assets';
 // @ts-ignore
 import sample from './sample.md';
 
 import 'CSS/notes.scss';
+
+const CM_THEME_COOKIE = 'cs-theme';
 
 /** @type {JQuery} */
 let $editor;
@@ -34,7 +40,10 @@ let md;
 
 M.Modal.init($settingsModal, {
   // onCloseStart: () => clearModal(),
-  onOpenEnd: () => $settingsModal.scrollTop(0),
+  onOpenEnd: () => {
+    $settingsModal.scrollTop(0);
+    $('#codemirror-theme').val(localStorage.getItem(CM_THEME_COOKIE) || 'default');
+  },
 });
 
 $(() => {
@@ -48,8 +57,17 @@ $(() => {
     setCodeMirrorTheme(theme);
   });
 
+  const cmTheme = localStorage.getItem(CM_THEME_COOKIE);
+  if (cmTheme !== null) {
+    setCodeMirrorTheme(cmTheme);
+  }
+
   renderMarkdown(sample);
   codeMirrorEditor.setValue(sample);
+
+  $('.show-cookie-pref').on('click', () => {
+    M.Modal.getInstance($settingsModal.get(0))?.close();
+  });
 });
 
 /**
@@ -90,30 +108,7 @@ function parseFrontMatter(markdown) {
  * Initialized the Markdown-It library
  */
 function initMarkdownIt() {
-  const umlOptions = {
-    // openMarker: '@startditaa',
-    // closeMarker: '@endditaa',
-    // diagramName: 'ditaa',
-    // imageFormat: 'png',
-  };
-
-  const markdownItOptions = {
-    // highlight: (str, lang) => {
-    //   if (lang) {
-    //     try {
-    //       console.log(prismjs.highlight(str, prismjs.languages[lang], lang));
-    //       return `<pre><code>${prismjs.highlight(str, prismjs.languages[lang], lang)}</code></pre>`;
-    //     } catch (__) {
-    //       return `<pre><code>${md.utils.escapeHtml(str)}</code></pre>`;
-    //     }
-    //   }
-
-    //   return `<pre><code>${md.utils.escapeHtml(str)}</code></pre>`;
-    // },
-  };
-
-  md = mdIt(markdownItOptions)
-    // .use(mdItUml, umlOptions)
+  md = mdIt()
     .use(markdownItApexCharts)
     .use(mdItGraphs)
     .use(mdItEmoji)
@@ -140,7 +135,7 @@ function initCodeMirror() {
     lineNumbers: true,
     viewportMargin: 500,
     lineWrapping: true,
-    theme: 'neat',
+    theme: 'default',
     tabindex: 0,
     extraKeys: {
       F11: (cm) => cm.setOption('fullScreen', !(cm.getOption('fullScreen'))),
@@ -164,6 +159,8 @@ function initCodeMirror() {
  * @param {String} theme
  */
 function setCodeMirrorTheme(theme) {
+  localStorage.setItem(CM_THEME_COOKIE, theme);
+
   codeMirrorEditor.setOption('theme', theme);
   codeMirrorEditor.refresh();
 }

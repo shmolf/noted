@@ -43,6 +43,7 @@ Encore
     .addEntry('notes', './assets/js/notes/main.js')
     .addEntry('user-admin', './assets/js/users/admin.js')
     .addEntry('user-create', './assets/js/users/create.js')
+    .addEntry('user-login', './assets/js/users/login.js')
     .addEntry('user-edit', './assets/js/users/edit.js')
 
     // When enabled, Webpack "splits" your files into smaller pieces for greater optimization.
@@ -107,5 +108,14 @@ Encore
     })
 ;
 
+const config = Encore.getWebpackConfig();
+// config.resolve.extensions.unshift('.mjs');
+// The addition below, is so that some repos that use `.mjs` extensions, don't break.
+config.module.rules.push({
+  test: /\.m?jsx?$/,
+  resolve: {
+    fullySpecified: false,
+  }
+});
 
-module.exports = Encore.getWebpackConfig();
+module.exports = config;

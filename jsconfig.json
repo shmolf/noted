@@ -13,8 +13,8 @@
       }
     },
     "exclude": [
-        "node_modules",
         "public/build/**/*",
-        "packages-cache"
+        "packages-cache",
+        "service-worker.js"
     ]
   }

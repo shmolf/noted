@@ -1,5 +1,15 @@
 {% extends 'base.html.twig' %}
 
+{% block stylesheets %}
+    {{ parent() }}
+    {{ encore_entry_link_tags('user-login') }}
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ encore_entry_script_tags('user-login') }}
+{% endblock %}
+
 {% block pageContext %}- Login{% endblock %}
 
 {% block body %}
@@ -8,11 +18,11 @@
     {% endif %}
     <form method="post">
         <div class="col s6">
-            <div class="input-field col s12">
+            <div class="input-field col s12 m6">
                 <label for="email">Email:</label>
                 <input type="text" id="email" name="email" value="{{ last_username }}" required autofocus />
             </div>
-            <div class="input-field col s12">
+            <div class="input-field col s12 m6">
                 <label for="password">Password:</label>
                 <input type="password" id="password" name="password" />
             </div>

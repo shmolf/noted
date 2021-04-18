@@ -1,0 +1,7 @@
+{
+    "extends": "./jsconfig",
+    "compilerOptions": {
+        "lib": ["WebWorker", "ES2015"]
+    },
+    "files": ["sw.js"]
+}

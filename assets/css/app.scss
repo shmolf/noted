@@ -1,5 +1,6 @@
 // @import 'materialize-override.scss';
-@import './app-variables.scss';
+@import 'CSS/app-variables.scss';
+@import 'CSS/cookie-consent-overrides.scss';
 
 html {
   background-color: var(--page-background);
