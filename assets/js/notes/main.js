@@ -19,8 +19,11 @@ import 'JS/lib/cookie';
 import CodeMirror from './code-mirror-assets';
 // @ts-ignore
 import sample from './sample.md';
+import noteDb from 'JS/notes/noteDb';
 
 import 'CSS/notes.scss';
+
+import Worker from './note.worker';
 
 const CM_THEME_COOKIE = 'cs-theme';
 
@@ -68,6 +71,7 @@ $(() => {
   $('.show-cookie-pref').on('click', () => {
     M.Modal.getInstance($settingsModal.get(0))?.close();
   });
+  loadSw();
 });
 
 /**
@@ -126,12 +130,13 @@ function initMarkdownIt() {
 function initCodeMirror() {
   /** @type {CodeMirror.EditorConfiguration} */
   const cmOptions = {
-    mode: {
-      name: 'gfm',
-      tokenTypeOverrides: {
-        emoji: 'emoji',
-      },
-    },
+    mode: 'gfm',
+    // mode: {
+    //   name: 'gfm',
+    //   tokenTypeOverrides: {
+    //     emoji: 'emoji',
+    //   },
+    // },
     lineNumbers: true,
     viewportMargin: 500,
     lineWrapping: true,
@@ -163,4 +168,35 @@ function setCodeMirrorTheme(theme) {
 
   codeMirrorEditor.setOption('theme', theme);
   codeMirrorEditor.refresh();
+}
+
+function loadSw() {
+  // if ('serviceWorker' in navigator) {
+  //   window.addEventListener('load', () => {
+  //     navigator.serviceWorker.register('/service-worker.js').then(registration => {
+  //       console.log('SW registered: ', registration);
+  //     }).catch(registrationError => {
+  //       console.log('SW registration failed: ', registrationError);
+  //     });
+  //   });
+  // }
+  if (navigator.serviceWorker) {
+    /** @type {Worker} */
+    const worker = new Worker();
+    worker.postMessage(JSON.stringify({
+      some: 'data',
+    }));
+    worker.onmessage = (e) => console.log(['app side', e.data]);
+    worker.addEventListener("message", (e) => console.log(e));
+
+    // navigator.serviceWorker.register('note-worker.js');
+    // navigator.serviceWorker.addEventListener('message', (event) => {
+    //   console.log(event.data);
+    // });
+
+    // navigator.serviceWorker.ready.then((registration) => {
+    //   registration.active.postMessage('Hi service worker');
+    //   registration.active.postMessage('database', [noteDb]);
+    // });
+  }
 }

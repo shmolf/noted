@@ -118,4 +118,16 @@ config.module.rules.push({
   }
 });
 
+config.module.rules.push({
+  test: /\.worker\.js$/i,
+  loader: 'worker-loader',
+  options: {
+    // publicPath: './',
+    filename: "[name].[contenthash].js",
+  },
+});
+
+// let's clean the output folder, before repopulating
+config.output.clean= true;
+
 module.exports = config;
