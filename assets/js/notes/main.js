@@ -19,7 +19,7 @@ import 'JS/lib/cookie';
 import CodeMirror from './code-mirror-assets';
 // @ts-ignore
 import sample from './sample.md';
-import noteDb from 'JS/notes/noteDb';
+import noteDb, { NOTE_ACTIONS } from 'JS/notes/noteDb';
 
 import 'CSS/notes.scss';
 
@@ -171,32 +171,38 @@ function setCodeMirrorTheme(theme) {
 }
 
 function loadSw() {
-  // if ('serviceWorker' in navigator) {
-  //   window.addEventListener('load', () => {
-  //     navigator.serviceWorker.register('/service-worker.js').then(registration => {
-  //       console.log('SW registered: ', registration);
-  //     }).catch(registrationError => {
-  //       console.log('SW registration failed: ', registrationError);
-  //     });
-  //   });
-  // }
-  if (navigator.serviceWorker) {
+  if (window.Worker) {
     /** @type {Worker} */
     const worker = new Worker();
     worker.postMessage(JSON.stringify({
       some: 'data',
     }));
-    worker.onmessage = (e) => console.log(['app side', e.data]);
-    worker.addEventListener("message", (e) => console.log(e));
-
-    // navigator.serviceWorker.register('note-worker.js');
-    // navigator.serviceWorker.addEventListener('message', (event) => {
-    //   console.log(event.data);
-    // });
-
-    // navigator.serviceWorker.ready.then((registration) => {
-    //   registration.active.postMessage('Hi service worker');
-    //   registration.active.postMessage('database', [noteDb]);
-    // });
+    worker.onmessage = (e) => {
+      const msg = JSON.parse(e.data);
+      if ('state' in msg) {
+        switch (msg.state) {
+          case 'ready':
+            noteDb.modifyRecord(testNote).then(() => noteDb.modifyRecord(testNoteUuid));
+            break;
+        }
+      }
+    };
   }
 }
+
+/** @type {import('JS/notes/noteDb').ModifyNote} */
+const testNote = {
+  title: 'test note',
+  content: 'note body',
+  tags: ['tag1', 'tag2'],
+  action: NOTE_ACTIONS.update,
+};
+
+/** @type {import('JS/notes/noteDb').ModifyNote} */
+const testNoteUuid = {
+  uuid: 'fake',
+  title: 'test note',
+  content: 'note body',
+  tags: ['tag1', 'tag2'],
+  action: NOTE_ACTIONS.update,
+};

@@ -14,19 +14,14 @@ if ('setAppBadge' in navigator && 'clearAppBadge' in navigator) {
 const worker = (/** @type {any} */(self));
 
 (() => {
-  worker.oninstall = (e) => e.waitUntil(() => {
-    console.log('in the install');
-    worker.skipWaiting();
+  noteDb.buildDb().then(() => {
+    worker.postMessage(JSON.stringify({ state: 'ready' }));
   });
-  worker.onactivate = (e) => e.waitUntil(() => {
-    console.log('in the activate');
-    noteDb.buildDb();
-  });
+
   worker.onmessage = (e) => {
-    console.log('in the message');
     const data = JSON.parse(e.data);
     console.log(data);
 
-    worker.postMessage('Hi client');
+    worker.postMessage(JSON.stringify(data));
   };
 })();
