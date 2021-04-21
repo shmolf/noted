@@ -33,6 +33,7 @@
         "sass-loader": "^10.1.1",
         "twemoji": "^13.0.2",
         "url-loader": "^4.1.0",
+        "uuid": "^8.3.2",
         "w3-css": "^4.1.0",
         "webpack-notifier": "^1.13.0",
         "worker-loader": "^3.0.8",

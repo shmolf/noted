@@ -5,6 +5,7 @@
       "esModuleInterop": true,
       "checkJs": true,
       "baseUrl": "./",
+      "lib": ["webworker", "es6", "scripthost"],
       "paths": {
         "JS/*": ["./assets/js/*"],
         "CSS/*": ["./assets/css/*"],

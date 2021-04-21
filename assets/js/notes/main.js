@@ -1,8 +1,17 @@
 import $ from 'jquery';
 import M from 'materialize-css';
+import 'CSS/notes.scss';
 
+import { v4 as uuidv4 } from 'uuid';
+import noteDb, { NOTE_ACTIONS } from 'JS/notes/noteDb';
+import { workerStates, clientActions } from 'JS/notes/worker-client-api';
+import Worker from './note.worker';
+import 'JS/lib/cookie';
+// @ts-ignore
+import sample from './sample.md';
+
+// Libraries for the Markdown Render
 import mdIt from 'markdown-it';
-// import mdItUml from 'markdown-it-plantuml';
 // @ts-ignore
 import mdItGraphs from 'markvis';
 import * as d3 from 'd3';
@@ -14,16 +23,11 @@ import mdItFrontMatter from 'markdown-it-front-matter';
 import { loadFront } from 'yaml-front-matter';
 import hljs from 'highlight.js';
 import 'NODE/highlight.js/styles/gruvbox-dark.css';
-// Don't need the cookie functions, but let's load it anyways.
-import 'JS/lib/cookie';
+
+// Library for the input side
 import CodeMirror from './code-mirror-assets';
-// @ts-ignore
-import sample from './sample.md';
-import noteDb, { NOTE_ACTIONS } from 'JS/notes/noteDb';
 
-import 'CSS/notes.scss';
-
-import Worker from './note.worker';
+// ---- Now, begins the application logic ----
 
 const CM_THEME_COOKIE = 'cs-theme';
 
@@ -177,25 +181,39 @@ function loadSw() {
     worker.postMessage(JSON.stringify({
       some: 'data',
     }));
-    worker.onmessage = (e) => {
-      const msg = JSON.parse(e.data);
-      if ('state' in msg) {
-        switch (msg.state) {
-          case 'ready':
-            worker.postMessage(noteDb.packet('modify', testNote));
-            worker.postMessage(noteDb.packet('modify', testNoteUuid));
-            break;
-          default:
-        }
-      }
-    };
+    worker.onmessage = (e) => onWorkerMessage(worker, e);
+  }
+}
+
+/**
+ * @param {Worker} worker
+ * @param {MessageEvent} event
+ */
+function onWorkerMessage(worker, event) {
+  const msg = JSON.parse(event.data);
+  if ('state' in msg) {
+    switch (msg.state) {
+      case workerStates.TEST:
+        worker.postMessage(clientActions.MODIFY.f(testNote));
+        worker.postMessage(clientActions.MODIFY.f(testNoteUuid));
+        break;
+      case workerStates.TEST_READY:
+        worker.postMessage(clientActions.GET_BY_UUID.f(testNote.clientUuid));
+        break;
+      case workerStates.NOTE_DATA:
+        const noteData = msg.note;
+        console.log(noteData);
+        break;
+      default:
+    }
   }
 }
 
 /** @type {import('JS/notes/noteDb').ModifyNote} */
 const testNote = {
+  clientUuid: uuidv4(),
   title: 'test note',
-  content: 'note body',
+  content: 'note body test',
   tags: ['tag1', 'tag2'],
   action: NOTE_ACTIONS.update,
 };
@@ -203,8 +221,9 @@ const testNote = {
 /** @type {import('JS/notes/noteDb').ModifyNote} */
 const testNoteUuid = {
   uuid: 'fake',
-  title: 'test note',
-  content: 'note body',
+  clientUuid: uuidv4(),
+  title: 'test note uuid',
+  content: 'note body test uuid',
   tags: ['tag1', 'tag2'],
   action: NOTE_ACTIONS.update,
 };
