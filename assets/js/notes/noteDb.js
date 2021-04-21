@@ -20,10 +20,10 @@ async function buildDb() {
       // 'action' and 'opened' do not need to be indexed, so omit from schema
       notes: '++id, &noteUuid, title, content, *tags, synced',
     });
-    return db.open().then((db) => {
+    return db.open().then((dbInstance) => {
       try {
-        noteTable = db.table(TABLE_NOTE);
-        resolve(db);
+        noteTable = dbInstance.table(TABLE_NOTE);
+        resolve(dbInstance);
       } catch (/** @type {import('dexie').InvalidTableError} */error) {
         console.error(`${error.name}: ${error.message}`);
         reject(error);
@@ -46,18 +46,35 @@ async function buildDb() {
  */
 async function modifyRecord(note) {
   console.log(note);
-  if ('uuid' in note) {
-    await getRecord(note.uuid).then((record) => record !== undefined ? record.modify(note) : null);
-  } else {
-    await getTable()?.add({
-      title: note.title || '',
-      content: note.content || '',
-      tags: note.tags || [],
-      action: note.action,
-      opened: true,
-      synced: false,
-    });
-  }
+  return new Promise((resolve, reject) => {
+    if ('uuid' in note) {
+      getRecord(note.uuid).then((record) => {
+        if (record !== undefined) {
+          record.modify(note).then((index) => resolve(index));
+        } else {
+          reject(Error(`Could not find a record by UUID: '${note.uuid}'`));
+        }
+      }).catch((reason) => {
+        reject(reason);
+      });
+    } else {
+      getTable()
+        .then((table) => {
+          table.add({
+            title: note.title || '',
+            content: note.content || '',
+            tags: note.tags || [],
+            action: note.action,
+            opened: true,
+            synced: false,
+          });
+        })
+        .then(() => resolve())
+        .catch((reason) => {
+          reject(reason);
+        });
+    }
+  });
 }
 
 /**
@@ -65,21 +82,40 @@ async function modifyRecord(note) {
  * @returns {Promise<Dexie.Collection<any,any>>|undefined}
  */
 async function getRecord(uuid) {
-  return getTable()
-    ?.where('noteUuid').equals(uuid);
+  return new Promise((resolve, reject) => {
+    getTable()
+      .then((table) => resolve(table.where('noteUuid').equals(uuid)))
+      .catch((reason) => {
+        reject(reason);
+      });
+  });
 }
 
 /**
  * Gets the Notes Table
  *
- * @returns {Dexie.Table}
+ * @returns {Promise<Dexie.Table>}
  */
-function getTable() {
-  return noteTable;
+async function getTable() {
+  return new Promise((resolve, reject) => {
+    if (noteTable !== null) {
+      resolve(noteTable);
+    } else {
+      reject(Error(`Could not load the table: '${TABLE_NOTE}'`));
+    }
+  });
+}
+
+function packet(action, data) {
+  return JSON.stringify({
+    action,
+    data,
+  });
 }
 
 export default {
   buildDb,
   getRecord,
   modifyRecord,
+  packet,
 };

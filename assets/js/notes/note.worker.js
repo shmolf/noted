@@ -19,9 +19,18 @@ const worker = (/** @type {any} */(self));
   });
 
   worker.onmessage = (e) => {
-    const data = JSON.parse(e.data);
-    console.log(data);
+    const msg = JSON.parse(e.data);
 
-    worker.postMessage(JSON.stringify(data));
+    if ('action' in msg) {
+      switch (msg.action) {
+        case 'modify':
+          noteDb.modifyRecord(msg.data)
+            .catch(() => console.warn('Inbound request to modify record failed.'));
+          break;
+        default:
+      }
+    }
+
+    worker.postMessage(JSON.stringify(msg));
   };
 })();

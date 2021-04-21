@@ -182,8 +182,10 @@ function loadSw() {
       if ('state' in msg) {
         switch (msg.state) {
           case 'ready':
-            noteDb.modifyRecord(testNote).then(() => noteDb.modifyRecord(testNoteUuid));
+            worker.postMessage(noteDb.packet('modify', testNote));
+            worker.postMessage(noteDb.packet('modify', testNoteUuid));
             break;
+          default:
         }
       }
     };
