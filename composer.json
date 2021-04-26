@@ -1,7 +1,14 @@
 {
-    "name": "shmolf/note-keeper",
+    "name": "shmolf/note-d",
     "type": "project",
     "license": "SEE LICENSE IN 'LICENSE'",
+    "minimum-stability": "dev",
+    "repositories": [
+      {
+          "type": "path",
+          "url": "/home/shmolf/noted-request-handler"
+      }
+    ],
     "require": {
         "php": ">=7.4.3",
         "ext-ctype": "*",
@@ -40,7 +47,8 @@
         "symfony/yaml": "4.4.*",
         "symfonycasts/reset-password-bundle": "^1.5",
         "twig/extra-bundle": "^2.12|^3.0",
-        "twig/twig": "^2.12|^3.0"
+        "twig/twig": "^2.12|^3.0",
+        "shmolf/noted-request-handler": "dev-hydrator"
     },
     "require-dev": {
         "doctrine/doctrine-fixtures-bundle": "^3.4",

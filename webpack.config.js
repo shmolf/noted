@@ -112,7 +112,7 @@ const config = Encore.getWebpackConfig();
 // config.resolve.extensions.unshift('.mjs');
 // The addition below, is so that some repos that use `.mjs` extensions, don't break.
 config.module.rules.push({
-  test: /\.m?jsx?$/,
+  test: /\.(mjs|jsx)$/,
   resolve: {
     fullySpecified: false,
   }
@@ -120,11 +120,21 @@ config.module.rules.push({
 
 config.module.rules.push({
   test: /\.worker\.js$/i,
-  loader: 'worker-loader',
-  options: {
-    // publicPath: './',
-    filename: "[name].[contenthash].js",
-  },
+  use: [
+    {
+      loader: "babel-loader",
+      options: {
+        presets: ["@babel/preset-env"],
+      },
+    },
+    {
+      loader: "worker-loader",
+      options: {
+        // publicPath: './',
+        filename: "[name].[contenthash].js",
+      },
+    },
+  ],
 });
 
 // let's clean the output folder, before repopulating

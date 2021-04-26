@@ -6,6 +6,7 @@
         "@grrr/cookie-consent": "^1.0.4",
         "@iktakahiro/markdown-it-katex": "^4.0.1",
         "@symfony/webpack-encore": "^1.1.1",
+        "axios": "^0.21.1",
         "codemirror": "^5.60.0",
         "codemirror-minified": "^5.60.0",
         "core-js": "^3.9.0",
@@ -59,5 +60,8 @@
         "lint-scss": "stylelint 'assets/css/**/*.scss'",
         "lint-js": "JSDIR='./assets/js'; eslint -c ./.eslintrc.json $JSDIR && jshint $JSDIR",
         "lint-js-fix": "eslint -c ./.eslintrc.json ./assets/js --fix"
-    }
+    },
+    "browserslist": [
+      "defaults"
+    ]
 }

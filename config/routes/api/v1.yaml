@@ -1,3 +1,14 @@
 api.v1.account:
   path: /account
   controller: App\Controller\Users\AccountController::accountApi
+  methods: GET
+
+api.v1.note.list:
+  path: /note/list
+  controller: App\Controller\Notes\NotesController::getNoteList
+  methods: GET
+
+api.v1.note.upsert:
+  path: /note/upsert
+  controller: App\Controller\Notes\NotesController::upsertNote
+  methods: PUT

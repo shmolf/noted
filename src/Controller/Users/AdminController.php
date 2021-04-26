@@ -3,7 +3,6 @@
 namespace App\Controller\Users;
 
 use App\Controller\BaseController;
-use App\Entity\ProductCategory;
 use App\Entity\UserAccount;
 use Exception;
 use Symfony\Component\HttpFoundation\Response;
@@ -14,7 +13,7 @@ class AdminController extends BaseController
 {
     public function __invoke(): Response
     {
-        // $this->denyAccessUnlessGranted('ROLE_ADMIN');
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
         $users = $this->getDoctrine()
             ->getRepository(UserAccount::class)
             ->findAll();
@@ -53,12 +52,6 @@ class AdminController extends BaseController
         $firstName = isset($requestData['first-name']) ? self::trimMb4String($requestData['first-name']) : null;
         $lastName = isset($requestData['last-name']) ? self::trimMb4String($requestData['last-name']) : null;
         $roles = $requestData['roles'] ?? [];
-        // return $this->json([
-        //     $email,
-        //     mb_strlen($email),
-        //     preg_match('/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i', $email),
-        //     mb_strlen($email) === 0 || preg_match('/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i', $email) !== 1
-        // ]);
 
         if (mb_strlen($email) === 0 || preg_match('/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i', $email) !== 1) {
             $data = [

@@ -2,9 +2,7 @@ import $ from 'jquery';
 import M from 'materialize-css';
 import 'CSS/notes.scss';
 
-import { v4 as uuidv4 } from 'uuid';
-import noteDb, { NOTE_ACTIONS } from 'JS/notes/noteDb';
-import { workerStates, clientActions } from 'JS/notes/worker-client-api';
+import { workerStates, clientActions, NotePackage } from 'JS/notes/worker-client-api';
 import Worker from './note.worker';
 import 'JS/lib/cookie';
 // @ts-ignore
@@ -32,6 +30,9 @@ import CodeMirror from './code-mirror-assets';
 const CM_THEME_COOKIE = 'cs-theme';
 
 /** @type {JQuery} */
+let $title;
+
+/** @type {JQuery} */
 let $editor;
 
 /** @type {JQuery} */
@@ -40,10 +41,26 @@ let $mdView;
 /** @type {JQuery} */
 let $settingsModal;
 
-/** @type {CodeMirror.EditorFromTextArea} */
+/** @type {CodeMirror} */
 let codeMirrorEditor;
 
+/** @type {Worker|null} */
+let worker = null;
+
 let md;
+
+/**
+ * @typedef {object} NoteQueue
+ * @property {Date} firstTimeout - Used to compare how much delay has passed since the edits started
+ * @property {number} delayedCount
+ * @property {number} timeoutId
+ */
+
+/** @type {Object.<string, NoteQueue>} */
+const modifiedNotes = {};
+
+const noteSaveDelay = 3 * 1000;
+const noteDelayMax = 10 * 1000;
 
 M.Modal.init($settingsModal, {
   // onCloseStart: () => clearModal(),
@@ -54,6 +71,7 @@ M.Modal.init($settingsModal, {
 });
 
 $(() => {
+  $title = $('#note-title');
   $settingsModal = $('#settings-popup');
   $editor = $('#markdown-input');
   $mdView = $('#markdown-output');
@@ -132,7 +150,7 @@ function initMarkdownIt() {
  * Initialized the CodeMirror library
  */
 function initCodeMirror() {
-  /** @type {CodeMirror.EditorConfiguration} */
+  /** @see https://codemirror.net/doc/manual.html#config */
   const cmOptions = {
     mode: 'gfm',
     // mode: {
@@ -158,9 +176,8 @@ function initCodeMirror() {
 
   codeMirrorEditor = CodeMirror.fromTextArea(/** @type {HTMLTextAreaElement} */($editor.get(0)), cmOptions);
 
-  codeMirrorEditor.on('change', (editor, changes) => {
-    const markdown = editor.getValue();
-    renderMarkdown(markdown);
+  codeMirrorEditor.on('change', (editor) => {
+    queueNoteSave(editor);
   });
 }
 
@@ -176,54 +193,109 @@ function setCodeMirrorTheme(theme) {
 
 function loadSw() {
   if (window.Worker) {
-    /** @type {Worker} */
-    const worker = new Worker();
+    worker = new Worker();
     worker.postMessage(JSON.stringify({
       some: 'data',
     }));
-    worker.onmessage = (e) => onWorkerMessage(worker, e);
+    worker.onmessage = (e) => onWorkerMessage(e);
   }
 }
 
 /**
- * @param {Worker} worker
+ * @param {CodeMirror} editor
+ */
+function queueNoteSave(editor) {
+  const markdown = editor.getValue();
+  const note = packageNote(markdown);
+  renderMarkdown(markdown);
+
+  // Implies 'Worker' is not ready, or available
+  if (note === null) {
+    return;
+  }
+
+  if (note.clientUuid in modifiedNotes) {
+    clearTimeout(modifiedNotes[note.clientUuid].timeoutId);
+  } else {
+    modifiedNotes[note.clientUuid] = {
+      firstTimeout: new Date(),
+      delayedCount: 0,
+      timeoutId: null,
+    };
+  }
+
+  const totalDelay = (new Date()).getTime() - modifiedNotes[note.clientUuid].firstTimeout.getTime();
+
+  if (totalDelay >= noteDelayMax) {
+    delete modifiedNotes[note.clientUuid];
+    worker.postMessage(clientActions.MODIFY.f(note));
+  } else {
+    modifiedNotes[note.clientUuid].delayedCount += 1;
+    modifiedNotes[note.clientUuid].timeoutId = window.setTimeout(() => {
+      delete modifiedNotes[note.clientUuid];
+      worker.postMessage(clientActions.MODIFY.f(note));
+    }, noteSaveDelay);
+  }
+}
+
+/**
+ * @param {string} markdown
+ * @returns {?NotePackage}
+ */
+function packageNote(markdown) {
+  if (worker === null) {
+    return null;
+  }
+
+  let noteUuid = $editor.data('noteUuid');
+  noteUuid = typeof noteUuid === 'string' ? noteUuid.trim() : null;
+  let clientUuid = $editor.data('clientUuid') || null;
+  clientUuid = typeof clientUuid === 'string' ? clientUuid.trim() : null;
+  let title = $title.val();
+  title = typeof title === 'string' ? title.trim() : null;
+  const tags = [];
+
+  return new NotePackage({
+    noteUuid,
+    clientUuid,
+    title,
+    content: markdown,
+    tags,
+    inTrashcan: false,
+  });
+}
+
+/**
  * @param {MessageEvent} event
  */
-function onWorkerMessage(worker, event) {
+function onWorkerMessage(event) {
   const msg = JSON.parse(event.data);
-  if ('state' in msg) {
+  if ('state' in msg && worker !== null) {
     switch (msg.state) {
       case workerStates.TEST:
         worker.postMessage(clientActions.MODIFY.f(testNote));
-        worker.postMessage(clientActions.MODIFY.f(testNoteUuid));
         break;
       case workerStates.TEST_READY:
-        worker.postMessage(clientActions.GET_BY_UUID.f(testNote.clientUuid));
+        worker.postMessage(clientActions.GET_BY_CLIENTUUID.f(testNote.clientUuid));
+        break;
+      case workerStates.READY:
+        worker.postMessage(clientActions.GET_LIST.f());
         break;
       case workerStates.NOTE_DATA:
         const noteData = msg.note;
         console.log(noteData);
+        break;
+      case workerStates.NOTE_LIST:
+        console.log(msg.list);
         break;
       default:
     }
   }
 }
 
-/** @type {import('JS/notes/noteDb').ModifyNote} */
-const testNote = {
-  clientUuid: uuidv4(),
+const testNote = new NotePackage({
   title: 'test note',
   content: 'note body test',
   tags: ['tag1', 'tag2'],
-  action: NOTE_ACTIONS.update,
-};
-
-/** @type {import('JS/notes/noteDb').ModifyNote} */
-const testNoteUuid = {
-  uuid: 'fake',
-  clientUuid: uuidv4(),
-  title: 'test note uuid',
-  content: 'note body test uuid',
-  tags: ['tag1', 'tag2'],
-  action: NOTE_ACTIONS.update,
-};
+  inTrashcan: false,
+});
