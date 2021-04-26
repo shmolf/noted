@@ -13,6 +13,8 @@ if ('setAppBadge' in navigator && 'clearAppBadge' in navigator) {
   });
 }
 
+/** @typedef {import('JS/notes/worker-client-api').NotePackageOptions} NotePackageOptions */
+
 /** @type {Worker} */
 const worker = (/** @type {any} */(self));
 
@@ -40,29 +42,28 @@ function handleAction(msg) {
         noteDb
           .modifyRecord(new NotePackage(msg.data))
           .then((recordId) => noteDb.getRecordById(recordId))
-          .then((note) => {
-            sendUpsert(note).then((response) => response).catch((error) => console.warn(error));
-          })
-          .then((response) => worker.postMessage(JSON.stringify({ state: workerStates.UPD8_COMP, response })))
+          .then((note) => sendUpsert(note).then((r) => r).catch((e) => console.warn(e)))
+          .then((r) => noteDb.updateNoteUuid(r.clientUuid, r.noteUuid).then(() => r).catch((e) => console.warn(e)))
+          .then((response) => worker.postMessage(workerStates.UPD8_COMP.f(response)))
           .catch((error) => console.warn(`Inbound request to modify record failed.\n${error}`));
         break;
       case clientActions.GET_BY_CLIENTUUID.k:
         noteDb
           .getRecordByClientUuid(msg.data)
-          .then((note) => {
-            if (note === null) {
+          .then((records) => {
+            if (records === null) {
               throw Error(`Could note retrieve record by ClientUuid: '${msg.data}'`);
             }
 
-            worker.postMessage(JSON.stringify({ state: workerStates.NOTE_DATA, note }));
+            records.first()
+              .then((/** @type {NotePackageOptions} */record) => new NotePackage(record))
+              .then((notePkg) => worker.postMessage(workerStates.NOTE_DATA.f(notePkg)));
           })
-          .catch((error) => console.warn(`Inbound request to fetch a record failed.\n${error}`));
+          .catch((error) => console.warn(error));
         break;
       case clientActions.GET_LIST.k:
         getList()
-          .then((response) => {
-            worker.postMessage(JSON.stringify({ state: workerStates.NOTE_LIST, list: response }));
-          })
+          .then((response) => worker.postMessage(workerStates.NOTE_LIST.f(response)))
           .catch((error) => console.warn(`Inbound request to fetch a record failed.\n${error}`));
         break;
       default:

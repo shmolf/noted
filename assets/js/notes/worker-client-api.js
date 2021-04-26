@@ -4,7 +4,7 @@ export const clientActions = Object.freeze({
     /**
      * @returns {string}
      */
-    f: () => packIt(clientActions.GET_LIST.k),
+    f: () => packAction(clientActions.GET_LIST.k),
   },
   MODIFY: {
     k: 'modify',
@@ -12,7 +12,7 @@ export const clientActions = Object.freeze({
      * @param {NotePackage} note
      * @returns {string}
      */
-    f: (note) => packIt(clientActions.MODIFY.k, note),
+    f: (note) => packAction(clientActions.MODIFY.k, note),
   },
   RECYCLE: {
     k: 'recycle',
@@ -20,7 +20,7 @@ export const clientActions = Object.freeze({
      * @param {string} noteUuid
      * @returns {string}
      */
-    f: (noteUuid) => packIt(clientActions.RECYCLE.k, noteUuid),
+    f: (noteUuid) => packAction(clientActions.RECYCLE.k, noteUuid),
   },
   GET_BY_CLIENTUUID: {
     k: 'retrieveByUuid',
@@ -28,17 +28,47 @@ export const clientActions = Object.freeze({
      * @param {string} clientUuid
      * @returns {string}
      */
-    f: (clientUuid) => packIt(clientActions.GET_BY_CLIENTUUID.k, clientUuid),
+    f: (clientUuid) => packAction(clientActions.GET_BY_CLIENTUUID.k, clientUuid),
   },
 });
 
 export const workerStates = Object.freeze({
-  TEST: 'test',
-  TEST_READY: 'test-ready',
-  READY: 'ready',
-  NOTE_LIST: 'note-list',
-  NOTE_DATA: 'note-data',
-  UPD8_COMP: 'note-updated',
+  TEST: {
+    k: 'test',
+    f: () => packState(workerStates.TEST.k),
+  },
+  TEST_READY: {
+    k: 'test-ready',
+    f: () => packState(workerStates.TEST_READY.k),
+  },
+  READY: {
+    k: 'ready',
+    f: () => packState(workerStates.READY.k),
+  },
+  NOTE_LIST: {
+    k: 'note-list',
+    /**
+     * @param {array} list
+     * @returns {string}
+     */
+    f: (list) => packState(workerStates.NOTE_LIST.k, list),
+  },
+  NOTE_DATA: {
+    k: 'note-data',
+    /**
+     * @param {NotePackage} note
+     * @returns {string}
+     */
+    f: (note) => packState(workerStates.NOTE_DATA.k, note),
+  },
+  UPD8_COMP: {
+    k: 'note-updated',
+    /**
+     * @param {any} response
+     * @returns {string}
+     */
+    f: (response) => packState(workerStates.UPD8_COMP.k, response),
+  },
 });
 
 /**
@@ -48,8 +78,19 @@ export const workerStates = Object.freeze({
  * @param {Object} data
  * @returns {string}
  */
-function packIt(action, data) {
+function packAction(action, data) {
   return stringIt({ action, data });
+}
+
+/**
+ * Packages an action and data, into a transmittible object-string
+ *
+ * @param {string} state
+ * @param {any} data
+ * @returns {string}
+ */
+function packState(state, data) {
+  return stringIt({ action: state, data });
 }
 
 /**

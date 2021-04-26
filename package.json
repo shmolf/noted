@@ -62,6 +62,6 @@
         "lint-js-fix": "eslint -c ./.eslintrc.json ./assets/js --fix"
     },
     "browserslist": [
-      "defaults"
+        "defaults"
     ]
 }

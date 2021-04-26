@@ -17,7 +17,6 @@ import * as d3 from 'd3';
 import markdownItApexCharts, { ApexRender } from 'markdown-it-apexcharts';
 import mdItEmoji from 'markdown-it-emoji';
 import twemoji from 'twemoji';
-import mdItFrontMatter from 'markdown-it-front-matter';
 import { loadFront } from 'yaml-front-matter';
 import hljs from 'highlight.js';
 import 'NODE/highlight.js/styles/gruvbox-dark.css';
@@ -117,17 +116,39 @@ function renderMarkdown(markdown) {
  * @returns {string}
  */
 function parseFrontMatter(markdown) {
-  const data = loadFront(markdown);
+  let parsedFrontMatter;
 
-  (markdown.match(/{{ page\.(.+) }}/g) || []).forEach((match) => {
-    // eslint-disable-next-line no-eval
-    const value = eval(`data.${match}`);
+  try {
+    parsedFrontMatter = loadFront(markdown);
+  } catch(e) {
+    console.warn(e);
+    return markdown;
+  }
+  const pagePlaceholder = /\{\{ page\.([^}}]+) \}\}/g;
+  let { __content: content, ...data } = parsedFrontMatter;
+
+  const matches = [...markdown.matchAll(pagePlaceholder)]
+    .map((match) => match[1])
+    .filter((value, index, self) => self.indexOf(value) === index);
+
+  matches.forEach((match) => {
+    let value;
+    try {
+      // eslint-disable-next-line no-eval
+      value = eval(`data.${match}`);
+    } catch (e) {
+      console.warn(`Could not interpret '${match}'. Error:\n${e}`);
+      return;
+    }
+
     if (value !== undefined) {
-      match.replace(`{{ page.${match} }}`, value);
+      const regexString = `\\{\\{ page\\.${escapeRegExp(match)} \\}\\}`;
+      const placeholderMatch = new RegExp(regexString, 'g');
+      content = content.replaceAll(placeholderMatch, value);
     }
   });
 
-  return markdown;
+  return content;
 }
 
 /**
@@ -137,11 +158,7 @@ function initMarkdownIt() {
   md = mdIt()
     .use(markdownItApexCharts)
     .use(mdItGraphs)
-    .use(mdItEmoji)
-    .use(mdItFrontMatter, (frontMatter) => {
-      const fm = frontMatter.split(/\n/);
-      console.log(fm);
-    });
+    .use(mdItEmoji);
 
   md.renderer.rules.emoji = (token, idx) => twemoji.parse(token[idx].content);
 }
@@ -272,25 +289,26 @@ function onWorkerMessage(event) {
   const msg = JSON.parse(event.data);
   if ('state' in msg && worker !== null) {
     switch (msg.state) {
-      case workerStates.TEST:
-        worker.postMessage(clientActions.MODIFY.f(testNote));
-        break;
-      case workerStates.TEST_READY:
-        worker.postMessage(clientActions.GET_BY_CLIENTUUID.f(testNote.clientUuid));
-        break;
-      case workerStates.READY:
+      case workerStates.READY.k:
         worker.postMessage(clientActions.GET_LIST.f());
         break;
-      case workerStates.NOTE_DATA:
+      case workerStates.NOTE_DATA.k:
         const noteData = msg.note;
         console.log(noteData);
         break;
-      case workerStates.NOTE_LIST:
+      case workerStates.NOTE_LIST.k:
         console.log(msg.list);
+        break;
+      case workerStates.UPD8_COMP.k:
+        console.log(msg.response);
         break;
       default:
     }
   }
+}
+
+function escapeRegExp(string) {
+  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
 }
 
 const testNote = new NotePackage({

@@ -57,8 +57,8 @@ async function buildDb() {
 function modifyRecord(note) {
   return new Promise((resolve, reject) => {
     if (typeof note.noteUuid === 'string') {
-      getRecordByNoteUuid(note.noteUuid).then((record) => {
-        record?.modify(note.toObj()).then((id) => resolve(id))
+      getRecordByNoteUuid(note.noteUuid).then((records) => {
+        records?.modify(note.toObj()).then((id) => resolve(id))
           ?? reject(Error(`Could not find a record by UUID: '${note.noteUuid}'`));
       }).catch((reason) => {
         reject(reason);
@@ -100,8 +100,26 @@ function modifyRecord(note) {
 }
 
 /**
+ * @param {string} clientUuid
+ * @param {string} noteUuid
+ * @returns {Promise<number>}
+ */
+function updateNoteUuid(clientUuid, noteUuid) {
+  return new Promise((resolve, reject) => {
+    getTable()
+      .then((table) => table.where(schema.clientUuid).equals(clientUuid))
+      .then((records) => {
+        records?.modify({ noteUuid }).then((id) => resolve(id))
+          ?? reject(Error(`Could not find a record by UUID: '${clientUuid}'`));
+      }).catch((reason) => {
+        reject(reason);
+      });
+  });
+}
+
+/**
  * @param {string} uuid
- * @returns {Promise<?NotePackage>}
+ * @returns {Promise<?Dexie.Collection<any, any>>}
  */
 function getRecordByNoteUuid(uuid) {
   return new Promise((resolve, reject) => {
@@ -110,8 +128,8 @@ function getRecordByNoteUuid(uuid) {
     }
 
     getTable()
-      .then((table) => table.where(schema.noteUuid).equals(uuid).first())
-      .then((/** @type {NotePackageOptions} */record) => resolve(new NotePackage(record)))
+      .then((table) => table.where(schema.noteUuid).equals(uuid))
+      .then((records) => resolve(records))
       .catch((reason) => {
         reject(reason);
       });
@@ -120,7 +138,7 @@ function getRecordByNoteUuid(uuid) {
 
 /**
  * @param {string} uuid
- * @returns {Promise<?NotePackage>}
+ * @returns {Promise<?Dexie.Collection<any, any>>}
  */
 function getRecordByClientUuid(uuid) {
   return new Promise((resolve, reject) => {
@@ -129,8 +147,8 @@ function getRecordByClientUuid(uuid) {
     }
 
     getTable()
-      .then((table) => table.where(schema.clientUuid).equals(uuid).first())
-      .then((/** @type {NotePackageOptions} */record) => resolve(new NotePackage(record)))
+      .then((table) => table.where(schema.clientUuid).equals(uuid))
+      .then((records) => resolve(records))
       .catch((reason) => {
         reject(reason);
       });
@@ -184,5 +202,6 @@ export default {
   getRecordByClientUuid,
   getRecordById,
   modifyRecord,
+  updateNoteUuid,
   packet,
 };
