@@ -40,6 +40,12 @@ let $mdView;
 /** @type {JQuery} */
 let $settingsModal;
 
+/** @type {JQuery} */
+let $noteListNav;
+
+/** @type {JQuery} */
+let $noteListTemplate;
+
 /** @type {CodeMirror} */
 let codeMirrorEditor;
 
@@ -47,6 +53,9 @@ let codeMirrorEditor;
 let worker = null;
 
 let md;
+
+// Since CodeMirror.setValue() triggers a change event, we'll want to prevent change events when manually setting value
+let manuallySettingValue = false;
 
 /**
  * @typedef {object} NoteQueue
@@ -61,21 +70,25 @@ const modifiedNotes = {};
 const noteSaveDelay = 3 * 1000;
 const noteDelayMax = 10 * 1000;
 
-M.Modal.init($settingsModal, {
-  // onCloseStart: () => clearModal(),
-  onOpenEnd: () => {
-    $settingsModal.scrollTop(0);
-    $('#codemirror-theme').val(localStorage.getItem(CM_THEME_COOKIE) || 'default');
-  },
-});
-
 $(() => {
   $title = $('#note-title');
   $settingsModal = $('#settings-popup');
   $editor = $('#markdown-input');
   $mdView = $('#markdown-output');
-  initCodeMirror();
+  $noteListNav = $('#note-navigation');
+  $noteListTemplate = $('#note-item-template');
+
+  M.Modal.init($settingsModal, {
+    // onCloseStart: () => clearModal(),
+    onOpenEnd: () => {
+      $settingsModal.scrollTop(0);
+      $('#codemirror-theme').val(localStorage.getItem(CM_THEME_COOKIE) || 'default');
+    },
+  });
+
+  initCodeMirror(sample);
   initMarkdownIt();
+
   $('#codemirror-theme').on('change', (e) => {
     const theme = String($(e.currentTarget).val());
     setCodeMirrorTheme(theme);
@@ -87,7 +100,9 @@ $(() => {
   }
 
   renderMarkdown(sample);
+  manuallySettingValue = true;
   codeMirrorEditor.setValue(sample);
+  manuallySettingValue = false;
 
   $('.show-cookie-pref').on('click', () => {
     M.Modal.getInstance($settingsModal.get(0))?.close();
@@ -104,7 +119,6 @@ function renderMarkdown(markdown) {
   const render = md.render(parsedMarkdown, { d3 });
   $mdView.html(render);
   ApexRender();
-  // $mdView.find('pre code').each((i, elem) => prismjs.highlightElement(elem));
   $mdView.find('pre code').each((i, elem) => {
     const codeBlock = elem;
     codeBlock.innerHTML = hljs.highlightAuto(elem.textContent).value;
@@ -157,7 +171,7 @@ function parseFrontMatter(markdown) {
 function initMarkdownIt() {
   md = mdIt()
     .use(markdownItApexCharts)
-    .use(mdItGraphs)
+    // .use(mdItGraphs)
     .use(mdItEmoji);
 
   md.renderer.rules.emoji = (token, idx) => twemoji.parse(token[idx].content);
@@ -169,13 +183,13 @@ function initMarkdownIt() {
 function initCodeMirror() {
   /** @see https://codemirror.net/doc/manual.html#config */
   const cmOptions = {
-    mode: 'gfm',
-    // mode: {
-    //   name: 'gfm',
-    //   tokenTypeOverrides: {
-    //     emoji: 'emoji',
-    //   },
-    // },
+    // mode: 'gfm',
+    mode: {
+      name: 'gfm',
+      tokenTypeOverrides: {
+        emoji: 'emoji',
+      },
+    },
     lineNumbers: true,
     viewportMargin: 500,
     lineWrapping: true,
@@ -194,6 +208,10 @@ function initCodeMirror() {
   codeMirrorEditor = CodeMirror.fromTextArea(/** @type {HTMLTextAreaElement} */($editor.get(0)), cmOptions);
 
   codeMirrorEditor.on('change', (editor) => {
+    if (manuallySettingValue) {
+      return;
+    }
+
     queueNoteSave(editor);
   });
 }
@@ -223,13 +241,13 @@ function loadSw() {
  */
 function queueNoteSave(editor) {
   const markdown = editor.getValue();
-  const note = packageNote(markdown);
   renderMarkdown(markdown);
 
-  // Implies 'Worker' is not ready, or available
-  if (note === null) {
+  if (worker === null) {
     return;
   }
+
+  const note = packageNote(markdown);
 
   if (note.clientUuid in modifiedNotes) {
     clearTimeout(modifiedNotes[note.clientUuid].timeoutId);
@@ -257,13 +275,9 @@ function queueNoteSave(editor) {
 
 /**
  * @param {string} markdown
- * @returns {?NotePackage}
+ * @returns {NotePackage}
  */
 function packageNote(markdown) {
-  if (worker === null) {
-    return null;
-  }
-
   let noteUuid = $editor.data('noteUuid');
   noteUuid = typeof noteUuid === 'string' ? noteUuid.trim() : null;
   let clientUuid = $editor.data('clientUuid') || null;
@@ -293,14 +307,21 @@ function onWorkerMessage(event) {
         worker.postMessage(clientActions.GET_LIST.f());
         break;
       case workerStates.NOTE_DATA.k:
-        const noteData = msg.note;
-        console.log(noteData);
+        const { data: noteData } = msg;
+        $editor.data('noteUuid', noteData.noteUuid);
+        $editor.data('clientUuid', noteData.clientUuid);
+        manuallySettingValue = true;
+        codeMirrorEditor.setValue(noteData.content);
+        manuallySettingValue = false;
+        renderMarkdown(noteData.content);
         break;
       case workerStates.NOTE_LIST.k:
-        console.log(msg.list);
+        const { data: list } = msg;
+        renderNoteList(list);
         break;
       case workerStates.UPD8_COMP.k:
-        console.log(msg.response);
+        const { data: response } = msg;
+        console.log(response);
         break;
       default:
     }
@@ -311,9 +332,44 @@ function escapeRegExp(string) {
   return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
 }
 
-const testNote = new NotePackage({
-  title: 'test note',
-  content: 'note body test',
-  tags: ['tag1', 'tag2'],
-  inTrashcan: false,
-});
+/**
+ * @param {NoteListItem[]} notes
+ */
+function renderNoteList(notes) {
+  $noteListNav.find('.note-item:not(#note-load-template)').off('click').detach();
+
+  notes.forEach((note) => {
+    const $noteBtn = $noteListTemplate.clone().removeAttr('id');
+    const lastModified = new Date(`${note.lastModified.date} ${note.lastModified.timezone}`);
+
+    $noteBtn
+      .data('client-uuid', note.clientUuid)
+      .data('last-modified', note.lastModified)
+      .data('created', note.createdDate)
+      .find('.title').text(note.title || lastModified.toString());
+
+    const $tagTemplate = $noteBtn.find('#note-tag-template').clone().removeAttr('id');
+    note.tags.forEach((tag) => $noteBtn.find('.tag-container').append($tagTemplate.clone().text(tag)));
+
+    $noteBtn.on('click', (event) => {
+      const eventUuid = $(event.currentTarget).data('clientUuid');
+      worker.postMessage(clientActions.GET_BY_CLIENTUUID.f(eventUuid));
+    });
+
+    $noteListNav.append($noteBtn);
+  });
+}
+
+/**
+ * @typedef {Object} NoteListItem
+ * @property {string} title
+ * @property {string[]} tags
+ * @property {string} noteUuid
+ * @property {string} clientUuid
+ * @property {string} inTrashcan
+ * @property {string} createdDate
+ * @property {Object} lastModified
+ * @property {string} lastModified.date
+ * @property {string} lastModified.timezone
+ * @property {number} lastModified.timezone_type
+ */

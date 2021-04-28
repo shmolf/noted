@@ -20,7 +20,7 @@ const worker = (/** @type {any} */(self));
 
 (() => {
   noteDb.buildDb().then(() => {
-    worker.postMessage(JSON.stringify({ state: workerStates.READY }));
+    worker.postMessage(workerStates.READY.f());
   });
 
   worker.onmessage = (e) => {
@@ -52,18 +52,25 @@ function handleAction(msg) {
           .getRecordByClientUuid(msg.data)
           .then((records) => {
             if (records === null) {
-              throw Error(`Could note retrieve record by ClientUuid: '${msg.data}'`);
+              getByClientUuid(msg.data)
+                .then((note) => noteDb.modifyRecord(new NotePackage(note)))
+                .then((recordId) => noteDb.getRecordById(recordId))
+                .then((response) => worker.postMessage(workerStates.UPD8_COMP.f(response)))
+                .catch((error) => console.warn(error));
+            } else {
+              records.first()
+                .then((/** @type {NotePackageOptions} */record) => new NotePackage(record))
+                .then((notePkg) => worker.postMessage(workerStates.NOTE_DATA.f(notePkg)));
             }
-
-            records.first()
-              .then((/** @type {NotePackageOptions} */record) => new NotePackage(record))
-              .then((notePkg) => worker.postMessage(workerStates.NOTE_DATA.f(notePkg)));
           })
           .catch((error) => console.warn(error));
         break;
       case clientActions.GET_LIST.k:
         getList()
-          .then((response) => worker.postMessage(workerStates.NOTE_LIST.f(response)))
+          .then((response) => {
+            noteDb.syncRecords(response.map((note) => new NotePackage(note)));
+            worker.postMessage(workerStates.NOTE_LIST.f(response));
+          })
           .catch((error) => console.warn(`Inbound request to fetch a record failed.\n${error}`));
         break;
       default:
@@ -93,10 +100,29 @@ function sendUpsert(note) {
       tags: note.tags,
       inTrashcan: note.inTrashcan,
     })
-      .then((response) => {
-        console.log(response);
-        resolve(response.data);
-      })
+      .then((response) => resolve(response.data))
+      .catch((error) => {
+        if (error.response) {
+          // The request was made and the server responded with a status code
+          // that falls out of the range of 2xx
+          console.log(['data', error.response.data]);
+          console.log(['status', error.response.status]);
+          console.log(['headers', error.response.headers]);
+        }
+
+        reject(error);
+      });
+  });
+}
+
+/**
+ * @param {string} uuid
+ * @returns {Promise}
+ */
+function getByClientUuid(uuid) {
+  return new Promise((resolve, reject) => {
+    axios.get(`/🔌/v1/note/clientUuid/${uuid}`)
+      .then((response) => resolve(response.data))
       .catch((error) => {
         if (error.response) {
           // The request was made and the server responded with a status code

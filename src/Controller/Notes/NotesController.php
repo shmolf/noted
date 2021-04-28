@@ -30,10 +30,25 @@ class NotesController extends AbstractController
                 'noteUuid' => $note->getNoteUuid(),
                 'clientUuid' => $note->getClientUuid(),
                 'inTrashcan' => $note->getInTrashcan(),
+                'createdDate' => $note->getCreatedDate(),
+                'lastModified' => $note->getLastModified(),
             ];
         }, $notes);
 
         return new JsonResponse($noteList);
+    }
+
+    public function getNoteByClientUuid(string $uuid): JsonResponse
+    {
+        /** @var UserAccount */
+        $user = $this->getUser();
+        $note = $this->getDoctrine()
+            ->getRepository(MarkdownNote::class)
+            ->findOneBy(['userId' => $user->getId(), 'clientUuid' => $uuid]);
+
+        return $this->json($note, 200, [], [
+            'groups' => ['main'],
+        ]);
     }
 
     public function upsertNote(MarkdownNoteRepository $repo, Request $request): JsonResponse

@@ -3,6 +3,13 @@ api.v1.account:
   controller: App\Controller\Users\AccountController::accountApi
   methods: GET
 
+api.v1.note.getByClientUuid:
+  path: /note/clientUuid/{uuid}
+  controller: App\Controller\Notes\NotesController::getNoteByClientUuid
+  methods: GET
+  requirements:
+    uuid: '[a-zA-Z0-9\-]36'
+
 api.v1.note.list:
   path: /note/list
   controller: App\Controller\Notes\NotesController::getNoteList

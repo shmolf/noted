@@ -100,6 +100,14 @@ function modifyRecord(note) {
 }
 
 /**
+ * @param {NotePackage[]} notes
+ * @returns void
+ */
+function syncRecords(notes) {
+  // Need to do a bulk update using Dexie.
+}
+
+/**
  * @param {string} clientUuid
  * @param {string} noteUuid
  * @returns {Promise<number>}
@@ -202,6 +210,7 @@ export default {
   getRecordByClientUuid,
   getRecordById,
   modifyRecord,
+  syncRecords,
   updateNoteUuid,
   packet,
 };

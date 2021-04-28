@@ -31,6 +31,9 @@
 {% block body %}
     {% if is_granted('ROLE_USER') %}
         {{ _self.settingsPopup() }}
+        <aside id="note-navigation">
+            {{ _self.noteTitleTemplate() }}
+        </aside>
         <div id="noted">
             <div id="input-wrap">
                 <div id="title-wrap">
@@ -74,4 +77,14 @@
             <button type="button" class="modal-close waves-effect waves-green btn-flat right">Close</button>
         </div>
     </div>
+{% endmacro %}
+
+{% macro noteTitleTemplate() %}
+    <button type="button" id="note-item-template" class="note-item" class="btn">
+        <span class="title"></span>
+        <span class="last-modified"></span>
+        <span class="tag-container">
+            <span id="note-tag-template" class="note-tag"><span>
+        </span>
+    </button>
 {% endmacro %}

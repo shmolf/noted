@@ -38,13 +38,25 @@ nav .brand-logo, code {
 }
 
 main {
+  --aside-width: 350px;
+
+  width: 100vw;
+  // 64px is the nav, and 70px is the footer
+  max-height: calc(100vh - 64px - 70px);
   display: flex;
-  flex-direction: column;
+
+  aside {
+    display: flex;
+    flex-direction: column;
+    flex: 0 0 var(--aside-width);
+
+    overflow-y: auto;
+  }
 
   #noted {
     display: flex;
     flex-direction: column;
-    flex: 1 0 100%;
+    flex: 1 0 calc(100% - var(--aside-width));
 
     #input-wrap, #output-wrap {
       flex: 1 0 50%;

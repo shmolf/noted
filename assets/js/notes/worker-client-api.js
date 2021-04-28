@@ -90,7 +90,7 @@ function packAction(action, data) {
  * @returns {string}
  */
 function packState(state, data) {
-  return stringIt({ action: state, data });
+  return stringIt({ state, data });
 }
 
 /**
@@ -112,6 +112,8 @@ function stringIt(obj) {
  * @property {string} content
  * @property {string[]} tags
  * @property {boolean} [inTrashcan=false]
+ * @property {boolean} [createdDate]
+ * @property {boolean} [lastModified]
  */
 export class NotePackage {
   /**
@@ -119,32 +121,21 @@ export class NotePackage {
    */
   constructor(optionalProperties) {
     this.id = optionalProperties.id ?? null;
-    this.noteUuid = optionalProperties.noteUuid?.trim() ?? null;
-    this.clientUuid = optionalProperties.clientUuid?.trim() ?? null;
+    this.noteUuid = optionalProperties.noteUuid?.trim() || null;
+    this.clientUuid = optionalProperties.clientUuid?.trim() || null;
     this.title = optionalProperties.title.trim();
     this.content = optionalProperties.content;
     this.tags = optionalProperties.tags.filter((value, index, self) => self.indexOf(value) === index);
     this.inTrashcan = optionalProperties.inTrashcan ?? false;
-
-    // const id = 'id' in optionalProperties ? Number(optionalProperties.id) : null;
-    // // Second layer check, in case `id === 0`
-    // this.id = id ?? null;
-    // const noteUuid = ('noteUuid' in optionalProperties ? optionalProperties.noteUuid : '').trim();
-    // // Second layer check, in case `noteUuid` is an empty string
-    // this.noteUuid = noteUuid ?? null;
-    // const clientUuid = ('clientUuid' in optionalProperties ? optionalProperties.clientUuid : '').trim();
-    // // Second layer check, in case `clientUuid` is an empty string
-    // this.clientUuid = clientUuid ?? null;
-    // this.title = optionalProperties.title.trim();
-    // this.content = optionalProperties.content;
-    // this.tags = 'tags' in optionalProperties ? optionalProperties.tags : [];
+    this.createdDate = optionalProperties.createdDate ?? null;
+    this.lastModified = optionalProperties.lastModified ?? null;
   }
 
   /**
    * @returns {NotePackageOptions}
    */
   toObj() {
-    return {
+    const noteObj = {
       id: this.id,
       noteUuid: this.noteUuid,
       clientUuid: this.clientUuid,
@@ -153,5 +144,14 @@ export class NotePackage {
       tags: this.tags,
       inTrashcan: this.inTrashcan,
     };
+
+    // let's trim any null properties
+    Object.keys(noteObj).forEach((key) => {
+      if (noteObj[key] === null) {
+        delete noteObj[key];
+      }
+    });
+
+    return noteObj;
   }
 }
