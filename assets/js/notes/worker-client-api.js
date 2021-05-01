@@ -17,10 +17,10 @@ export const clientActions = Object.freeze({
   RECYCLE: {
     k: 'recycle',
     /**
-     * @param {string} noteUuid
+     * @param {string} uuid
      * @returns {string}
      */
-    f: (noteUuid) => packAction(clientActions.RECYCLE.k, noteUuid),
+    f: (uuid) => packAction(clientActions.RECYCLE.k, uuid),
   },
   GET_BY_CLIENTUUID: {
     k: 'retrieveByUuid',
@@ -29,6 +29,14 @@ export const clientActions = Object.freeze({
      * @returns {string}
      */
     f: (clientUuid) => packAction(clientActions.GET_BY_CLIENTUUID.k, clientUuid),
+  },
+  DEL_BY_CLIENTUUID: {
+    k: 'deleteByUuid',
+    /**
+     * @param {string} clientUuid
+     * @returns {string}
+     */
+    f: (clientUuid) => packAction(clientActions.DEL_BY_CLIENTUUID.k, clientUuid),
   },
 });
 
@@ -69,6 +77,13 @@ export const workerStates = Object.freeze({
      */
     f: (response) => packState(workerStates.UPD8_COMP.k, response),
   },
+  DEL_COMP: {
+    k: 'note-deleted',
+    /**
+     * @returns {string}
+     */
+    f: () => packState(workerStates.UPD8_COMP.k),
+  },
 });
 
 /**
@@ -105,15 +120,14 @@ function stringIt(obj) {
 
 /**
  * @typedef {object} NotePackageOptions
- * @property {string} [id]
- * @property {string} [noteUuid]
+ * @property {number} [id]
  * @property {string} [clientUuid]
  * @property {string} title
  * @property {string} content
  * @property {string[]} tags
  * @property {boolean} [inTrashcan=false]
- * @property {boolean} [createdDate]
- * @property {boolean} [lastModified]
+ * @property {?Date} [createdDate]
+ * @property {?Date} [lastModified]
  */
 export class NotePackage {
   /**
@@ -121,7 +135,6 @@ export class NotePackage {
    */
   constructor(optionalProperties) {
     this.id = optionalProperties.id ?? null;
-    this.noteUuid = optionalProperties.noteUuid?.trim() || null;
     this.clientUuid = optionalProperties.clientUuid?.trim() || null;
     this.title = optionalProperties.title.trim();
     this.content = optionalProperties.content;
@@ -137,7 +150,6 @@ export class NotePackage {
   toObj() {
     const noteObj = {
       id: this.id,
-      noteUuid: this.noteUuid,
       clientUuid: this.clientUuid,
       title: this.title,
       content: this.content,

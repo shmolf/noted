@@ -4,11 +4,18 @@ api.v1.account:
   methods: GET
 
 api.v1.note.getByClientUuid:
-  path: /note/clientUuid/{uuid}
+  path: /note/client-uuid/{uuid}
   controller: App\Controller\Notes\NotesController::getNoteByClientUuid
   methods: GET
   requirements:
-    uuid: '[a-zA-Z0-9\-]36'
+    uuid: '[a-fA-F0-9\-]+'
+
+api.v1.note.deleteByClientUuid:
+  path: /note/client-uuid/{uuid}
+  controller: App\Controller\Notes\NotesController::deleteNoteByClientUuid
+  methods: DELETE
+  requirements:
+    uuid: '[a-fA-F0-9\-]36'
 
 api.v1.note.list:
   path: /note/list

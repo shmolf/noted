@@ -1,3 +1,4 @@
+/* eslint-disable no-case-declarations */
 /* eslint-disable no-restricted-globals */
 /* eslint-env self */
 /// <reference lib="webworker" />\
@@ -39,31 +40,42 @@ function handleAction(msg) {
   if ('action' in msg) {
     switch (msg.action) {
       case clientActions.MODIFY.k:
+        const { data: noteData } = msg;
         noteDb
-          .modifyRecord(new NotePackage(msg.data))
+          .modifyRecord(new NotePackage(noteData))
           .then((recordId) => noteDb.getRecordById(recordId))
-          .then((note) => sendUpsert(note).then((r) => r).catch((e) => console.warn(e)))
-          .then((r) => noteDb.updateNoteUuid(r.clientUuid, r.noteUuid).then(() => r).catch((e) => console.warn(e)))
+          .then((records) => records.first())
+          .then((note) => sendUpsert(new NotePackage(note)).then((r) => r).catch((e) => console.warn(e)))
           .then((response) => worker.postMessage(workerStates.UPD8_COMP.f(response)))
           .catch((error) => console.warn(`Inbound request to modify record failed.\n${error}`));
         break;
       case clientActions.GET_BY_CLIENTUUID.k:
+        const { data: uuid } = msg;
         noteDb
-          .getRecordByClientUuid(msg.data)
-          .then((records) => {
-            if (records === null) {
-              getByClientUuid(msg.data)
+          .getRecordByClientUuid(uuid)
+          .then((records) => records.first())
+          .then((localRecord) => {
+            if (localRecord === null || localRecord === undefined) {
+              console.log('Could not find note locally. Going to fetch from server');
+              getByClientUuid(uuid)
                 .then((note) => noteDb.modifyRecord(new NotePackage(note)))
                 .then((recordId) => noteDb.getRecordById(recordId))
-                .then((response) => worker.postMessage(workerStates.UPD8_COMP.f(response)))
+                .then((records) => records.first())
+                .then((record) => worker.postMessage(workerStates.NOTE_DATA.f(record)))
                 .catch((error) => console.warn(error));
             } else {
-              records.first()
-                .then((/** @type {NotePackageOptions} */record) => new NotePackage(record))
-                .then((notePkg) => worker.postMessage(workerStates.NOTE_DATA.f(notePkg)));
+              worker.postMessage(workerStates.NOTE_DATA.f(/** @type {NotePackageOptions} */localRecord));
             }
           })
           .catch((error) => console.warn(error));
+        break;
+      case clientActions.DEL_BY_CLIENTUUID.k:
+        Promise.all([
+          delByClientUuid(msg.data),
+          noteDb.delRecordByClientUuid(msg.data),
+        ])
+          .then(() => worker.postMessage(workerStates.DEL_COMP.f()))
+          .catch((reason) => console.warn(reason));
         break;
       case clientActions.GET_LIST.k:
         getList()
@@ -92,22 +104,21 @@ function getList() {
  */
 function sendUpsert(note) {
   return new Promise((resolve, reject) => {
+    const { clientUuid, title, content, tags, inTrashcan } = note;
+
     axios.put('/🔌/v1/note/upsert', {
-      noteUuid: note.noteUuid || null,
-      clientUuid: note.clientUuid,
-      title: note.title,
-      content: note.content,
-      tags: note.tags,
-      inTrashcan: note.inTrashcan,
+      clientUuid,
+      title,
+      content,
+      tags,
+      inTrashcan,
     })
       .then((response) => resolve(response.data))
       .catch((error) => {
         if (error.response) {
           // The request was made and the server responded with a status code
           // that falls out of the range of 2xx
-          console.log(['data', error.response.data]);
-          console.log(['status', error.response.status]);
-          console.log(['headers', error.response.headers]);
+          console.error(error.response.data);
         }
 
         reject(error);
@@ -121,15 +132,33 @@ function sendUpsert(note) {
  */
 function getByClientUuid(uuid) {
   return new Promise((resolve, reject) => {
-    axios.get(`/🔌/v1/note/clientUuid/${uuid}`)
+    axios.get(`/🔌/v1/note/client-uuid/${uuid}`)
       .then((response) => resolve(response.data))
       .catch((error) => {
         if (error.response) {
           // The request was made and the server responded with a status code
           // that falls out of the range of 2xx
-          console.log(['data', error.response.data]);
-          console.log(['status', error.response.status]);
-          console.log(['headers', error.response.headers]);
+          console.error(error.response.data);
+        }
+
+        reject(error);
+      });
+  });
+}
+
+/**
+ * @param {string} uuid
+ * @returns {Promise}
+ */
+function delByClientUuid(uuid) {
+  return new Promise((resolve, reject) => {
+    axios.delete(`/🔌/v1/note/client-uuid/${uuid}`)
+      .then((response) => resolve(response.data))
+      .catch((error) => {
+        if (error.response) {
+          // The request was made and the server responded with a status code
+          // that falls out of the range of 2xx
+          console.error(error.response.data);
         }
 
         reject(error);

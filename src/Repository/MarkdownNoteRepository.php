@@ -118,4 +118,22 @@ class MarkdownNoteRepository extends ServiceEntityRepository
 
         return $noteEntity;
     }
+
+    public function delete(string $clientUuid, UserInterface $user): bool
+    {
+        $entityManager = $this->getEntityManager();
+        $userId = $user->getUsername();
+
+        // First, try to fetch by the Host UUID, then the Client Uuid, and finally just create a new one
+        $noteEntity = $this->findOneBy(['userId' => $userId, 'clientUuid' => $clientUuid]);
+
+        if ($noteEntity === null) {
+            return false;
+        }
+
+        $entityManager->remove($noteEntity);
+        $entityManager->flush();
+
+        return true;
+    }
 }

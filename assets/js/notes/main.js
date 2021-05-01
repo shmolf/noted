@@ -4,14 +4,12 @@ import 'CSS/notes.scss';
 
 import { workerStates, clientActions, NotePackage } from 'JS/notes/worker-client-api';
 import Worker from './note.worker';
-import 'JS/lib/cookie';
+import Cookies from 'JS/lib/cookie';
 // @ts-ignore
 import sample from './sample.md';
 
 // Libraries for the Markdown Render
 import mdIt from 'markdown-it';
-// @ts-ignore
-import mdItGraphs from 'markvis';
 import * as d3 from 'd3';
 // @ts-ignore
 import markdownItApexCharts, { ApexRender } from 'markdown-it-apexcharts';
@@ -19,7 +17,6 @@ import mdItEmoji from 'markdown-it-emoji';
 import twemoji from 'twemoji';
 import { loadFront } from 'yaml-front-matter';
 import hljs from 'highlight.js';
-import 'NODE/highlight.js/styles/gruvbox-dark.css';
 
 // Library for the input side
 import CodeMirror from './code-mirror-assets';
@@ -27,6 +24,8 @@ import CodeMirror from './code-mirror-assets';
 // ---- Now, begins the application logic ----
 
 const CM_THEME_COOKIE = 'cs-theme';
+const PAGE_THEME_COOKIE = 'page-theme';
+const HLJS_THEME_COOKIE = 'hljs-theme';
 
 /** @type {JQuery} */
 let $title;
@@ -46,6 +45,15 @@ let $noteListNav;
 /** @type {JQuery} */
 let $noteListTemplate;
 
+/** @type {JQuery} */
+let $pageTheme;
+
+/** @type {JQuery} */
+let $codeMirrorTheme;
+
+/** @type {JQuery} */
+let $highlightJsTheme;
+
 /** @type {CodeMirror} */
 let codeMirrorEditor;
 
@@ -57,13 +65,6 @@ let md;
 // Since CodeMirror.setValue() triggers a change event, we'll want to prevent change events when manually setting value
 let manuallySettingValue = false;
 
-/**
- * @typedef {object} NoteQueue
- * @property {Date} firstTimeout - Used to compare how much delay has passed since the edits started
- * @property {number} delayedCount
- * @property {number} timeoutId
- */
-
 /** @type {Object.<string, NoteQueue>} */
 const modifiedNotes = {};
 
@@ -71,28 +72,15 @@ const noteSaveDelay = 3 * 1000;
 const noteDelayMax = 10 * 1000;
 
 $(() => {
-  $title = $('#note-title');
-  $settingsModal = $('#settings-popup');
-  $editor = $('#markdown-input');
-  $mdView = $('#markdown-output');
-  $noteListNav = $('#note-navigation');
-  $noteListTemplate = $('#note-item-template');
-
-  M.Modal.init($settingsModal, {
-    // onCloseStart: () => clearModal(),
-    onOpenEnd: () => {
-      $settingsModal.scrollTop(0);
-      $('#codemirror-theme').val(localStorage.getItem(CM_THEME_COOKIE) || 'default');
-    },
-  });
-
-  initCodeMirror(sample);
+  loadSw();
+  initJqueryVariables();
+  initMaterialize();
+  initCodeMirror();
   initMarkdownIt();
 
-  $('#codemirror-theme').on('change', (e) => {
-    const theme = String($(e.currentTarget).val());
-    setCodeMirrorTheme(theme);
-  });
+  $pageTheme.on('change', updatePageTheme);
+  $codeMirrorTheme.on('change', updateCodeMirrorTheme);
+  $highlightJsTheme.on('change', updateHighlightJsTheme);
 
   const cmTheme = localStorage.getItem(CM_THEME_COOKIE);
   if (cmTheme !== null) {
@@ -107,62 +95,18 @@ $(() => {
   $('.show-cookie-pref').on('click', () => {
     M.Modal.getInstance($settingsModal.get(0))?.close();
   });
-  loadSw();
 });
 
-/**
- * Grabs the input from Code Mirror, and uses Markdown-It to render the output.
- * @param {string} markdown
- */
-function renderMarkdown(markdown) {
-  const parsedMarkdown = parseFrontMatter(markdown);
-  const render = md.render(parsedMarkdown, { d3 });
-  $mdView.html(render);
-  ApexRender();
-  $mdView.find('pre code').each((i, elem) => {
-    const codeBlock = elem;
-    codeBlock.innerHTML = hljs.highlightAuto(elem.textContent).value;
-  });
-}
-
-/**
- * @param {string} markdown
- * @returns {string}
- */
-function parseFrontMatter(markdown) {
-  let parsedFrontMatter;
-
-  try {
-    parsedFrontMatter = loadFront(markdown);
-  } catch(e) {
-    console.warn(e);
-    return markdown;
-  }
-  const pagePlaceholder = /\{\{ page\.([^}}]+) \}\}/g;
-  let { __content: content, ...data } = parsedFrontMatter;
-
-  const matches = [...markdown.matchAll(pagePlaceholder)]
-    .map((match) => match[1])
-    .filter((value, index, self) => self.indexOf(value) === index);
-
-  matches.forEach((match) => {
-    let value;
-    try {
-      // eslint-disable-next-line no-eval
-      value = eval(`data.${match}`);
-    } catch (e) {
-      console.warn(`Could not interpret '${match}'. Error:\n${e}`);
-      return;
-    }
-
-    if (value !== undefined) {
-      const regexString = `\\{\\{ page\\.${escapeRegExp(match)} \\}\\}`;
-      const placeholderMatch = new RegExp(regexString, 'g');
-      content = content.replaceAll(placeholderMatch, value);
-    }
-  });
-
-  return content;
+function initJqueryVariables() {
+  $pageTheme = $('#page-theme');
+  $codeMirrorTheme = $('#codemirror-theme');
+  $highlightJsTheme = $('#highlightjs-theme');
+  $title = $('#note-title');
+  $settingsModal = $('#settings-popup');
+  $editor = $('#markdown-input');
+  $mdView = $('#markdown-output');
+  $noteListNav = $('#note-navigation');
+  $noteListTemplate = $('#note-item-template');
 }
 
 /**
@@ -205,6 +149,7 @@ function initCodeMirror() {
     },
   };
 
+  // @ts-ignore
   codeMirrorEditor = CodeMirror.fromTextArea(/** @type {HTMLTextAreaElement} */($editor.get(0)), cmOptions);
 
   codeMirrorEditor.on('change', (editor) => {
@@ -214,6 +159,98 @@ function initCodeMirror() {
 
     queueNoteSave(editor);
   });
+}
+
+function initMaterialize() {
+  M.Modal.init($settingsModal, {
+    // onCloseStart: () => clearModal(),
+    onOpenEnd: () => {
+      $settingsModal.scrollTop(0);
+      $('#codemirror-theme').val(localStorage.getItem(CM_THEME_COOKIE) || 'default');
+    },
+  });
+
+}
+
+function updatePageTheme() {
+  const optionClasses = $pageTheme.find('option').map((i, element) => element.value).get().join(' ');
+  const selectedTheme = String($pageTheme.val()).trim();
+  Cookies.store(PAGE_THEME_COOKIE, selectedTheme);
+
+  $(document.body).removeClass(optionClasses).addClass(selectedTheme);
+}
+
+function updateCodeMirrorTheme() {
+  const theme = String($codeMirrorTheme.val());
+  setCodeMirrorTheme(theme);
+}
+
+function updateHighlightJsTheme() {
+  const selectedTheme = String($highlightJsTheme.val()).trim();
+  Cookies.store(HLJS_THEME_COOKIE, selectedTheme);
+
+  $('link[title].current').attr('disabled', 'disabled').removeClass('current');
+  $(`link[title="${selectedTheme}"]`).removeAttr("disabled").addClass('current');
+}
+
+/**
+ * Grabs the input from Code Mirror, and uses Markdown-It to render the output.
+ * Since part of the rendering process includes extracting FrontMatter data, this'll return
+ * that data to the callsite, where it can use it for additional work. Like updating the title.
+ *
+ * @param {string} markdown
+ */
+function renderMarkdown(markdown) {
+  const { content, data } = parseFrontMatter(markdown);
+  const render = md.render(content, { d3 });
+  $mdView.html(render);
+  ApexRender();
+  $mdView.find('pre code').each((i, elem) => {
+    const codeBlock = elem;
+    codeBlock.innerHTML = hljs.highlightAuto(elem.textContent).value;
+  });
+
+  return data;
+}
+
+/**
+ * @param {string} markdown
+ * @returns {{content: string, data: Object.<string, any>}}
+ */
+function parseFrontMatter(markdown) {
+  let parsedFrontMatter;
+
+  try {
+    parsedFrontMatter = loadFront(markdown);
+  } catch(e) {
+    console.warn(e);
+    return { content: markdown, data: {} };
+  }
+  const pagePlaceholder = /\{\{ page\.([^}}]+) \}\}/g;
+  let { __content: content, ...data } = parsedFrontMatter;
+
+  const matches = [...markdown.matchAll(pagePlaceholder)]
+    .map((match) => match[1])
+    .filter((value, index, self) => self.indexOf(value) === index);
+
+  matches.forEach((match) => {
+    let value;
+    try {
+      // eslint-disable-next-line no-eval
+      value = eval(`data.${match}`);
+    } catch (e) {
+      console.warn(`Could not interpret '${match}'. Error:\n${e}`);
+      return;
+    }
+
+    if (value !== undefined) {
+      const regexString = `\\{\\{ page\\.${escapeRegExp(match)} \\}\\}`;
+      const placeholderMatch = new RegExp(regexString, 'g');
+      content = content.replaceAll(placeholderMatch, value);
+    }
+  });
+
+  return { content, data };
 }
 
 /**
@@ -241,13 +278,14 @@ function loadSw() {
  */
 function queueNoteSave(editor) {
   const markdown = editor.getValue();
-  renderMarkdown(markdown);
+  const frontmatterData = renderMarkdown(markdown);
 
   if (worker === null) {
     return;
   }
 
-  const note = packageNote(markdown);
+  const title = frontmatterData.title ?? null;
+  const note = packageNote(markdown, title);
 
   if (note.clientUuid in modifiedNotes) {
     clearTimeout(modifiedNotes[note.clientUuid].timeoutId);
@@ -268,6 +306,10 @@ function queueNoteSave(editor) {
     modifiedNotes[note.clientUuid].delayedCount += 1;
     modifiedNotes[note.clientUuid].timeoutId = window.setTimeout(() => {
       delete modifiedNotes[note.clientUuid];
+      const title = typeof note.title === 'string' && note.title.trim().length > 0
+        ? note.title
+        : (new Date()).toDateString();
+      setNavItemTitle(note.clientUuid, title);
       worker.postMessage(clientActions.MODIFY.f(note));
     }, noteSaveDelay);
   }
@@ -275,19 +317,16 @@ function queueNoteSave(editor) {
 
 /**
  * @param {string} markdown
+ * @param {?string} title
  * @returns {NotePackage}
  */
-function packageNote(markdown) {
-  let noteUuid = $editor.data('noteUuid');
-  noteUuid = typeof noteUuid === 'string' ? noteUuid.trim() : null;
+function packageNote(markdown, title) {
   let clientUuid = $editor.data('clientUuid') || null;
   clientUuid = typeof clientUuid === 'string' ? clientUuid.trim() : null;
-  let title = $title.val();
-  title = typeof title === 'string' ? title.trim() : null;
+  title = typeof title === 'string' ? title.trim() : '';
   const tags = [];
 
   return new NotePackage({
-    noteUuid,
     clientUuid,
     title,
     content: markdown,
@@ -308,7 +347,6 @@ function onWorkerMessage(event) {
         break;
       case workerStates.NOTE_DATA.k:
         const { data: noteData } = msg;
-        $editor.data('noteUuid', noteData.noteUuid);
         $editor.data('clientUuid', noteData.clientUuid);
         manuallySettingValue = true;
         codeMirrorEditor.setValue(noteData.content);
@@ -322,6 +360,9 @@ function onWorkerMessage(event) {
       case workerStates.UPD8_COMP.k:
         const { data: response } = msg;
         console.log(response);
+        break;
+      case workerStates.DEL_COMP.k:
+        console.log('deltion completed');
         break;
       default:
     }
@@ -346,7 +387,7 @@ function renderNoteList(notes) {
       .data('client-uuid', note.clientUuid)
       .data('last-modified', note.lastModified)
       .data('created', note.createdDate)
-      .find('.title').text(note.title || lastModified.toString());
+      .find('.title').text(note.title || lastModified.toDateString());
 
     const $tagTemplate = $noteBtn.find('#note-tag-template').clone().removeAttr('id');
     note.tags.forEach((tag) => $noteBtn.find('.tag-container').append($tagTemplate.clone().text(tag)));
@@ -360,11 +401,17 @@ function renderNoteList(notes) {
   });
 }
 
+function setNavItemTitle(uuid, title) {
+  const $navListItem = $noteListNav
+    .find('.note-item')
+    .filter((i, elem) => String($(elem).data('client-uuid')) === uuid);
+  $navListItem.find('.title').text(title);
+}
+
 /**
  * @typedef {Object} NoteListItem
  * @property {string} title
  * @property {string[]} tags
- * @property {string} noteUuid
  * @property {string} clientUuid
  * @property {string} inTrashcan
  * @property {string} createdDate
@@ -372,4 +419,11 @@ function renderNoteList(notes) {
  * @property {string} lastModified.date
  * @property {string} lastModified.timezone
  * @property {number} lastModified.timezone_type
+ */
+
+/**
+ * @typedef {object} NoteQueue
+ * @property {Date} firstTimeout - Used to compare how much delay has passed since the edits started
+ * @property {number} delayedCount
+ * @property {number} timeoutId
  */

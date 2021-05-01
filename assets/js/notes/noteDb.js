@@ -15,7 +15,6 @@ let noteTable = null;
 
 const schema = {
   id: 'id',
-  noteUuid: 'noteUuid',
   clientUuid: 'clientUuid',
   title: 'title',
   content: 'content',
@@ -35,7 +34,7 @@ async function buildDb() {
   return new Promise((resolve, reject) => {
     db.version(1).stores({
       // 'opened' do not need to be indexed, so omit from schema
-      notes: '++id, &noteUuid, &clientUuid, title, content, *tags, synced',
+      notes: '++id, &clientUuid, title, content, *tags, synced',
     });
 
     return db.open().then((dbInstance) => {
@@ -56,46 +55,60 @@ async function buildDb() {
  */
 function modifyRecord(note) {
   return new Promise((resolve, reject) => {
-    if (typeof note.noteUuid === 'string') {
-      getRecordByNoteUuid(note.noteUuid).then((records) => {
-        records?.modify(note.toObj()).then((id) => resolve(id))
-          ?? reject(Error(`Could not find a record by UUID: '${note.noteUuid}'`));
-      }).catch((reason) => {
-        reject(reason);
-      });
-    } else if (typeof note.clientUuid === 'string') {
-      getRecordByClientUuid(note.clientUuid).then((record) => {
-        record?.modify(note.toObj()).then((id) => resolve(id))
-          ?? reject(Error(`Could not find a record by UUID: '${note.clientUuid}'`));
-      }).catch((reason) => {
-        reject(reason);
-      });
-    } else if (typeof note.id === 'number') {
-      getRecordById(note.id).then((record) => {
-        record?.modify(note.toObj()).then((id) => resolve(id))
-          ?? reject(Error(`Could not find a record by Id: '${note.id}'`));
-      }).catch((reason) => {
-        reject(reason);
-      });
+    if (note.id === null && note.clientUuid === null) {
+      createNewRecord(note).then((id) => resolve(id));
     } else {
-      getTable()
-        .then((table) => {
-          table
-            .add({
-              title: note.title || '',
-              content: note.content || '',
-              tags: note.tags || [],
-              clientUuid: uuidv4(),
-              opened: true,
-              synced: false,
-              inTrashcan: false,
+      const retrievalFunction = typeof note.clientUuid === 'string'
+        ? () => getRecordByClientUuid(note.clientUuid)
+        : () => getRecordById(note.id);
+
+      retrievalFunction()
+        .then((records) => {
+          records.first()
+            .then((record) => {
+              if (record === undefined) {
+                const identifierType = typeof note.clientUuid === 'string' ? 'Uuid' : 'Id';
+                const identifierVal = typeof note.clientUuid === 'string' ? note.clientUuid : note.id;
+                throw new Error(`Could not find a record by ${identifierType}: '${identifierVal}'`);
+              } else {
+                records.modify(note.toObj()).then((id) => resolve(id));
+              }
             })
-            .then((id) => resolve(id));
+            .catch((reason) => {
+              console.warn(`${reason}\nGoing to try creating a new record.`);
+              createNewRecord(note)
+                .then((id) => resolve(id))
+                .catch((response) => reject(response));
+            });
         })
-        .catch((reason) => {
-          reject(reason);
-        });
+        .catch((reason) => reject(reason));
     }
+  });
+}
+
+/**
+ * @param {NotePackage} note
+ * @returns {Promise<number>}
+ */
+function createNewRecord(note) {
+  return new Promise((resolve, reject) => {
+    getTable()
+      .then((table) => {
+        table
+          .add({
+            title: note.title || '',
+            content: note.content || '',
+            tags: note.tags || [],
+            clientUuid: note.clientUuid ?? uuidv4(),
+            opened: true,
+            synced: false,
+            inTrashcan: false,
+          })
+          .then((id) => resolve(id));
+      })
+      .catch((reason) => {
+        reject(reason);
+      });
   });
 }
 
@@ -105,43 +118,6 @@ function modifyRecord(note) {
  */
 function syncRecords(notes) {
   // Need to do a bulk update using Dexie.
-}
-
-/**
- * @param {string} clientUuid
- * @param {string} noteUuid
- * @returns {Promise<number>}
- */
-function updateNoteUuid(clientUuid, noteUuid) {
-  return new Promise((resolve, reject) => {
-    getTable()
-      .then((table) => table.where(schema.clientUuid).equals(clientUuid))
-      .then((records) => {
-        records?.modify({ noteUuid }).then((id) => resolve(id))
-          ?? reject(Error(`Could not find a record by UUID: '${clientUuid}'`));
-      }).catch((reason) => {
-        reject(reason);
-      });
-  });
-}
-
-/**
- * @param {string} uuid
- * @returns {Promise<?Dexie.Collection<any, any>>}
- */
-function getRecordByNoteUuid(uuid) {
-  return new Promise((resolve, reject) => {
-    if (uuid.trim().length === 0) {
-      resolve(null);
-    }
-
-    getTable()
-      .then((table) => table.where(schema.noteUuid).equals(uuid))
-      .then((records) => resolve(records))
-      .catch((reason) => {
-        reject(reason);
-      });
-  });
 }
 
 /**
@@ -164,8 +140,32 @@ function getRecordByClientUuid(uuid) {
 }
 
 /**
+ * @param {string} uuid
+ * @returns {Promise<?Dexie.Collection<any, any>>}
+ */
+function delRecordByClientUuid(uuid) {
+  return new Promise((resolve, reject) => {
+    if (uuid.trim().length === 0) {
+      resolve(null);
+    }
+
+    getTable()
+      .then((table) => {
+        return { 'table': table, 'records': table.where(schema.clientUuid).equals(uuid) };
+      })
+      .then((data) => {
+        const { table, records } = data;
+        return records.first().then((note) => table.delete(note.id));
+      })
+      .catch((reason) => {
+        reject(reason);
+      });
+  });
+}
+
+/**
  * @param {number} id
- * @returns {Promise<?NotePackage>}
+ * @returns {Promise<?Dexie.Collection<any, any>>}
  */
 function getRecordById(id) {
   return new Promise((resolve, reject) => {
@@ -174,8 +174,8 @@ function getRecordById(id) {
     }
 
     getTable()
-      .then((table) => table.where(schema.id).equals(id).first())
-      .then((/** @type {NotePackageOptions} */record) => resolve(new NotePackage(record)))
+      .then((table) => table.where(schema.id).equals(id))
+      .then((records) => resolve(records))
       .catch((reason) => {
         reject(reason);
       });
@@ -206,11 +206,10 @@ function packet(action, data) {
 
 export default {
   buildDb,
-  getRecordByNoteUuid,
   getRecordByClientUuid,
+  delRecordByClientUuid,
   getRecordById,
   modifyRecord,
   syncRecords,
-  updateNoteUuid,
   packet,
 };

@@ -6,6 +6,7 @@ use App\Entity\MarkdownNote;
 use App\Entity\NoteTag;
 use App\Entity\UserAccount;
 use App\Repository\MarkdownNoteRepository;
+use Exception;
 use shmolf\NotedRequestHandler\NoteHydrator;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -27,7 +28,6 @@ class NotesController extends AbstractController
                 'tags' => array_map(function(NoteTag $tag) {
                         return $tag->getName();
                     }, $note->getTags()->toArray()),
-                'noteUuid' => $note->getNoteUuid(),
                 'clientUuid' => $note->getClientUuid(),
                 'inTrashcan' => $note->getInTrashcan(),
                 'createdDate' => $note->getCreatedDate(),
@@ -51,11 +51,22 @@ class NotesController extends AbstractController
         ]);
     }
 
+    public function deleteNoteByClientUuid(string $uuid, MarkdownNoteRepository $repo): JsonResponse
+    {
+        $didDelete = $repo->delete($uuid, $this->getUser());
+
+        return new JsonResponse(null, ($didDelete ? 200 : 404));
+    }
+
     public function upsertNote(MarkdownNoteRepository $repo, Request $request): JsonResponse
     {
         $hydrator = new NoteHydrator();
         $noteJsonString = $request->getContent();
         $note = $hydrator->getHydratedNote($noteJsonString);
+        if ($note === null) {
+            throw new Exception("Could not hydrate note with given JSON:\n{$noteJsonString}");
+        }
+
         $noteEntity = $repo->upsert($note, $this->getUser());
 
         return $this->json($noteEntity, 200, [], [

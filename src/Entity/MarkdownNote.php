@@ -77,7 +77,6 @@ class MarkdownNote
 
     /**
      * @ORM\Column(type="guid", unique=true)
-     * @Groups("main")
      * @var string
      */
     private $noteUuid;

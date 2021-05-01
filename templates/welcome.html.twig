@@ -8,6 +8,12 @@
     {% else %}
         {{ encore_entry_link_tags('welcome') }}
     {% endif %}
+
+    {% for key, highglightTheme in highlightJsThemes %}
+        {% set isSelected = highglightTheme.isSelected %}
+        <link rel="stylesheet" {{ isSelected ? '' : 'disabled' }} title="{{ key }}"
+            class="{{ isSelected ? 'current' : '' }}" href="{{ highglightTheme.url }}" crossorigin="anonymous" />
+    {% endfor %}
 {% endblock %}
 
 
@@ -30,7 +36,7 @@
 
 {% block body %}
     {% if is_granted('ROLE_USER') %}
-        {{ _self.settingsPopup() }}
+        {{ _self.settingsPopup(pageThemes, highlightJsThemes) }}
         <aside id="note-navigation">
             {{ _self.noteTitleTemplate() }}
         </aside>
@@ -42,7 +48,7 @@
                 <textarea id="markdown-input" data-noteref="" data-theme="" placeholder="Markdown note goes here..."></textarea>
             </div>
             <div id="output-wrap">
-                <div id="markdown-output"></div>
+                <div id="markdown-output" class="hljs"></div>
             </div>
         </div>
     {% else %}
@@ -50,17 +56,38 @@
     {% endif %}
 {% endblock %}
 
-{% macro settingsPopup() %}
+{% macro settingsPopup(pageThemes, highlightJsThemes) %}
     <div id="settings-popup" class="modal modal-fixed-footer">
         <div class="modal-content">
             <div class="row">
                 <div class="col s12">
                     <div class="row">
                         <div class="col s6">
-                            Input Code Syntax Theme:
+                            Select Page Theme:
+                        </div>
+                        <div class="col s6">
+                            <select id="page-theme">
+                            {% for key, theme in pageThemes %}
+                                {% set selected = theme.isSelected ? 'selected' : '' %}\
+                                <option value="{{ key }}" {{ selected }}>{{ theme.name }}</option>
+                            {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col s6">
+                            Input Theme:
                         </div>
                         <div class="col s6">
                             {{ cmMacros.codemirrorThemeSelect() }}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col s6">
+                            Output Theme:
+                        </div>
+                        <div class="col s6">
+                            {{ _self.highlightJsSelect(highlightJsThemes) }}
                         </div>
                     </div>
                     <div class="row">
@@ -80,11 +107,19 @@
 {% endmacro %}
 
 {% macro noteTitleTemplate() %}
-    <button type="button" id="note-item-template" class="note-item" class="btn">
+    <button type="button" id="note-item-template" class="note-item btn">
         <span class="title"></span>
         <span class="last-modified"></span>
         <span class="tag-container">
             <span id="note-tag-template" class="note-tag"><span>
         </span>
     </button>
+{% endmacro %}
+
+{% macro highlightJsSelect(themes) %}
+    <select id="highlightjs-theme">
+    {% for key, theme in themes %}
+        <option value="{{ key }}" {{ theme.isSelected ? 'selected' }}>{{ key }}</option>
+    {% endfor %}
+    </select>
 {% endmacro %}
