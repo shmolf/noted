@@ -316,11 +316,11 @@ function queueNoteSave(editor) {
 }
 
 /**
- * @param {string} markdown
+ * @param {string} content
  * @param {?string} title
  * @returns {NotePackage}
  */
-function packageNote(markdown, title) {
+function packageNote(content, title) {
   let clientUuid = $editor.data('clientUuid') || null;
   clientUuid = typeof clientUuid === 'string' ? clientUuid.trim() : null;
   title = typeof title === 'string' ? title.trim() : '';
@@ -329,7 +329,7 @@ function packageNote(markdown, title) {
   return new NotePackage({
     clientUuid,
     title,
-    content: markdown,
+    content,
     tags,
     inTrashcan: false,
   });
@@ -349,6 +349,7 @@ function onWorkerMessage(event) {
         const { data: noteData } = msg;
         $editor.data('clientUuid', noteData.clientUuid);
         manuallySettingValue = true;
+        // @ts-ignore
         codeMirrorEditor.setValue(noteData.content);
         manuallySettingValue = false;
         renderMarkdown(noteData.content);

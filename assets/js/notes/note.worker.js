@@ -8,9 +8,9 @@ import { workerStates, clientActions, NotePackage } from 'JS/notes/worker-client
 import axios from 'axios';
 
 if ('setAppBadge' in navigator && 'clearAppBadge' in navigator) {
-  console.log('badges are enabled');
+  // @ts-ignore
   navigator.setAppBadge(1).catch((error) => {
-    console.log(error);
+    console.error(error);
   });
 }
 
@@ -43,9 +43,9 @@ function handleAction(msg) {
         const { data: noteData } = msg;
         noteDb
           .modifyRecord(new NotePackage(noteData))
-          .then((recordId) => noteDb.getRecordById(recordId))
-          .then((records) => records.first())
-          .then((note) => sendUpsert(new NotePackage(note)).then((r) => r).catch((e) => console.warn(e)))
+          .then((uuid) => noteDb.getRecordByClientUuid(uuid))
+          .then((records) => records.toArray())
+          .then((arr) => sendUpsert(new NotePackage(arr[0])).then((r) => r).catch((e) => console.warn(e)))
           .then((response) => worker.postMessage(workerStates.UPD8_COMP.f(response)))
           .catch((error) => console.warn(`Inbound request to modify record failed.\n${error}`));
         break;
@@ -53,18 +53,17 @@ function handleAction(msg) {
         const { data: uuid } = msg;
         noteDb
           .getRecordByClientUuid(uuid)
-          .then((records) => records.first())
-          .then((localRecord) => {
-            if (localRecord === null || localRecord === undefined) {
-              console.log('Could not find note locally. Going to fetch from server');
+          .then((records) => records.toArray())
+          .then((recordsArray) => {
+            if (recordsArray === null || recordsArray === undefined || recordsArray.length === 0) {
               getByClientUuid(uuid)
                 .then((note) => noteDb.modifyRecord(new NotePackage(note)))
-                .then((recordId) => noteDb.getRecordById(recordId))
-                .then((records) => records.first())
-                .then((record) => worker.postMessage(workerStates.NOTE_DATA.f(record)))
+                .then((clientUuid) => noteDb.getRecordByClientUuid(clientUuid))
+                .then((records) => records.toArray())
+                .then((arr) => worker.postMessage(workerStates.NOTE_DATA.f(arr[0])))
                 .catch((error) => console.warn(error));
             } else {
-              worker.postMessage(workerStates.NOTE_DATA.f(/** @type {NotePackageOptions} */localRecord));
+              worker.postMessage(workerStates.NOTE_DATA.f(/** @type {NotePackageOptions} */recordsArray[0]));
             }
           })
           .catch((error) => console.warn(error));
@@ -90,6 +89,9 @@ function handleAction(msg) {
   }
 }
 
+/**
+ * @returns {Promise<Array>}
+ */
 function getList() {
   return new Promise((resolve, reject) => {
     axios.get('/🔌/v1/note/list')
@@ -104,7 +106,14 @@ function getList() {
  */
 function sendUpsert(note) {
   return new Promise((resolve, reject) => {
-    const { clientUuid, title, content, tags, inTrashcan } = note;
+    const {
+      clientUuid,
+      title,
+      content,
+      tags,
+      inTrashcan,
+      isDeleted,
+    } = note.toObj();
 
     axios.put('/🔌/v1/note/upsert', {
       clientUuid,
@@ -112,6 +121,7 @@ function sendUpsert(note) {
       content,
       tags,
       inTrashcan,
+      isDeleted,
     })
       .then((response) => resolve(response.data))
       .catch((error) => {

@@ -20,7 +20,7 @@ class NotesController extends AbstractController
         $user = $this->getUser();
         $notes = $this->getDoctrine()
             ->getRepository(MarkdownNote::class)
-            ->findBy(['userId' => $user->getId()]);
+            ->findBy(['userId' => $user->getId()], ['lastModified' => 'DESC']);
 
         $noteList = array_map(function(MarkdownNote $note) {
             return [

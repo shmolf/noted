@@ -126,6 +126,7 @@ function stringIt(obj) {
  * @property {string} content
  * @property {string[]} tags
  * @property {boolean} [inTrashcan=false]
+ * @property {boolean} [isDeleted=false]
  * @property {?Date} [createdDate]
  * @property {?Date} [lastModified]
  */
@@ -140,6 +141,7 @@ export class NotePackage {
     this.content = optionalProperties.content;
     this.tags = optionalProperties.tags.filter((value, index, self) => self.indexOf(value) === index);
     this.inTrashcan = optionalProperties.inTrashcan ?? false;
+    this.isDeleted = optionalProperties.isDeleted ?? false;
     this.createdDate = optionalProperties.createdDate ?? null;
     this.lastModified = optionalProperties.lastModified ?? null;
   }

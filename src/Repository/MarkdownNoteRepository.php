@@ -72,6 +72,7 @@ class MarkdownNoteRepository extends ServiceEntityRepository
         $noteEntity->setTitle($noteData->title);
         $noteEntity->setContent($noteData->content);
         $noteEntity->setInTrashcan($noteData->inTrashcan);
+        $noteEntity->setIsDeleted($noteData->isDeleted);
 
         if ($noteEntity->getNoteUuid() === null) {
             $noteEntity->setNoteUuid(Uuid::uuid4()->toString());

@@ -88,6 +88,11 @@ class MarkdownNote
      */
     private $clientUuid;
 
+    /**
+     * @ORM\Column(type="boolean", options={"default" : false})
+     */
+    private $isDeleted;
+
     public function __construct()
     {
         $this->tags = new ArrayCollection();
@@ -223,6 +228,18 @@ class MarkdownNote
     public function setClientUuid(?string $clientUuid): self
     {
         $this->clientUuid = $clientUuid;
+
+        return $this;
+    }
+
+    public function getIsDeleted(): ?bool
+    {
+        return $this->isDeleted;
+    }
+
+    public function setIsDeleted(bool $isDeleted): self
+    {
+        $this->isDeleted = $isDeleted;
 
         return $this;
     }

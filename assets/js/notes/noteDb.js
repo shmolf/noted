@@ -23,6 +23,7 @@ const schema = {
   synced: 'synced',
   syncAction: 'syncAction',
   inTrashcan: 'inTrashcan',
+  isDeleted: 'isDeleted',
 };
 
 /**
@@ -30,54 +31,47 @@ const schema = {
  *
  * @returns {Promise<Dexie>}
  */
-async function buildDb() {
+function buildDb() {
   return new Promise((resolve, reject) => {
     db.version(1).stores({
       // 'opened' do not need to be indexed, so omit from schema
-      notes: '++id, &clientUuid, title, content, *tags, synced',
+      notes: '++id, &clientUuid, title, content, *tags, lastSynced',
     });
 
-    return db.open().then((dbInstance) => {
-      try {
+    return db.open()
+      .then((dbInstance) => {
         noteTable = dbInstance.table(TABLE_NOTE);
         resolve(dbInstance);
-      } catch (/** @type {import('dexie').InvalidTableError} */error) {
-        console.error(`${error.name}: ${error.message}`);
-        reject(error);
-      }
-    });
+      })
+      .catch((error) => reject(error));
   });
 }
 
 /**
  * @param {NotePackage} note
- * @returns {Promise<number>}
+ * @returns {Promise<string>}
  */
 function modifyRecord(note) {
   return new Promise((resolve, reject) => {
     if (note.id === null && note.clientUuid === null) {
-      createNewRecord(note).then((id) => resolve(id));
+      createNewRecord(note).then((uuid) => resolve(uuid));
     } else {
-      const retrievalFunction = typeof note.clientUuid === 'string'
-        ? () => getRecordByClientUuid(note.clientUuid)
-        : () => getRecordById(note.id);
-
-      retrievalFunction()
+      getRecordByClientUuid(note.clientUuid)
         .then((records) => {
-          records.first()
-            .then((record) => {
-              if (record === undefined) {
+          records.toArray()
+            .then((arr) => {
+              if (arr.length === 0) {
                 const identifierType = typeof note.clientUuid === 'string' ? 'Uuid' : 'Id';
                 const identifierVal = typeof note.clientUuid === 'string' ? note.clientUuid : note.id;
                 throw new Error(`Could not find a record by ${identifierType}: '${identifierVal}'`);
               } else {
-                records.modify(note.toObj()).then((id) => resolve(id));
+                records.modify(note.toObj()).then(() => resolve(note.clientUuid));
               }
             })
             .catch((reason) => {
               console.warn(`${reason}\nGoing to try creating a new record.`);
               createNewRecord(note)
-                .then((id) => resolve(id))
+                .then((uuid) => resolve(uuid))
                 .catch((response) => reject(response));
             });
         })
@@ -88,23 +82,24 @@ function modifyRecord(note) {
 
 /**
  * @param {NotePackage} note
- * @returns {Promise<number>}
+ * @returns {Promise<string>}
  */
 function createNewRecord(note) {
   return new Promise((resolve, reject) => {
     getTable()
       .then((table) => {
+        const uuid = note.clientUuid ?? uuidv4();
         table
           .add({
             title: note.title || '',
             content: note.content || '',
             tags: note.tags || [],
-            clientUuid: note.clientUuid ?? uuidv4(),
+            clientUuid: uuid,
             opened: true,
             synced: false,
             inTrashcan: false,
-          })
-          .then((id) => resolve(id));
+            isDeleted: false,
+          }).then(() => resolve(uuid));
       })
       .catch((reason) => {
         reject(reason);
@@ -155,7 +150,7 @@ function delRecordByClientUuid(uuid) {
       })
       .then((data) => {
         const { table, records } = data;
-        return records.first().then((note) => table.delete(note.id));
+        return records.toArray().then((arr) => table.delete(arr[0].id));
       })
       .catch((reason) => {
         reject(reason);
