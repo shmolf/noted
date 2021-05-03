@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\MarkdownNote;
 use App\Entity\NoteTag;
+use App\Entity\UserAccount;
 use App\Exception\EntitySaveException;
 use DateTime;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
@@ -11,7 +12,6 @@ use Doctrine\Persistence\ManagerRegistry;
 use Exception;
 use Ramsey\Uuid\Uuid;
 use shmolf\NotedRequestHandler\Entity\NoteEntity as ClientNoteEntity;
-use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * @method MarkdownNote|null find($id, $lockMode = null, $lockVersion = null)
@@ -58,10 +58,10 @@ class MarkdownNoteRepository extends ServiceEntityRepository
     }
     */
 
-    public function upsert(ClientNoteEntity $noteData, UserInterface $user): MarkdownNote
+    public function upsert(ClientNoteEntity $noteData, UserAccount $user): MarkdownNote
     {
         $entityManager = $this->getEntityManager();
-        $userId = $user->getUsername();
+        $userId = $user->getId();
 
         // First, try to fetch by the Host UUID, then the Client Uuid, and finally just create a new one
         $noteEntity = $this->findOneBy(['userId' => $userId, 'noteUuid' => $noteData->noteUuid])
@@ -120,10 +120,10 @@ class MarkdownNoteRepository extends ServiceEntityRepository
         return $noteEntity;
     }
 
-    public function delete(string $clientUuid, UserInterface $user): bool
+    public function delete(string $clientUuid, UserAccount $user): bool
     {
         $entityManager = $this->getEntityManager();
-        $userId = $user->getUsername();
+        $userId = $user->getId();
 
         // First, try to fetch by the Host UUID, then the Client Uuid, and finally just create a new one
         $noteEntity = $this->findOneBy(['userId' => $userId, 'clientUuid' => $clientUuid]);
