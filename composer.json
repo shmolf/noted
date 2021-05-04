@@ -2,11 +2,19 @@
     "name": "shmolf/note-d",
     "type": "project",
     "license": "SEE LICENSE IN 'LICENSE'",
-    "minimum-stability": "dev",
     "repositories": [
       {
-          "type": "path",
-          "url": "/home/shmolf/noted-request-handler"
+        "type": "package",
+        "package": {
+          "name": "shmolf/noted-request-handler",
+          "version": "1.0.0",
+          "type": "package",
+          "source": {
+              "url": "git@github.com:shmolf/noted-request-handler.git",
+              "type": "git",
+              "reference": "e1f801c"
+          }
+        }
       }
     ],
     "require": {
@@ -48,7 +56,7 @@
         "symfonycasts/reset-password-bundle": "^1.5",
         "twig/extra-bundle": "^2.12|^3.0",
         "twig/twig": "^2.12|^3.0",
-        "shmolf/noted-request-handler": "dev-hydrator"
+        "shmolf/noted-request-handler": "^1.0"
     },
     "require-dev": {
         "doctrine/doctrine-fixtures-bundle": "^3.4",
