@@ -407,6 +407,7 @@ function setNavItemTitle(uuid, title) {
     .find('.note-item')
     .filter((i, elem) => String($(elem).data('client-uuid')) === uuid);
   $navListItem.find('.title').text(title);
+  $noteListNav.prepend($navListItem);
 }
 
 /**
