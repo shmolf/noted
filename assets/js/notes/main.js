@@ -127,7 +127,6 @@ function initMarkdownIt() {
 function initCodeMirror() {
   /** @see https://codemirror.net/doc/manual.html#config */
   const cmOptions = {
-    // mode: 'gfm',
     mode: {
       name: 'gfm',
       tokenTypeOverrides: {
