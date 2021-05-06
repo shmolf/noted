@@ -178,8 +178,8 @@
             "config/packages/sensio_framework_extra.yaml"
         ]
     },
-    "shmolf/noted-request-handler": {
-        "version": "1.0-dev"
+    "shmolf/noted-hydrator": {
+        "version": "v1.0.1"
     },
     "squizlabs/php_codesniffer": {
         "version": "3.0",

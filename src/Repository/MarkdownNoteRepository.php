@@ -11,7 +11,7 @@ use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use Exception;
 use Ramsey\Uuid\Uuid;
-use shmolf\NotedRequestHandler\Entity\NoteEntity as ClientNoteEntity;
+use shmolf\NotedHydrator\Entity\NoteEntity as ClientNoteEntity;
 
 /**
  * @method MarkdownNote|null find($id, $lockMode = null, $lockVersion = null)

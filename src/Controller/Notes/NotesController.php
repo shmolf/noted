@@ -7,7 +7,7 @@ use App\Entity\NoteTag;
 use App\Entity\UserAccount;
 use App\Repository\MarkdownNoteRepository;
 use Exception;
-use shmolf\NotedRequestHandler\NoteHydrator;
+use shmolf\NotedHydrator\NoteHydrator;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;

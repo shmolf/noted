@@ -2,7 +2,7 @@
 
 namespace App\Controller\Notes;
 
-use shmolf\NotedRequestHandler\NoteHydrator;
+use shmolf\NotedHydrator\NoteHydrator;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
