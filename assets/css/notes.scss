@@ -170,6 +170,10 @@ main {
 #note-navigation {
   background-color: var(--page-notenav-bground);
 
+  #note-item-template {
+    display: none;
+  }
+
   .note-item {
     background-color: var(--page-notenav-item-bground);
     color: var(--page-notenav-item-color);

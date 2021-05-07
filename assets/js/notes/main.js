@@ -27,6 +27,10 @@ const CM_THEME_COOKIE = 'cs-theme';
 const PAGE_THEME_COOKIE = 'page-theme';
 const HLJS_THEME_COOKIE = 'hljs-theme';
 
+
+/** @type {JQuery} */
+let $newNoteBtn;
+
 /** @type {JQuery} */
 let $title;
 
@@ -81,6 +85,7 @@ $(() => {
   $pageTheme.on('change', updatePageTheme);
   $codeMirrorTheme.on('change', updateCodeMirrorTheme);
   $highlightJsTheme.on('change', updateHighlightJsTheme);
+  $newNoteBtn.on('click', newNote);
 
   const cmTheme = localStorage.getItem(CM_THEME_COOKIE);
   if (cmTheme !== null) {
@@ -107,6 +112,8 @@ function initJqueryVariables() {
   $mdView = $('#markdown-output');
   $noteListNav = $('#note-navigation');
   $noteListTemplate = $('#note-item-template');
+
+  $newNoteBtn = $('#new-note');
 }
 
 /**
@@ -190,6 +197,14 @@ function updateHighlightJsTheme() {
 
   $('link[title].current').attr('disabled', 'disabled').removeClass('current');
   $(`link[title="${selectedTheme}"]`).removeAttr("disabled").addClass('current');
+}
+
+function newNote() {
+  manuallySettingValue = true;
+  // @ts-ignore
+  codeMirrorEditor.setValue('');
+  manuallySettingValue = false;
+  renderMarkdown('');
 }
 
 /**
@@ -380,32 +395,56 @@ function renderNoteList(notes) {
   $noteListNav.find('.note-item:not(#note-load-template)').off('click').detach();
 
   notes.forEach((note) => {
-    const $noteBtn = $noteListTemplate.clone().removeAttr('id');
     const lastModified = new Date(`${note.lastModified.date} ${note.lastModified.timezone}`);
+    const createdDate = new Date(`${note.createdDate.date} ${note.createdDate.timezone}`);
 
-    $noteBtn
-      .data('client-uuid', note.clientUuid)
-      .data('last-modified', note.lastModified)
-      .data('created', note.createdDate)
-      .find('.title').text(note.title || lastModified.toDateString());
-
-    const $tagTemplate = $noteBtn.find('#note-tag-template').clone().removeAttr('id');
-    note.tags.forEach((tag) => $noteBtn.find('.tag-container').append($tagTemplate.clone().text(tag)));
-
-    $noteBtn.on('click', (event) => {
-      const eventUuid = $(event.currentTarget).data('clientUuid');
-      worker.postMessage(clientActions.GET_BY_CLIENTUUID.f(eventUuid));
-    });
-
+    const $noteBtn = createNewNoteNavItem(note.clientUuid, note.title, note.tags, lastModified, createdDate);
     $noteListNav.append($noteBtn);
   });
 }
 
+/**
+ *
+ * @param {string} clientUuid
+ * @param {string} title
+ * @param {string[]} tags
+ * @param {?Date} lastModifiedDate
+ * @param {?Date} createdDate
+ * @returns {JQuery}
+ */
+function createNewNoteNavItem(clientUuid, title, tags, lastModifiedDate, createdDate) {
+  const $noteBtn = $noteListTemplate.clone().removeAttr('id');
+  const lastModified = lastModifiedDate ?? new Date();
+  const created = createdDate ?? new Date();
+
+  $noteBtn
+    .data('client-uuid', clientUuid)
+    .data('last-modified', lastModified.toDateString())
+    .data('created', created.toDateString())
+    .find('.title').text(title || lastModified.toDateString());
+
+  const $tagTemplate = $noteBtn.find('#note-tag-template').clone().removeAttr('id');
+  tags.forEach((tag) => $noteBtn.find('.tag-container').append($tagTemplate.clone().text(tag)));
+
+  $noteBtn.on('click', (event) => {
+    const eventUuid = $(event.currentTarget).data('clientUuid');
+    worker.postMessage(clientActions.GET_BY_CLIENTUUID.f(eventUuid));
+  });
+
+  return $noteBtn;
+}
+
 function setNavItemTitle(uuid, title) {
-  const $navListItem = $noteListNav
+  let $navListItem = $noteListNav
     .find('.note-item')
     .filter((i, elem) => String($(elem).data('client-uuid')) === uuid);
-  $navListItem.find('.title').text(title);
+
+  if ($navListItem.length === 0) {
+    $navListItem = createNewNoteNavItem(uuid, title, [], null, null);
+  } else {
+    $navListItem.find('.title').text(title);
+  }
+
   $noteListNav.prepend($navListItem);
 }
 
@@ -415,11 +454,15 @@ function setNavItemTitle(uuid, title) {
  * @property {string[]} tags
  * @property {string} clientUuid
  * @property {string} inTrashcan
- * @property {string} createdDate
- * @property {Object} lastModified
- * @property {string} lastModified.date
- * @property {string} lastModified.timezone
- * @property {number} lastModified.timezone_type
+ * @property {DateTime} createdDate
+ * @property {DateTime} lastModified
+ */
+
+/**
+ * @typedef {Object} DateTime
+ * @property {string} date
+ * @property {string} timezone
+ * @property {number} timezone_type
  */
 
 /**

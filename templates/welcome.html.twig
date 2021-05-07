@@ -38,6 +38,9 @@
     {% if is_granted('ROLE_USER') %}
         {{ _self.settingsPopup(pageThemes, highlightJsThemes) }}
         <aside id="note-navigation">
+            <div id="toolbox">
+                <button type="button" id="new-note" class="btn">New Note</button>
+            </div>
             {{ _self.noteTitleTemplate() }}
         </aside>
         <div id="noted">

@@ -1,4 +1,5 @@
 ---
+title: This is an Example
 greeting: hello 🧛‍♂️
 fruits:
    - apple
@@ -34,13 +35,15 @@ php bin/console doctrine:migrations:migrate
 ---
 
 ```js
-$(() => {
-  $editor = $('#markdown-input');
-  $mdView = $('#markdown-output');
-  initCodeMirror();
-  initMarkdownIt();
-  $mdView.on('input', () => renderMarkdown());
-});
+const lennys = {
+    סּ_סּ : 'stern look',
+    ᓬᗽᗳ : 'rabbit',
+    ʢᵕᴗᵕʡ : 'koala bear',
+
+};
+
+const TheLenny = Object.keys(lennys)
+    .reduce((lastLenny, lenny) => Math.random().floor() === 0 ? lastLenny: lenny, 'ಠ_ಠ');
 ```
 
 ---
@@ -61,20 +64,4 @@ For more Apex example: https://apexcharts.com/javascript-chart-demos/
         "categories": ["01/01/1991","01/01/1992","01/01/1993","01/01/1994","01/01/1995","01/01/1996","01/01/1997", "01/01/1998","01/01/1999"]
     }
 }
-```
-
-Visit (https://markvis.js.org/#/?id=usage) for usage instructions.
-
-```vis
-layout: bar
-data: [
-{ key: 0, value: 5 },
-{ key: 1, value: 4 },
-{ key: 2, value: 7 },
-{ key: 3, value: 2 },
-{ key: 4, value: 4 },
-{ key: 5, value: 8 },
-{ key: 6, value: 3 },
-{ key: 7, value: 6 }
-]
 ```

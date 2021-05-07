@@ -1,4 +1,5 @@
 ---
+title: This is an Example
 greeting: hello 🧛‍♂️
 fruits:
    - apple
