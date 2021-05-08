@@ -35,6 +35,9 @@ nav {
     padding-right: 15px;
     background: rgba(0, 0, 0, 0);
     transition: background ease-in-out 0.2s;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 
     &:active, &:hover {
       background: rgba(0, 0, 0, 0.5);
@@ -71,4 +74,10 @@ footer.page-footer {
 
 .hidden {
   display: none !important;
+}
+
+input {
+  &[type="text"], &[type="email"], &[type="password"] {
+    color: var(--color-2);
+  }
 }

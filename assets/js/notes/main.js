@@ -58,6 +58,9 @@ let $codeMirrorTheme;
 /** @type {JQuery} */
 let $highlightJsTheme;
 
+/** @type {JQuery} */
+let $triggerElementAutoCloseNav;
+
 /** @type {CodeMirror} */
 let codeMirrorEditor;
 
@@ -100,7 +103,26 @@ $(() => {
   $('.show-cookie-pref').on('click', () => {
     M.Modal.getInstance($settingsModal.get(0))?.close();
   });
+
+  $('.toggle-nav').on('click', (e) => {
+    e.stopPropagation();
+    $(document).off('click', autoCloseNav);
+    $('.toggle-nav i').removeClass('fa-chevron-right').addClass('fa-chevron-left');
+    $('#note-navigation').toggleClass('expanded');
+    $(document).on('click', '#noted, #new-note, #note-navigation .note-item', autoCloseNav);
+  });
+
+  $('.toggle-view').on('click', () => {
+    $('.toggle-view i').toggleClass('fa-edit').toggleClass('fa-edit');
+    $('#input-wrap, #output-wrap').toggleClass('expanded');
+  });
 });
+
+function autoCloseNav() {
+  $(document).off('click', autoCloseNav);
+  $('.toggle-nav i').addClass('fa-chevron-right').removeClass('fa-chevron-left');
+  $('#note-navigation').removeClass('expanded');
+}
 
 function initJqueryVariables() {
   $pageTheme = $('#page-theme');
@@ -416,12 +438,16 @@ function createNewNoteNavItem(clientUuid, title, tags, lastModifiedDate, created
   const $noteBtn = $noteListTemplate.clone().removeAttr('id');
   const lastModified = lastModifiedDate ?? new Date();
   const created = createdDate ?? new Date();
+  const noteTitle = title || lastModified.toDateString();
 
   $noteBtn
     .data('client-uuid', clientUuid)
     .data('last-modified', lastModified.toDateString())
     .data('created', created.toDateString())
-    .find('.title').text(title || lastModified.toDateString());
+    .attr('data-tooltip', noteTitle)
+    .find('.title').text(noteTitle);
+
+    M.Tooltip.init($noteBtn);
 
   const $tagTemplate = $noteBtn.find('#note-tag-template').clone().removeAttr('id');
   tags.forEach((tag) => $noteBtn.find('.tag-container').append($tagTemplate.clone().text(tag)));

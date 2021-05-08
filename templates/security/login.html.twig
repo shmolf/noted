@@ -17,7 +17,7 @@
         <div>{{ error.messageKey|trans(error.messageData, 'security') }}</div>
     {% endif %}
     <form method="post" class="row">
-        <div class="col s6">
+        <div class="col s12">
             <div class="input-field col s12 m6">
                 <label for="email">Email:</label>
                 <input type="text" id="email" name="email" value="{{ last_username }}" required autofocus />
