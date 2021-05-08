@@ -77,7 +77,13 @@ footer.page-footer {
 }
 
 input {
-  &[type="text"], &[type="email"], &[type="password"] {
+  &[type="text"]:not(.select-dropdown), &[type="email"], &[type="password"] {
     color: var(--color-2);
   }
+}
+
+.error-message {
+  color: var(--color-2);
+  padding: 15px;
+  border: var(--error-red) solid 1px;
 }

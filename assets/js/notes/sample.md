@@ -10,7 +10,7 @@ person:
 ---
 
 ## Why, {{ page.greeting }}!
-I didn't realize we had a {{ page.person.class }} in midst.  
+I didn't realize we had a {{ page.person.class }} in our midst.  
 Please, why don't you sit down, {{ page.person.name }}, and and enjoy a delicious {{ page.fruits[0] }}.
 
 Doctrine Setup

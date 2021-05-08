@@ -113,7 +113,7 @@ $(() => {
   });
 
   $('.toggle-view').on('click', () => {
-    $('.toggle-view i').toggleClass('fa-edit').toggleClass('fa-edit');
+    $('.toggle-view i').toggleClass('fa-book-open').toggleClass('fa-edit');
     $('#input-wrap, #output-wrap').toggleClass('expanded');
   });
 });
@@ -388,6 +388,7 @@ function onWorkerMessage(event) {
         // @ts-ignore
         codeMirrorEditor.setValue(noteData.content);
         manuallySettingValue = false;
+        $editor.scrollTop(0);
         renderMarkdown(noteData.content);
         break;
       case workerStates.NOTE_LIST.k:
@@ -453,6 +454,8 @@ function createNewNoteNavItem(clientUuid, title, tags, lastModifiedDate, created
   tags.forEach((tag) => $noteBtn.find('.tag-container').append($tagTemplate.clone().text(tag)));
 
   $noteBtn.on('click', (event) => {
+    const tooltipInstance = M.Tooltip.getInstance(event.currentTarget);
+    tooltipInstance.close();
     const eventUuid = $(event.currentTarget).data('clientUuid');
     worker.postMessage(clientActions.GET_BY_CLIENTUUID.f(eventUuid));
   });
