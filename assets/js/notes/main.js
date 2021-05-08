@@ -61,6 +61,8 @@ let $highlightJsTheme;
 /** @type {JQuery} */
 let $triggerElementAutoCloseNav;
 
+let $inputOutput;
+
 /** @type {CodeMirror} */
 let codeMirrorEditor;
 
@@ -114,7 +116,7 @@ $(() => {
 
   $('.toggle-view').on('click', () => {
     $('.toggle-view i').toggleClass('fa-book-open').toggleClass('fa-edit');
-    $('#input-wrap, #output-wrap').toggleClass('expanded');
+    $inputOutput.toggleClass('expanded');
   });
 });
 
@@ -132,8 +134,9 @@ function initJqueryVariables() {
   $settingsModal = $('#settings-popup');
   $editor = $('#markdown-input');
   $mdView = $('#markdown-output');
-  $noteListNav = $('#note-navigation');
+  $noteListNav = $('#note-items');
   $noteListTemplate = $('#note-item-template');
+  $inputOutput = $('#input-wrap, #output-wrap');
 
   $newNoteBtn = $('#new-note');
 }
@@ -315,12 +318,13 @@ function loadSw() {
 function queueNoteSave(editor) {
   const markdown = editor.getValue();
   const frontmatterData = renderMarkdown(markdown);
+  $inputOutput.addClass('not-saved');
 
   if (worker === null) {
     return;
   }
 
-  const title = frontmatterData.title ?? null;
+  let title = frontmatterData.title ?? null;
   const note = packageNote(markdown, title);
 
   if (note.clientUuid in modifiedNotes) {
@@ -334,6 +338,11 @@ function queueNoteSave(editor) {
   }
 
   const totalDelay = (new Date()).getTime() - modifiedNotes[note.clientUuid].firstTimeout.getTime();
+  title = typeof note.title === 'string' && note.title.trim().length > 0
+    ? note.title
+    : (new Date()).toDateString();
+  setNavItemTitle(note.clientUuid, title);
+  setNavItemSaveState(note.clientUuid, 'inProgress');
 
   if (totalDelay >= noteDelayMax) {
     delete modifiedNotes[note.clientUuid];
@@ -342,13 +351,17 @@ function queueNoteSave(editor) {
     modifiedNotes[note.clientUuid].delayedCount += 1;
     modifiedNotes[note.clientUuid].timeoutId = window.setTimeout(() => {
       delete modifiedNotes[note.clientUuid];
-      const title = typeof note.title === 'string' && note.title.trim().length > 0
-        ? note.title
-        : (new Date()).toDateString();
-      setNavItemTitle(note.clientUuid, title);
       worker.postMessage(clientActions.MODIFY.f(note));
     }, noteSaveDelay);
   }
+}
+
+/**
+ * @param {string} uuid
+ * @returns {boolean}
+ */
+function noteIsQueuedForSave(uuid) {
+  return uuid in modifiedNotes;
 }
 
 /**
@@ -397,7 +410,21 @@ function onWorkerMessage(event) {
         break;
       case workerStates.UPD8_COMP.k:
         const { data: response } = msg;
-        console.log(response);
+
+        setNavItemSaveState(response.clientUuid, 'save');
+        setTimeout(() => {
+          setNavItemSaveState(response.clientUuid, 'default');
+        }, 3000);
+
+        if (!(noteIsQueuedForSave(response.clientUuid)) && $editor.data('clientUuid') === response.clientUuid) {
+          $inputOutput.removeClass('not-saved').addClass('saved');
+
+          setTimeout(() => {
+            if (!(noteIsQueuedForSave(response.clientUuid)) && $editor.data('clientUuid') === response.clientUuid) {
+              $inputOutput.removeClass('saved');
+            }
+          }, 3000);
+        }
         break;
       case workerStates.DEL_COMP.k:
         console.log('deltion completed');
@@ -464,9 +491,7 @@ function createNewNoteNavItem(clientUuid, title, tags, lastModifiedDate, created
 }
 
 function setNavItemTitle(uuid, title) {
-  let $navListItem = $noteListNav
-    .find('.note-item')
-    .filter((i, elem) => String($(elem).data('client-uuid')) === uuid);
+  let $navListItem = getNavItem(uuid);
 
   if ($navListItem.length === 0) {
     $navListItem = createNewNoteNavItem(uuid, title, [], null, null);
@@ -475,6 +500,35 @@ function setNavItemTitle(uuid, title) {
   }
 
   $noteListNav.prepend($navListItem);
+}
+
+/**
+ * @param {string} uuid
+ * @param {'save'|'inProgress'|'default'} state
+ */
+function setNavItemSaveState(uuid, state) {
+  const stateClasses = {
+    save: 'saved',
+    inProgress: 'not-saved',
+    default: '',
+  };
+
+  let $navListItem = getNavItem(uuid);
+
+  if (state in stateClasses) {
+    const allStateClasses = Object.values(stateClasses).join(' ');
+    $navListItem.removeClass(allStateClasses).addClass(stateClasses[state]);
+  }
+}
+
+/**
+ * @param {string} uuid
+ * @returns {JQuery}
+ */
+function getNavItem(uuid) {
+  return $noteListNav
+    .find('.note-item')
+    .filter((i, elem) => String($(elem).data('client-uuid')) === uuid);
 }
 
 /**

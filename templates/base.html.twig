@@ -46,14 +46,14 @@
         {{ _self.cookiePopup() }}
         {% block body %}{% endblock %}
     </main>
-    <footer class="page-footer">
+    {# <footer class="page-footer">
         {% block footerContent %}{% endblock %}
         <div class="footer-copyright">
             <div class="container">
                 🐾
             </div>
         </div>
-    </footer>
+    </footer> #}
     {% block javascripts %}
         {{ encore_entry_script_tags('app') }}
     {% endblock %}

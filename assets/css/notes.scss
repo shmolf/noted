@@ -112,7 +112,7 @@ main {
 
   width: 100vw;
   // 64px is the nav, and 70px is the footer
-  max-height: calc(100vh - 64px - 70px);
+  max-height: calc(100vh - 64px);
   display: flex;
 
   #note-navigation {
@@ -122,6 +122,11 @@ main {
     transition: flex 1s ease-in-out;
     background-color: var(--page-notenav-bground);
     overflow-y: auto;
+
+    #note-items {
+      display: flex;
+      flex-direction: column;
+    }
   }
 
   #noted {
@@ -139,6 +144,15 @@ main {
       display: flex;
       width: 100%;
       position: relative;
+      border-left: 2px solid black;
+      transition: border-left-color 0.3s linear;
+
+      &.not-saved {
+        border-left-color: #ffe45d;
+      }
+      &.saved {
+        border-left-color: #5dff8f;
+      }
     }
 
     #input-wrap {
@@ -183,6 +197,14 @@ main {
     background-color: var(--page-notenav-item-bground);
     color: var(--page-notenav-item-color);
     color: var(--counter-tone);
+    border-left: solid 3px transparent;
+
+    &.not-saved {
+      border-color: #ffe45d;
+    }
+    &.saved {
+      border-color: #5dff8f;
+    }
 
     &:not(:last-of-type) {
       margin-bottom: 5px;

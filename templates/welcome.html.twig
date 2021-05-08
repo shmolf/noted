@@ -41,20 +41,22 @@
             <div id="toolbox">
                 <button type="button" id="new-note" class="btn">New Note</button>
             </div>
-            {{ _self.noteTitleTemplate() }}
+            <div id="note-items">
+                {{ _self.noteTitleTemplate() }}
+            </div>
         </aside>
         <div id="noted">
             <div id="mobile-menu">
                 <button type="button" class="toggle-nav btn"><i class="fas fa-chevron-right"></i></button>
                 <button type="button" class="toggle-view btn"><i class="fas fa-book-open"></i></button>
             </div>
-            <div id="input-wrap" class="expanded">
+            <div id="input-wrap">
                 <div id="title-wrap">
                     <input id="note-title" name="note-title" type="text" maxlength="250" placeholder="Note Title..." />
                 </div>
                 <textarea id="markdown-input" data-noteref="" data-theme="" placeholder="Markdown note goes here..."></textarea>
             </div>
-            <div id="output-wrap">
+            <div id="output-wrap" class="expanded">
                 <div id="markdown-output" class="hljs"></div>
             </div>
         </div>
