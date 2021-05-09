@@ -3,6 +3,7 @@ import M from 'materialize-css';
 import 'CSS/notes.scss';
 
 import { workerStates, clientActions, NotePackage } from 'JS/notes/worker-client-api';
+import { v4 as uuidv4 } from 'uuid';
 import Worker from './note.worker';
 import Cookies from 'JS/lib/cookie';
 // @ts-ignore
@@ -14,6 +15,7 @@ import * as d3 from 'd3';
 // @ts-ignore
 import markdownItApexCharts, { ApexRender } from 'markdown-it-apexcharts';
 import mdItEmoji from 'markdown-it-emoji';
+import mdItCheckbox from 'markdown-it-task-lists';
 import twemoji from 'twemoji';
 import { loadFront } from 'yaml-front-matter';
 import hljs from 'highlight.js';
@@ -115,6 +117,32 @@ $(() => {
     $('.toggle-view i').toggleClass('fa-book-open').toggleClass('fa-edit');
     $inputOutput.toggleClass('expanded');
   });
+
+  $(document).on('change', '.task-list-item-checkbox', (e) => {
+    const $codeMirrorLines = $('.CodeMirror-line');
+    const $renderedChecklist = $('#output-wrap input.task-list-item-checkbox');
+    // Get the index of the checkbox
+    const checkboxIndex = $renderedChecklist.index(e.currentTarget);
+    const newCheckedText = e.currentTarget.checked ? 'x' : ' ';
+
+    const $mdInpChecklist = $codeMirrorLines.find('.cm-meta:contains("[ ]"), .cm-property:contains("[x]")');
+    const $cmCheckbox = $($mdInpChecklist.get(checkboxIndex));
+
+    let cmLine = $codeMirrorLines.index($cmCheckbox.parents('.CodeMirror-line').first());
+    let cmCol = $cmCheckbox.closest('.CodeMirror-line').text().indexOf('[');
+
+    codeMirrorEditor.replaceRange(
+        newCheckedText,
+        {
+            'line': cmLine,
+            'ch': ++cmCol,
+        },
+        {
+            'line': cmLine,
+            'ch': ++cmCol,
+        }
+    );
+  });
 });
 
 function autoCloseNav() {
@@ -144,7 +172,12 @@ function initMarkdownIt() {
   md = mdIt()
     .use(markdownItApexCharts)
     // .use(mdItGraphs)
-    .use(mdItEmoji);
+    .use(mdItEmoji)
+    .use(mdItCheckbox, {
+      enabled: true,
+      label: true,
+      labelAfter: true,
+    });
 
   md.renderer.rules.emoji = (token, idx) => twemoji.parse(token[idx].content);
 }
@@ -323,6 +356,10 @@ function queueNoteSave(editor) {
   let title = frontmatterData.title ?? null;
   const note = packageNote(markdown, title);
 
+  if (!$editor.data('clientUuid')) {
+    $editor.data('clientUuid', note.clientUuid);
+  }
+
   if (note.clientUuid in modifiedNotes) {
     clearTimeout(modifiedNotes[note.clientUuid].timeoutId);
   } else {
@@ -366,7 +403,7 @@ function noteIsQueuedForSave(uuid) {
  * @returns {NotePackage}
  */
 function packageNote(content, title) {
-  let clientUuid = $editor.data('clientUuid') || null;
+  let clientUuid = $editor.data('clientUuid') || uuidv4();
   clientUuid = typeof clientUuid === 'string' ? clientUuid.trim() : null;
   title = typeof title === 'string' ? title.trim() : '';
   const tags = [];

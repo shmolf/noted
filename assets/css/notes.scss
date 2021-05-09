@@ -194,6 +194,17 @@ main {
   [type^="apex"] {
     background-color: var(--chart-background);
   }
+
+  p code {
+    border: solid 1px var(--counter-tone);
+    border-radius: 5px;
+  }
+
+  .task-list-item-checkbox {
+    position: relative;
+    opacity: 1;
+    pointer-events: auto;
+  }
 }
 
 #note-navigation {
