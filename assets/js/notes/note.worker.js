@@ -84,6 +84,9 @@ function handleAction(msg) {
           })
           .catch((error) => console.warn(`Inbound request to fetch a record failed.\n${error}`));
         break;
+      case clientActions.EXPORT_NOTES.k:
+        exportNotes().then((response) => worker.postMessage(workerStates.EXPORT_DATA.f(response)));
+        break;
       default:
     }
   }
@@ -95,6 +98,17 @@ function handleAction(msg) {
 function getList() {
   return new Promise((resolve, reject) => {
     axios.get('/🔌/v1/note/list')
+      .then((response) => resolve(response.data))
+      .catch((error) => reject(error));
+  });
+}
+
+/**
+ * @returns {Promise<Array>}
+ */
+function exportNotes() {
+  return new Promise((resolve, reject) => {
+    axios.get('/🔌/v1/note/export')
       .then((response) => resolve(response.data))
       .catch((error) => reject(error));
   });

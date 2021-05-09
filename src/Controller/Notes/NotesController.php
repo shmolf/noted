@@ -6,11 +6,13 @@ use App\Entity\MarkdownNote;
 use App\Entity\NoteTag;
 use App\Entity\UserAccount;
 use App\Repository\MarkdownNoteRepository;
+use DateTime;
 use Exception;
 use shmolf\NotedHydrator\NoteHydrator;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 
 class NotesController extends AbstractController
 {
@@ -49,6 +51,29 @@ class NotesController extends AbstractController
         return $this->json($note, 200, [], [
             'groups' => ['main'],
         ]);
+    }
+
+    public function getNotesForUser(): JsonResponse
+    {
+        /** @var UserAccount */
+        $user = $this->getUser();
+        $notes = $this->getDoctrine()
+            ->getRepository(MarkdownNote::class)
+            ->findBy(['userId' => $user->getId()]);
+
+        $jsonResponse = $this->json($notes, 200, [], [
+            'groups' => ['main'],
+        ]);
+
+        $now = (new DateTime())->format('Y-m-d-His');
+        $disposition = $jsonResponse->headers->makeDisposition(
+            ResponseHeaderBag::DISPOSITION_ATTACHMENT,
+            "note'd-export-{$now}.json"
+        );
+
+        $jsonResponse->headers->set('Content-Disposition', $disposition);
+
+        return $jsonResponse;
     }
 
     public function deleteNoteByClientUuid(string $uuid, MarkdownNoteRepository $repo): JsonResponse

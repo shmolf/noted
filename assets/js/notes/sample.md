@@ -18,6 +18,7 @@ Please, why don't you sit down, {{ page.person.name }}, and and enjoy a deliciou
 This page is designed for keeping notes in MarkDown. This site is still in development, by one person.  
 So, please be patient and courteous. And backup your notes, as I cannot guarantee the data is safe, while the
 site undergoes improvements.
+- Exporting your notes is available through the Settings Menu.
 
 Notes at the top of the example, a fenced-in area with the `---` markings. Within this area is a `title` property.
 This is how you can specify a title for a note.  
