@@ -4,6 +4,7 @@ import 'CSS/notes.scss';
 
 import { workerStates, clientActions, NotePackage } from 'JS/notes/worker-client-api';
 import { v4 as uuidv4 } from 'uuid';
+import FileDownload from 'js-file-download';
 import Worker from './note.worker';
 import Cookies from 'JS/lib/cookie';
 // @ts-ignore
@@ -104,6 +105,8 @@ $(() => {
   $('.show-cookie-pref').on('click', () => {
     M.Modal.getInstance($settingsModal.get(0))?.close();
   });
+
+  $('.export-notes').on('click', () => worker.postMessage(clientActions.EXPORT_NOTES.f()));
 
   $('.toggle-nav').on('click', (e) => {
     e.stopPropagation();
@@ -462,6 +465,9 @@ function onWorkerMessage(event) {
       case workerStates.DEL_COMP.k:
         console.log('deltion completed');
         break;
+      case workerStates.EXPORT_DATA.k:
+        const { data: notes } = msg;
+        FileDownload(JSON.stringify(notes, null, 2), `export-notes-${(new Date()).toDateString()}.json`);
       default:
     }
   }

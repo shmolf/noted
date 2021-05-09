@@ -72,6 +72,18 @@ body {
   }
 }
 
+@media (prefers-color-scheme: light) {
+  body.auto {
+    --note-color-1: var(--note-color-1-light);
+    --note-color-2: var(--note-color-2-light);
+    --note-color-3: var(--note-color-3-light);
+    --note-color-4: var(--note-color-4-light);
+    --note-color-5: var(--note-color-5-light);
+    --counter-tone: var(--counter-tone-light);
+
+    --chart-background: #ffffff78;
+  }
+}
 
 @media (prefers-color-scheme: dark) {
   body.auto {
@@ -260,11 +272,5 @@ main {
         }
       }
     }
-  }
-}
-
-@media only screen and (max-width: 600px) {
-  .nav-wrapper #note-settings-btn {
-    padding-top: 15px;
   }
 }

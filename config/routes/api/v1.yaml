@@ -22,6 +22,11 @@ api.v1.note.list:
   controller: App\Controller\Notes\NotesController::getNoteList
   methods: GET
 
+api.v1.note.export:
+  path: /note/export
+  controller: App\Controller\Notes\NotesController::getNotesForUser
+  methods: GET
+
 api.v1.note.upsert:
   path: /note/upsert
   controller: App\Controller\Notes\NotesController::upsertNote

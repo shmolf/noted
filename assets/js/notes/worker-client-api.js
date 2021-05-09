@@ -38,6 +38,13 @@ export const clientActions = Object.freeze({
      */
     f: (clientUuid) => packAction(clientActions.DEL_BY_CLIENTUUID.k, clientUuid),
   },
+  EXPORT_NOTES: {
+    k: 'exportNotes',
+    /**
+     * @returns {string}
+     */
+    f: () => packAction(clientActions.EXPORT_NOTES.k),
+  }
 });
 
 export const workerStates = Object.freeze({
@@ -83,6 +90,14 @@ export const workerStates = Object.freeze({
      * @returns {string}
      */
     f: () => packState(workerStates.UPD8_COMP.k),
+  },
+  EXPORT_DATA: {
+    k: 'export-data',
+    /**
+     * @param {NotePackage[]} notes
+     * @returns {string}
+     */
+    f: (notes) => packState(workerStates.EXPORT_DATA.k, notes),
   },
 });
 

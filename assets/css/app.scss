@@ -45,6 +45,12 @@ nav {
   }
 }
 
+@media only screen and (max-width: 600px) {
+  .nav-wrapper i {
+    line-height: 56px;
+  }
+}
+
 footer.page-footer {
   background: var(--footer-background);
   color: var(--footer-font-color);
