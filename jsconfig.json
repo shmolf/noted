@@ -1,0 +1,21 @@
+{
+    "compilerOptions": {
+      "target": "es6",
+      "allowSyntheticDefaultImports": true,
+      "esModuleInterop": true,
+      "checkJs": true,
+      "baseUrl": "./",
+      "lib": ["esnext", "webworker", "scripthost"],
+      "paths": {
+        "JS/*": ["./assets/js/*"],
+        "CSS/*": ["./assets/css/*"],
+        "Images/*": ["./assets/images/*"],
+        "NODE/*": ["./node_modules/*"]
+      }
+    },
+    "exclude": [
+        "public/build/**/*",
+        "packages-cache",
+        "service-worker.js"
+    ]
+  }

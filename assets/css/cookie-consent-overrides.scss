@@ -1,0 +1,12 @@
+.cookie-consent__tab-toggle svg {
+  width: 25px;
+}
+
+.cookie-consent__tab-panel[aria-hidden="true"] {
+  transition: height 0.2s, opacity 0.2s;
+}
+
+.cookie-consent__tab-panel[aria-hidden="true"] {
+    height: 0;
+    opacity: 0;
+}

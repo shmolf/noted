@@ -1,0 +1,54 @@
+{% extends 'base.html.twig' %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    {{ encore_entry_link_tags('user-login') }}
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ encore_entry_script_tags('user-login') }}
+{% endblock %}
+
+{% block pageContext %}- Login{% endblock %}
+
+{% block body %}
+    {% if error %}
+        <div class="error-message">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
+    {% endif %}
+    <form method="post" class="row">
+        <div class="col s12">
+            <div class="input-field col s12 m6">
+                <label for="email">Email:</label>
+                <input type="text" id="email" name="email" value="{{ last_username }}" required autofocus />
+            </div>
+            <div class="input-field col s12 m6">
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" />
+            </div>
+            <div class="row col s12">
+                <label>
+                    <input type="checkbox" name="_remember_me">
+                    <span>
+                        Remember me
+                    </span>
+                </label>
+            {#
+                If you want to control the URL the user
+                is redirected to on success (more details below)
+                <input type="hidden" name="_target_path" value="/account" />
+            #}
+                <div class="right">
+                    <button type="submit" class="btn">login</button>
+                    <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+                    <a href="{{ path('account.create') }}" style="margin-left: 15px;" class="btn">Create Account</a>
+                </div>
+            </div>
+            <div class="col s12">
+                <div class="right">
+                    <a href="{{ path('app_forgot_password_request') }}" class="btn">Forgot Password 🤔?</a>
+                </div>
+            </div>
+        </div>
+    </form>
+{% endblock %}

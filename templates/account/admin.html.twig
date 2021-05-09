@@ -1,0 +1,87 @@
+{% extends 'base.html.twig' %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    {{ encore_entry_link_tags('user-admin') }}
+{% endblock %}
+
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ encore_entry_script_tags('user-admin') }}
+{% endblock %}
+
+{% block header %}
+    {{ parent() }}
+    <h2>Account Admin</h2>
+{% endblock %}
+
+{% block body %}
+    <div class="row">
+        {{ _self.editUser() }}
+    </div>
+    <div class="row">
+        <ul class="collection">
+        {% for user in users %}
+            <li class="collection-item">
+                <span class="title">
+                    {{ user.firstName }} {{ user.lastName }}
+                </span>
+                <p>
+                    <i>{{ user.email }}</i>
+                </p>
+                <div class="roles">
+                    {% for role in user.roles %}<div class="chip">{{ role }}</div>{% endfor %}
+                    <button type="button" class="btn secondary-content edit-user modal-trigger"
+                        data-target="edit-user"
+                        data-email="{{ user.email }}"
+                        data-first-name="{{ user.firstName }}"
+                        data-last-name="{{ user.lastName }}">
+                        Edit
+                    </button>
+                </div>
+            </li>
+        {% endfor %}
+        </ul>
+    </div>
+{% endblock %}
+
+{% macro editUser() %}
+    <div id="edit-user" class="modal modal-fixed-footer">
+        <form id="edit-form" action="{{ path('admin.accounts.update') }}">
+            <div class="modal-content">
+                <div class="row">
+                    <div class="col s12">
+                        <div class="row">
+                            <div class="input-field col s6">
+                                <input id="first-name" type="text" class="validate" maxlength="191" data-length="191" pattern="[\s\S]*\S[\s\S]*" required>
+                                <label for="first-name">First Name</label>
+                            </div>
+                            <div class="input-field col s6">
+                                <input id="last-name" type="text" class="validate" maxlength="191" data-length="191">
+                                <label for="last-name">Last Name</label>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="input-field col s6">
+                                <input id="email" type="email" class="validate" maxlength="191" data-length="191" required disabled>
+                                <label for="email">Email</label>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col s12">
+                                <div class="input-field chips chips-autocomplete">
+                                    <input class="user-roles" placeholder="Enter a Role" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="save-user" type="submit" class="waves-effect waves-green btn-flat left">Save</button>
+                <button type="button" class="modal-close waves-effect waves-green btn-flat right">Cancel</button>
+            </div>
+        </form>
+    </div>
+{% endmacro %}

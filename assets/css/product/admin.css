@@ -1,0 +1,8 @@
+#template-card {
+  display: none;
+}
+
+.card-image .card-title {
+  background: #00000091;
+  padding: 8px;
+}

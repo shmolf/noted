@@ -1,0 +1,9 @@
+admin.accounts.index:
+  path: /
+  controller: App\Controller\Users\AdminController
+  methods: GET
+
+admin.accounts.update:
+  path: /
+  controller: App\Controller\Users\AdminController::update
+  methods: PATCH

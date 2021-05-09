@@ -1,0 +1,89 @@
+// @import 'materialize-override.scss';
+@import 'CSS/app-variables.scss';
+@import 'CSS/cookie-consent-overrides.scss';
+
+html {
+  background-color: var(--page-background);
+}
+
+body {
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+}
+
+main {
+  width: 90vw;
+  flex: 1 0 auto;
+  margin: auto;
+}
+
+nav {
+  background: var(--color-5);
+
+  ul a, button, .brand-logo {
+    color: var(--color-2);
+
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.3);
+    }
+  }
+
+  .brand-logo {
+    flex: 0 0 auto;
+    padding-left: 15px;
+    padding-right: 15px;
+    background: rgba(0, 0, 0, 0);
+    transition: background ease-in-out 0.2s;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    &:active, &:hover {
+      background: rgba(0, 0, 0, 0.5);
+    }
+  }
+}
+
+footer.page-footer {
+  background: var(--footer-background);
+  color: var(--footer-font-color);
+
+  .footer-copyright {
+    color: var(--footer-font-color);
+  }
+}
+
+.chip {
+  cursor: pointer;
+
+  &.selected {
+    outline: none;
+    background-color: var(--color-5);
+    color: #fff;
+  }
+
+  .close {
+    margin-left: 5px;
+  }
+}
+
+.error {
+  color: var(--error-red);
+}
+
+.hidden {
+  display: none !important;
+}
+
+input {
+  &[type="text"]:not(.select-dropdown), &[type="email"], &[type="password"] {
+    color: var(--color-2);
+  }
+}
+
+.error-message {
+  color: var(--color-2);
+  padding: 15px;
+  border: var(--error-red) solid 1px;
+}

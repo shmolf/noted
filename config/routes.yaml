@@ -1,0 +1,29 @@
+home:
+  path: /
+  controller: App\Controller\WelcomeController
+
+security:
+  path: /security
+  controller: App\Controller\SecurityController::index
+
+login:
+  path: /login
+  controller: App\Controller\SecurityController::login
+
+logout:
+  path: /logout
+  controller: App\Controller\SecurityController::logout
+
+admin:
+  resource: 'routes/admin/routes.yaml'
+  utf8: true
+  prefix: /🔑
+
+api:
+  resource: 'routes/api/routes.yaml'
+  utf8: true
+  prefix: /🔌
+
+account:
+  resource: 'routes/accounts.yaml'
+  prefix: /account

@@ -1,0 +1,18 @@
+account.create:
+  path: /create
+  controller: App\Controller\Users\AccountController::form
+  methods: GET
+
+account.create.save:
+  path: /create
+  controller: App\Controller\Users\AccountController::create
+  methods: POST
+
+account.edit.save:
+  path: /edit
+  controller: App\Controller\Users\AccountController::edit
+  methods: POST
+
+account.profile:
+  path: /
+  controller: App\Controller\Users\AccountController::index

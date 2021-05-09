@@ -1,0 +1,8 @@
+api.v1:
+  resource: 'v1.yaml'
+  prefix: /v1
+
+api.note.compatibility:
+  path: /schema/version
+  controller: App\Controller\Notes\SchemaVersionController
+  methods: GET

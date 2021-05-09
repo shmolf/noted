@@ -1,0 +1,73 @@
+{
+    "env": {
+        "browser": true,
+        "es6": true,
+        "jquery": true
+    },
+    "extends": [
+        "airbnb-base",
+        "plugin:jsdoc/recommended"
+    ],
+    "plugins": [
+        "jsdoc"
+    ],
+    "parserOptions": {
+        "ecmaVersion": 2018,
+        "sourceType": "module"
+    },
+    "rules": {
+        "no-use-before-define": ["error", {"functions": false, "classes": false}],
+        "prefer-destructuring": ["warn", {"object": true, "array": false}],
+        "max-len": [2, 120, 4],
+        "import/no-extraneous-dependencies": 0,
+
+        "jsdoc/check-alignment": 1, // Recommended
+        "jsdoc/check-indentation": 1,
+        "jsdoc/check-param-names": 1, // Recommended
+        "jsdoc/check-syntax": 1,
+        "jsdoc/check-tag-names": 1, // Recommended
+        "jsdoc/check-types": 1, // Recommended
+        "jsdoc/implements-on-classes": 1, // Recommended
+        "jsdoc/newline-after-description": 1, // Recommended
+        "jsdoc/no-undefined-types": 1, // Recommended
+        "jsdoc/require-jsdoc": 1, // Recommended
+        "jsdoc/require-param": 1, // Recommended
+        "jsdoc/require-param-description": 0,
+        "jsdoc/require-param-name": 1, // Recommended
+        "jsdoc/require-param-type": 1, // Recommended
+        "jsdoc/require-property-description": 0,
+        "jsdoc/require-returns": 1, // Recommended
+        "jsdoc/require-returns-check": 1, // Recommended
+        "jsdoc/require-returns-description": 0,
+        "jsdoc/require-returns-type": 1, // Recommended
+        "jsdoc/valid-types": 1
+    },
+    "ignorePatterns": [
+        "webpack.config.js",
+        "**/node_modules/*",
+        "public/**/*"
+    ],
+    "settings": {
+        "import/resolver": "webpack",
+        // "import/resolver": {
+        //     "alias": {
+        //         "map": [
+        //             ["JS", "./assets/js/"],
+        //             ["CSS", "./assets/css/"],
+        //             ["NODE", "./node_modules/"],
+        //             ["Images", "./assets/images/"]
+        //         ],
+        //         "extensions": [".scss", ".css", ".js", ".png", ".jpg", ".jpeg", ".json"]
+        //     }
+        // },
+        "jsdoc": {
+            // Examples can be found in the codeblock of https://github.com/gajus/eslint-plugin-jsdoc/blob/bd11a73ef0e80f8c133f13de0119e5017e20a2ad/README.md#options-6
+            "preferredTypes": {
+                "object": {
+                    "message": "For the @{{tagName}} type, use \"Object\"",
+                    "replacement": "Object"
+                }
+            }
+        }
+    }
+}

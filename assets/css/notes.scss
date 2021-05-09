@@ -1,0 +1,259 @@
+@import url(https://cdn.jsdelivr.net/gh/tonsky/FiraCode@4/distr/fira_code.css);
+
+// When using twemoji you can make image height match the line height with this style
+:root {
+  --note-color-1-light: #ccd5ae;
+  --note-color-2-light: #e9edc9;
+  --note-color-3-light: #fefae0;
+  --note-color-4-light: #faedcd;
+  --note-color-5-light: #d4a373;
+  --counter-tone-light: #3f3f3f;
+  --note-color-1-mid: #335c67;
+  --note-color-2-mid: #fff3b0;
+  --note-color-3-mid: #e09f3e;
+  --note-color-4-mid: #9e2a2b;
+  --note-color-5-mid: #540b0e;
+  --counter-tone-mid: #00ffa1;
+  --note-color-1-dark: #69306D;
+  --note-color-2-dark: #A4243B;
+  --note-color-3-dark: #D8973C;
+  --note-color-4-dark: #368F8B;
+  --note-color-5-dark: #5E3023;
+  --counter-tone-dark: #b9b9b9;
+
+  --note-color-1: var(--note-color-1-light);
+  --note-color-2: var(--note-color-2-light);
+  --note-color-3: var(--note-color-3-light);
+  --note-color-4: var(--note-color-4-light);
+  --note-color-5: var(--note-color-5-light);
+
+  --counter-tone: var(--counter-tone-light);
+  --translucent: #909090b0;
+
+  --chart-background: #ffffffc4;
+  --page-background: var(--note-color-5);
+}
+
+body {
+  --editor-background: var(--note-color-1);
+  --page-notenav-bground: var(--note-color-4);
+  --page-notenav-item-bground: var(--note-color-1);
+  --page-notenav-item-color: var(--note-color-3);
+
+  &.light {
+    --note-color-1: var(--note-color-1-light);
+    --note-color-2: var(--note-color-2-light);
+    --note-color-3: var(--note-color-3-light);
+    --note-color-4: var(--note-color-4-light);
+    --note-color-5: var(--note-color-5-light);
+    --counter-tone: var(--counter-tone-light);
+  }
+
+  &.mid {
+    --note-color-1: var(--note-color-1-mid);
+    --note-color-2: var(--note-color-2-mid);
+    --note-color-3: var(--note-color-3-mid);
+    --note-color-4: var(--note-color-4-mid);
+    --note-color-5: var(--note-color-5-mid);
+    --counter-tone: var(--counter-tone-mid);
+
+    --chart-background: #ffffff78;
+  }
+
+  &.dark {
+    --note-color-1: var(--note-color-1-dark);
+    --note-color-2: var(--note-color-2-dark);
+    --note-color-3: var(--note-color-3-dark);
+    --note-color-4: var(--note-color-4-dark);
+    --note-color-5: var(--note-color-5-dark);
+    --counter-tone: var(--counter-tone-dark);
+
+    --chart-background: #ffffff78;
+  }
+}
+
+
+@media (prefers-color-scheme: dark) {
+  body.auto {
+    --note-color-1: var(--note-color-1-dark);
+    --note-color-2: var(--note-color-2-dark);
+    --note-color-3: var(--note-color-3-dark);
+    --note-color-4: var(--note-color-4-dark);
+    --note-color-5: var(--note-color-5-dark);
+    --counter-tone: var(--counter-tone-dark);
+
+    --chart-background: #ffffff78;
+  }
+}
+
+nav .brand-logo, code {
+  font-family: 'Fira Code', monospace;
+}
+
+@supports (font-variation-settings: normal) {
+  nav .brand-logo, code { font-family: 'Fira Code VF', monospace; }
+}
+
+.emoji {
+  height: 1.2em;
+}
+
+#note-settings-btn {
+  right: 75px;
+  position: absolute;
+  background: none;
+  border: none;
+  padding: 0 15px;
+  cursor: pointer;
+}
+
+main {
+  --aside-width: 350px;
+
+  width: 100vw;
+  // 64px is the nav, and 70px is the footer
+  max-height: calc(100vh - 64px);
+  display: flex;
+
+  #note-navigation {
+    display: flex;
+    flex-direction: column;
+    flex: 0 0 var(--aside-width);
+    transition: flex 1s ease-in-out;
+    background-color: var(--page-notenav-bground);
+    overflow-y: auto;
+
+    #note-items {
+      display: flex;
+      flex-direction: column;
+    }
+  }
+
+  #noted {
+    display: flex;
+    flex-direction: column;
+    flex: 1 0 calc(100% - var(--aside-width));
+
+    #mobile-menu {
+      flex: 0 0 0;
+      overflow: hidden;
+    }
+
+    #input-wrap, #output-wrap {
+      flex: 1 0 0;
+      display: flex;
+      width: 100%;
+      position: relative;
+      border-left: 2px solid black;
+      transition: border-left-color 0.3s linear;
+
+      &.not-saved {
+        border-left-color: #ffe45d;
+      }
+      &.saved {
+        border-left-color: #5dff8f;
+      }
+    }
+
+    #input-wrap {
+      border-bottom: 5px solid transparent;
+    }
+
+    #output-wrap {
+      border-top: 5px solid transparent;
+
+      pre code {
+        white-space: pre-wrap;
+      }
+
+      hr {
+        width: 100%;
+      }
+    }
+  }
+}
+
+.CodeMirror-wrap, #markdown-output {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+}
+
+#markdown-output {
+  overflow: auto;
+  // background-color: var(--editor-background);
+  // color: var(--counter-tone);
+
+  pre {
+    border: solid 1px var(--note-color-4);
+    // background-color: var(--translucent);
+  }
+
+  [type^="apex"] {
+    background-color: var(--chart-background);
+  }
+}
+
+#note-navigation {
+  #note-item-template {
+    display: none;
+  }
+
+  .note-item {
+    background-color: var(--page-notenav-item-bground);
+    color: var(--page-notenav-item-color);
+    color: var(--counter-tone);
+    border-left: solid 3px transparent;
+
+    &.not-saved {
+      border-color: #ffe45d;
+    }
+    &.saved {
+      border-color: #5dff8f;
+    }
+
+    &:not(:last-of-type) {
+      margin-bottom: 5px;
+    }
+  }
+}
+
+@media only screen and (max-width: 1200px) {
+  main {
+    #note-navigation {
+      z-index: 10;
+      max-height: calc(100vh - 64px - 70px);
+      position: absolute;
+      left: -100%;
+      transition: left 0.2s ease-in-out;
+
+      &.expanded {
+        left: 0;
+      }
+    }
+
+    #noted {
+      #mobile-menu {
+        flex: 0 0 auto;
+        padding: 5px;
+      }
+
+      #input-wrap, #output-wrap {
+        border: none;
+
+        &:not(.expanded) {
+          flex: 0 0 0;
+          overflow: hidden;
+        }
+      }
+    }
+  }
+}
+
+@media only screen and (max-width: 600px) {
+  .nav-wrapper #note-settings-btn {
+    padding-top: 15px;
+  }
+}

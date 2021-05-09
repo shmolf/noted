@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset='UTF-8'>
+    <meta name= 'viewport' content = 'width = device-width'>
+    <title>{% block title %}Note'd{% endblock %}</title>
+    {% block stylesheets %}
+        {{ encore_entry_link_tags('app') }}
+    {% endblock %}
+</head>
+<body class="{{ pageTheme is defined ? pageTheme : null }}">
+    <nav>
+        <div class="nav-wrapper">
+            <a href="/" class="brand-logo">
+                Note'd {% block pageContext %}{% endblock %}
+            </a>
+            {% block navitems %}{% endblock %}
+            <ul id="nav-mobile" class="right">
+            {% if is_granted('ROLE_USER') %}
+                {% if is_granted('ROLE_ADMIN') %}
+                    <li tabindex="0">
+                        <a href="{{ path('admin.accounts.index') }}">Users</a>
+                    </li>
+                {% endif %}
+                <li>
+                    <a class="dropdown-trigger" href="#!" data-target="dropdown1">
+                        <i class="fas fa-user"></i>
+                        <i class="fas fa-sort-down"></i>
+                    </a>
+                    <ul id="dropdown1" class="dropdown-content" tabindex="0" style="">
+                        <li tabindex="0">
+                            <a href="{{ path('account.profile') }}">Profile</a>
+                        </li>
+                        <li tabindex="0">
+                            <a href="{{ path('logout') }}">Logout</a>
+                        </li>
+                    </ul>
+                </li>
+            {% else %}
+                <li><a href="{{ path('login') }}">Login</a></li>
+            {% endif %}
+            </ul>
+        </div>
+    </nav>
+    <main>
+        {{ _self.cookiePopup() }}
+        {% block body %}{% endblock %}
+    </main>
+    {# <footer class="page-footer">
+        {% block footerContent %}{% endblock %}
+        <div class="footer-copyright">
+            <div class="container">
+                🐾
+            </div>
+        </div>
+    </footer> #}
+    {% block javascripts %}
+        {{ encore_entry_script_tags('app') }}
+    {% endblock %}
+</body>
+</html>
+
+{% macro cookiePopup() %}
+    <div id="cookie-popup" class="modal bottom-sheet">
+        <div class="modal-content"></div>
+    </div>
+{% endmacro %}

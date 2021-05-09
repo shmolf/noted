@@ -1,0 +1,35 @@
+{
+  "short_name": "Note'd ",
+  "name": "Note'd",
+  "description": "Stores GFM Flavored Markdown Notes",
+  "icons": [
+    {
+      "src": "/xinu.png",
+      "sizes": "300x300",
+      "type": "image/png"
+    }
+  ],
+  "app": {
+    "urls": [
+      "https://shmolf.com"
+    ],
+    "launch": {
+      "web_url": "https://shmolf.com"
+    }
+  },
+  "share_target": {
+    "action": "/create-note/",
+    "method": "POST",
+    "enctype": "application/x-www-form-urlencoded",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url"
+    }
+  },
+  "display": "fullscreen",
+  "start_url": "/",
+  "orientation": "any",
+  "theme_color": "#2C323B",
+  "background_color": "#588c89"
+}

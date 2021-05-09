@@ -1,0 +1,131 @@
+{% extends 'base.html.twig' %}
+{% import "codemirror.macros.html.twig" as cmMacros %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    {% if is_granted('ROLE_USER') %}
+        {{ encore_entry_link_tags('notes') }}
+    {% else %}
+        {{ encore_entry_link_tags('welcome') }}
+    {% endif %}
+
+    {% for key, highglightTheme in highlightJsThemes %}
+        {% set isSelected = highglightTheme.isSelected %}
+        <link rel="stylesheet" {{ isSelected ? '' : 'disabled' }} title="{{ key }}"
+            class="{{ isSelected ? 'current' : '' }}" href="{{ highglightTheme.url }}" crossorigin="anonymous" />
+    {% endfor %}
+{% endblock %}
+
+
+{% block javascripts %}
+    {{ parent() }}
+    {% if is_granted('ROLE_USER') %}
+        {{ encore_entry_script_tags('notes') }}
+    {% else %}
+        {{ encore_entry_script_tags('welcome') }}
+    {% endif %}
+{% endblock %}
+
+{% block navitems %}
+    {% if is_granted('ROLE_USER') %}
+        <button type="button" id="note-settings-btn" class="modal-trigger" data-target="settings-popup">
+            <i class="fas fa-cog"></i>
+        </button>
+    {% endif %}
+{% endblock %}
+
+{% block body %}
+    {% if is_granted('ROLE_USER') %}
+        {{ _self.settingsPopup(pageThemes, highlightJsThemes) }}
+        <aside id="note-navigation">
+            <div id="toolbox">
+                <button type="button" id="new-note" class="btn">New Note</button>
+            </div>
+            <div id="note-items">
+                {{ _self.noteTitleTemplate() }}
+            </div>
+        </aside>
+        <div id="noted">
+            <div id="mobile-menu">
+                <button type="button" class="toggle-nav btn"><i class="fas fa-chevron-right"></i></button>
+                <button type="button" class="toggle-view btn"><i class="fas fa-book-open"></i></button>
+            </div>
+            <div id="input-wrap">
+                <textarea id="markdown-input" data-noteref="" data-theme="" placeholder="Markdown note goes here..."></textarea>
+            </div>
+            <div id="output-wrap" class="expanded">
+                <div id="markdown-output" class="hljs"></div>
+            </div>
+        </div>
+    {% else %}
+        Please <a href="{{ path('login') }}">Login</a> to see your notes.
+    {% endif %}
+{% endblock %}
+
+{% macro settingsPopup(pageThemes, highlightJsThemes) %}
+    <div id="settings-popup" class="modal modal-fixed-footer">
+        <div class="modal-content">
+            <div class="row">
+                <div class="col s12">
+                    <div class="row">
+                        <div class="col s6">
+                            Select Page Theme:
+                        </div>
+                        <div class="col s6">
+                            <select id="page-theme">
+                            {% for key, theme in pageThemes %}
+                                {% set selected = theme.isSelected ? 'selected' : '' %}\
+                                <option value="{{ key }}" {{ selected }}>{{ theme.name }}</option>
+                            {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col s6">
+                            Input Theme:
+                        </div>
+                        <div class="col s6">
+                            {{ cmMacros.codemirrorThemeSelect() }}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col s6">
+                            Output Theme:
+                        </div>
+                        <div class="col s6">
+                            {{ _self.highlightJsSelect(highlightJsThemes) }}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col s6">
+                            <button type="button" class="btn show-cookie-pref">
+                                Show Cookie Preferences
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="modal-close waves-effect waves-green btn-flat right">Close</button>
+        </div>
+    </div>
+{% endmacro %}
+
+{% macro noteTitleTemplate() %}
+    <button type="button" id="note-item-template" class="note-item btn tooltipped" data-position="right">
+        <span class="title"></span>
+        <span class="last-modified"></span>
+        <span class="tag-container">
+            <span id="note-tag-template" class="note-tag"><span>
+        </span>
+    </button>
+{% endmacro %}
+
+{% macro highlightJsSelect(themes) %}
+    <select id="highlightjs-theme">
+    {% for key, theme in themes %}
+        <option value="{{ key }}" {{ theme.isSelected ? 'selected' }}>{{ key }}</option>
+    {% endfor %}
+    </select>
+{% endmacro %}
