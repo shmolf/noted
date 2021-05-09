@@ -13,6 +13,24 @@ person:
 I didn't realize we had a {{ page.person.class }} in our midst.  
 Please, why don't you sit down, {{ page.person.name }}, and and enjoy a delicious {{ page.fruits[0] }}.
 
+### Intros
+
+This page is designed for keeping notes in MarkDown. This site is still in development, by one person.  
+So, please be patient and courteous. And backup your notes, as I cannot guarantee the data is safe, while the
+site undergoes improvements.
+
+Notes at the top of the example, a fenced-in area with the `---` markings. Within this area is a `title` property.
+This is how you can specify a title for a note.  
+There are other properties as well, that can be referenced within the page, as seen in the initial intro.
+
+If you feel like helping, please visit [the Github Repo](https://github.com/shmolf/noted), and submit a Pull request
+or Issue ticket.
+
+Thank you and enjoy the app!
+
+---
+---
+
 Doctrine Setup
 
 1. Create a new Schema
@@ -36,10 +54,9 @@ php bin/console doctrine:migrations:migrate
 
 ```js
 const lennys = {
-    סּ_סּ : 'stern look',
+    סּ_סּ : 'bored look',
     ᓬᗽᗳ : 'rabbit',
     ʢᵕᴗᵕʡ : 'koala bear',
-
 };
 
 const TheLenny = Object.keys(lennys)

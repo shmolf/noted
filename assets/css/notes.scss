@@ -161,6 +161,14 @@ main {
 
     #output-wrap {
       border-top: 5px solid transparent;
+
+      pre code {
+        white-space: pre-wrap;
+      }
+
+      hr {
+        width: 100%;
+      }
     }
   }
 }

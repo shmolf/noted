@@ -32,9 +32,6 @@ const HLJS_THEME_COOKIE = 'hljs-theme';
 let $newNoteBtn;
 
 /** @type {JQuery} */
-let $title;
-
-/** @type {JQuery} */
 let $editor;
 
 /** @type {JQuery} */
@@ -130,7 +127,6 @@ function initJqueryVariables() {
   $pageTheme = $('#page-theme');
   $codeMirrorTheme = $('#codemirror-theme');
   $highlightJsTheme = $('#highlightjs-theme');
-  $title = $('#note-title');
   $settingsModal = $('#settings-popup');
   $editor = $('#markdown-input');
   $mdView = $('#markdown-output');
