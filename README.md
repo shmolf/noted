@@ -1,15 +1,3 @@
-# noted
-
-If this is still using the `codemirror` npm package, be sure to run the command after you install the package.
-```bash
- cd node_modules/codemirror && yarn install
- ```
- This'll auto-generate the build files.
-
-
----
----
-
 # Note'd
 
 The [note'd app](https://note-d.app) is a note-taking application, using the MarkDown syntax. There's added support,
