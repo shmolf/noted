@@ -181,6 +181,11 @@ main {
       hr {
         width: 100%;
       }
+
+      ul li {
+        list-style-type: disc;
+        margin-left: 2em;
+      }
     }
   }
 }
@@ -207,7 +212,7 @@ main {
     background-color: var(--chart-background);
   }
 
-  p code {
+  :not(pre) > code {
     border: solid 1px var(--counter-tone);
     border-radius: 5px;
   }
@@ -229,6 +234,9 @@ main {
     color: var(--page-notenav-item-color);
     color: var(--counter-tone);
     border-left: solid 3px transparent;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
 
     &.not-saved {
       border-color: #ffe45d;

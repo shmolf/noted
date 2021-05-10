@@ -178,8 +178,6 @@ function initMarkdownIt() {
     .use(mdItEmoji)
     .use(mdItCheckbox, {
       enabled: true,
-      label: true,
-      labelAfter: true,
     });
 
   md.renderer.rules.emoji = (token, idx) => twemoji.parse(token[idx].content);
@@ -535,6 +533,11 @@ function setNavItemTitle(uuid, title) {
   if ($navListItem.length === 0) {
     $navListItem = createNewNoteNavItem(uuid, title, [], null, null);
   } else {
+    const tooltipInstacne = M.Tooltip.getInstance($navListItem.get(0));
+    tooltipInstacne.destroy();
+    $navListItem.attr('data-tooltip', title);
+    M.Tooltip.init($navListItem);
+
     $navListItem.find('.title').text(title);
   }
 
