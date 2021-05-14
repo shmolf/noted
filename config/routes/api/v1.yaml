@@ -15,7 +15,7 @@ api.v1.note.deleteByClientUuid:
   controller: App\Controller\Notes\NotesController::deleteNoteByClientUuid
   methods: DELETE
   requirements:
-    uuid: '[a-fA-F0-9\-]36'
+    uuid: '[a-fA-F0-9\-]+'
 
 api.v1.note.list:
   path: /note/list

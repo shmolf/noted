@@ -3,23 +3,14 @@ import M from 'materialize-css';
 import 'CSS/notes.scss';
 
 import { workerStates, clientActions, NotePackage } from 'JS/notes/worker-client-api';
+import { initMarkdownIt, renderMarkdown } from 'JS/notes/markdown-output';
+import { initNoteNav, renderNoteList, getNavItem, setNavItemSaveState, setNavItemTitle } from 'JS/notes/note-nav';
 import { v4 as uuidv4 } from 'uuid';
 import FileDownload from 'js-file-download';
 import Worker from './note.worker';
 import Cookies from 'JS/lib/cookie';
 // @ts-ignore
 import sample from './sample.md';
-
-// Libraries for the Markdown Render
-import mdIt from 'markdown-it';
-import * as d3 from 'd3';
-// @ts-ignore
-import markdownItApexCharts, { ApexRender } from 'markdown-it-apexcharts';
-import mdItEmoji from 'markdown-it-emoji';
-import mdItCheckbox from 'markdown-it-task-lists';
-import twemoji from 'twemoji';
-import { loadFront } from 'yaml-front-matter';
-import hljs from 'highlight.js';
 
 // Library for the input side
 import CodeMirror from './code-mirror-assets';
@@ -38,16 +29,7 @@ let $newNoteBtn;
 let $editor;
 
 /** @type {JQuery} */
-let $mdView;
-
-/** @type {JQuery} */
 let $settingsModal;
-
-/** @type {JQuery} */
-let $noteListNav;
-
-/** @type {JQuery} */
-let $noteListTemplate;
 
 /** @type {JQuery} */
 let $pageTheme;
@@ -58,9 +40,6 @@ let $codeMirrorTheme;
 /** @type {JQuery} */
 let $highlightJsTheme;
 
-/** @type {JQuery} */
-let $triggerElementAutoCloseNav;
-
 let $inputOutput;
 
 /** @type {CodeMirror} */
@@ -68,8 +47,6 @@ let codeMirrorEditor;
 
 /** @type {Worker|null} */
 let worker = null;
-
-let md;
 
 // Since CodeMirror.setValue() triggers a change event, we'll want to prevent change events when manually setting value
 let manuallySettingValue = false;
@@ -86,11 +63,7 @@ $(() => {
   initMaterialize();
   initCodeMirror();
   initMarkdownIt();
-
-  $pageTheme.on('change', updatePageTheme);
-  $codeMirrorTheme.on('change', updateCodeMirrorTheme);
-  $highlightJsTheme.on('change', updateHighlightJsTheme);
-  $newNoteBtn.on('click', newNote);
+  initNoteNav();
 
   const cmTheme = localStorage.getItem(CM_THEME_COOKIE);
   if (cmTheme !== null) {
@@ -102,19 +75,20 @@ $(() => {
   codeMirrorEditor.setValue(sample);
   manuallySettingValue = false;
 
+  eventListeners();
+});
+
+function eventListeners() {
+  $pageTheme.on('change', updatePageTheme);
+  $codeMirrorTheme.on('change', updateCodeMirrorTheme);
+  $highlightJsTheme.on('change', updateHighlightJsTheme);
+  $newNoteBtn.on('click', newNote);
+
   $('.show-cookie-pref').on('click', () => {
     M.Modal.getInstance($settingsModal.get(0))?.close();
   });
 
   $('.export-notes').on('click', () => worker.postMessage(clientActions.EXPORT_NOTES.f()));
-
-  $('.toggle-nav').on('click', (e) => {
-    e.stopPropagation();
-    $(document).off('click', autoCloseNav);
-    $('.toggle-nav i').removeClass('fa-chevron-right').addClass('fa-chevron-left');
-    $('#note-navigation').toggleClass('expanded');
-    $(document).on('click', '#noted, #new-note, #note-navigation .note-item', autoCloseNav);
-  });
 
   $('.toggle-view').on('click', () => {
     $('.toggle-view i').toggleClass('fa-book-open').toggleClass('fa-edit');
@@ -146,12 +120,23 @@ $(() => {
         }
     );
   });
-});
 
-function autoCloseNav() {
-  $(document).off('click', autoCloseNav);
-  $('.toggle-nav i').addClass('fa-chevron-right').removeClass('fa-chevron-left');
-  $('#note-navigation').removeClass('expanded');
+  $(document).on('click', '.note-item', (event) => {
+    const eventUuid = $(event.currentTarget).data('clientUuid');
+    worker.postMessage(clientActions.GET_BY_CLIENTUUID.f(eventUuid));
+  });
+
+  $('#delete-note').on('click', (event) => {
+    const eventUuid = $('#note-menu').data('uuid');
+
+    if (eventUuid === undefined) {
+      return;
+    }
+
+    getNavItem(eventUuid).attr('disabled', 'disabled');
+
+    worker.postMessage(clientActions.DEL_BY_CLIENTUUID.f(eventUuid));
+  });
 }
 
 function initJqueryVariables() {
@@ -160,27 +145,9 @@ function initJqueryVariables() {
   $highlightJsTheme = $('#highlightjs-theme');
   $settingsModal = $('#settings-popup');
   $editor = $('#markdown-input');
-  $mdView = $('#markdown-output');
-  $noteListNav = $('#note-items');
-  $noteListTemplate = $('#note-item-template');
   $inputOutput = $('#input-wrap, #output-wrap');
 
   $newNoteBtn = $('#new-note');
-}
-
-/**
- * Initialized the Markdown-It library
- */
-function initMarkdownIt() {
-  md = mdIt()
-    .use(markdownItApexCharts)
-    // .use(mdItGraphs)
-    .use(mdItEmoji)
-    .use(mdItCheckbox, {
-      enabled: true,
-    });
-
-  md.renderer.rules.emoji = (token, idx) => twemoji.parse(token[idx].content);
 }
 
 /**
@@ -260,66 +227,6 @@ function newNote() {
   codeMirrorEditor.setValue('');
   manuallySettingValue = false;
   renderMarkdown('');
-}
-
-/**
- * Grabs the input from Code Mirror, and uses Markdown-It to render the output.
- * Since part of the rendering process includes extracting FrontMatter data, this'll return
- * that data to the callsite, where it can use it for additional work. Like updating the title.
- *
- * @param {string} markdown
- */
-function renderMarkdown(markdown) {
-  const { content, data } = parseFrontMatter(markdown);
-  const render = md.render(content, { d3 });
-  $mdView.html(render);
-  ApexRender();
-  $mdView.find('pre code').each((i, elem) => {
-    const codeBlock = elem;
-    codeBlock.innerHTML = hljs.highlightAuto(elem.textContent).value;
-  });
-
-  return data;
-}
-
-/**
- * @param {string} markdown
- * @returns {{content: string, data: Object.<string, any>}}
- */
-function parseFrontMatter(markdown) {
-  let parsedFrontMatter;
-
-  try {
-    parsedFrontMatter = loadFront(markdown);
-  } catch(e) {
-    console.warn(e);
-    return { content: markdown, data: {} };
-  }
-  const pagePlaceholder = /\{\{ page\.([^}}]+) \}\}/g;
-  let { __content: content, ...data } = parsedFrontMatter;
-
-  const matches = [...markdown.matchAll(pagePlaceholder)]
-    .map((match) => match[1])
-    .filter((value, index, self) => self.indexOf(value) === index);
-
-  matches.forEach((match) => {
-    let value;
-    try {
-      // eslint-disable-next-line no-eval
-      value = eval(`data.${match}`);
-    } catch (e) {
-      console.warn(`Could not interpret '${match}'. Error:\n${e}`);
-      return;
-    }
-
-    if (value !== undefined) {
-      const regexString = `\\{\\{ page\\.${escapeRegExp(match)} \\}\\}`;
-      const placeholderMatch = new RegExp(regexString, 'g');
-      content = content.replaceAll(placeholderMatch, value);
-    }
-  });
-
-  return { content, data };
 }
 
 /**
@@ -461,7 +368,9 @@ function onWorkerMessage(event) {
         }
         break;
       case workerStates.DEL_COMP.k:
-        console.log('deltion completed');
+        const { data: delUuid } = msg;
+        getNavItem(delUuid).detach();
+        console.log('deletion completed');
         break;
       case workerStates.EXPORT_DATA.k:
         const { data: notes } = msg;
@@ -470,125 +379,6 @@ function onWorkerMessage(event) {
     }
   }
 }
-
-function escapeRegExp(string) {
-  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
-}
-
-/**
- * @param {NoteListItem[]} notes
- */
-function renderNoteList(notes) {
-  $noteListNav.find('.note-item:not(#note-load-template)').off('click').detach();
-
-  notes.forEach((note) => {
-    const lastModified = new Date(`${note.lastModified.date} ${note.lastModified.timezone}`);
-    const createdDate = new Date(`${note.createdDate.date} ${note.createdDate.timezone}`);
-
-    const $noteBtn = createNewNoteNavItem(note.clientUuid, note.title, note.tags, lastModified, createdDate);
-    $noteListNav.append($noteBtn);
-  });
-}
-
-/**
- *
- * @param {string} clientUuid
- * @param {string} title
- * @param {string[]} tags
- * @param {?Date} lastModifiedDate
- * @param {?Date} createdDate
- * @returns {JQuery}
- */
-function createNewNoteNavItem(clientUuid, title, tags, lastModifiedDate, createdDate) {
-  const $noteBtn = $noteListTemplate.clone().removeAttr('id');
-  const lastModified = lastModifiedDate ?? new Date();
-  const created = createdDate ?? new Date();
-  const noteTitle = title || lastModified.toDateString();
-
-  $noteBtn
-    .data('client-uuid', clientUuid)
-    .data('last-modified', lastModified.toDateString())
-    .data('created', created.toDateString())
-    .attr('data-tooltip', noteTitle)
-    .find('.title').text(noteTitle);
-
-    M.Tooltip.init($noteBtn);
-
-  const $tagTemplate = $noteBtn.find('#note-tag-template').clone().removeAttr('id');
-  tags.forEach((tag) => $noteBtn.find('.tag-container').append($tagTemplate.clone().text(tag)));
-
-  $noteBtn.on('click', (event) => {
-    const tooltipInstance = M.Tooltip.getInstance(event.currentTarget);
-    tooltipInstance.close();
-    const eventUuid = $(event.currentTarget).data('clientUuid');
-    worker.postMessage(clientActions.GET_BY_CLIENTUUID.f(eventUuid));
-  });
-
-  return $noteBtn;
-}
-
-function setNavItemTitle(uuid, title) {
-  let $navListItem = getNavItem(uuid);
-
-  if ($navListItem.length === 0) {
-    $navListItem = createNewNoteNavItem(uuid, title, [], null, null);
-  } else {
-    const tooltipInstacne = M.Tooltip.getInstance($navListItem.get(0));
-    tooltipInstacne.destroy();
-    $navListItem.attr('data-tooltip', title);
-    M.Tooltip.init($navListItem);
-
-    $navListItem.find('.title').text(title);
-  }
-
-  $noteListNav.prepend($navListItem);
-}
-
-/**
- * @param {string} uuid
- * @param {'save'|'inProgress'|'default'} state
- */
-function setNavItemSaveState(uuid, state) {
-  const stateClasses = {
-    save: 'saved',
-    inProgress: 'not-saved',
-    default: '',
-  };
-
-  let $navListItem = getNavItem(uuid);
-
-  if (state in stateClasses) {
-    const allStateClasses = Object.values(stateClasses).join(' ');
-    $navListItem.removeClass(allStateClasses).addClass(stateClasses[state]);
-  }
-}
-
-/**
- * @param {string} uuid
- * @returns {JQuery}
- */
-function getNavItem(uuid) {
-  return $noteListNav
-    .find('.note-item')
-    .filter((i, elem) => String($(elem).data('client-uuid')) === uuid);
-}
-
-/**
- * @typedef {Object} NoteListItem
- * @property {string} title
- * @property {string[]} tags
- * @property {string} clientUuid
- * @property {string} inTrashcan
- * @property {DateTime} createdDate
- * @property {DateTime} lastModified
- */
-
-/**
- * @typedef {Object} DateTime
- * @property {string} date
- * @property {string} timezone
- * @property {number} timezone_type
- */
 
 /**
  * @typedef {object} NoteQueue

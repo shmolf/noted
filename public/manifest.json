@@ -11,10 +11,10 @@
   ],
   "app": {
     "urls": [
-      "https://shmolf.com"
+      "https://note-d.app"
     ],
     "launch": {
-      "web_url": "https://shmolf.com"
+      "web_url": "https://note-d.app"
     }
   },
   "share_target": {

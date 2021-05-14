@@ -69,11 +69,12 @@ function handleAction(msg) {
           .catch((error) => console.warn(error));
         break;
       case clientActions.DEL_BY_CLIENTUUID.k:
-        Promise.all([
-          delByClientUuid(msg.data),
-          noteDb.delRecordByClientUuid(msg.data),
-        ])
-          .then(() => worker.postMessage(workerStates.DEL_COMP.f()))
+        const { data: delUuid } = msg;
+        noteDb.delRecordByClientUuid(delUuid)
+          .catch((reason) => console.warn(reason))
+          .then(() => delByClientUuid(msg.data))
+          .then((response) => console.log(response))
+          .then(() => worker.postMessage(workerStates.DEL_COMP.f(delUuid)))
           .catch((reason) => console.warn(reason));
         break;
       case clientActions.GET_LIST.k:
