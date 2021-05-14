@@ -4,7 +4,7 @@ import 'CSS/notes.scss';
 
 import { workerStates, clientActions, NotePackage } from 'JS/notes/worker-client-api';
 import { initMarkdownIt, renderMarkdown } from 'JS/notes/markdown-output';
-import { initNoteNav, renderNoteList,   setNavItemSaveState, setNavItemTitle } from 'JS/notes/note-nav';
+import { initNoteNav, renderNoteList, getNavItem, setNavItemSaveState, setNavItemTitle } from 'JS/notes/note-nav';
 import { v4 as uuidv4 } from 'uuid';
 import FileDownload from 'js-file-download';
 import Worker from './note.worker';
@@ -132,6 +132,8 @@ function eventListeners() {
     if (eventUuid === undefined) {
       return;
     }
+
+    getNavItem(eventUuid).attr('disabled', 'disabled');
 
     worker.postMessage(clientActions.DEL_BY_CLIENTUUID.f(eventUuid));
   });
@@ -366,6 +368,8 @@ function onWorkerMessage(event) {
         }
         break;
       case workerStates.DEL_COMP.k:
+        const { data: delUuid } = msg;
+        getNavItem(delUuid).detach();
         console.log('deletion completed');
         break;
       case workerStates.EXPORT_DATA.k:

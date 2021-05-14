@@ -146,7 +146,7 @@ export function setNavItemTitle(uuid, title) {
  * @param {string} uuid
  * @returns {JQuery}
  */
-function getNavItem(uuid) {
+export function getNavItem(uuid) {
   return $noteListNav
     .find('.note-item')
     .filter((i, elem) => String($(elem).data('client-uuid')) === uuid);

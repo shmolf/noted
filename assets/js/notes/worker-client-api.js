@@ -87,9 +87,10 @@ export const workerStates = Object.freeze({
   DEL_COMP: {
     k: 'note-deleted',
     /**
+     * @param {string} uuid
      * @returns {string}
      */
-    f: () => packState(workerStates.DEL_COMP.k),
+    f: (uuid) => packState(workerStates.DEL_COMP.k, uuid),
   },
   EXPORT_DATA: {
     k: 'export-data',
