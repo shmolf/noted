@@ -2,6 +2,7 @@
 
 // When using twemoji you can make image height match the line height with this style
 :root {
+  --darker: #0000003b;
   --note-color-1-light: #ccd5ae;
   --note-color-2-light: #e9edc9;
   --note-color-3-light: #fefae0;
@@ -281,4 +282,45 @@ main {
       }
     }
   }
+}
+
+#note-menu {
+  display: block;
+  background-color: var(--note-color-5);;
+  padding: 10px 0px;
+  border-radius: 5px;
+  position: absolute;
+  transform-origin: center;
+  z-index: 7;
+  opacity: 0;
+  transform: scale(0);
+  transition: transform 0.2s, opacity 0.2s;
+
+  &.show {
+    opacity: 1;
+    transform: scale(1);
+    transform-origin: top left;
+  }
+}
+
+.menu-item {
+  display: block;
+  padding: 10px 30px;
+  transition: 0.1s;
+  color: var(--counter-tone);
+
+  &:hover {
+    background-color: var(--darker);
+    cursor: pointer;
+  }
+}
+
+#note-menu-out-click {
+  height: 100vh;
+  width: 100vw;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 6;
+  display: none;
 }

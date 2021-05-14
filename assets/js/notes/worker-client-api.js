@@ -89,7 +89,7 @@ export const workerStates = Object.freeze({
     /**
      * @returns {string}
      */
-    f: () => packState(workerStates.UPD8_COMP.k),
+    f: () => packState(workerStates.DEL_COMP.k),
   },
   EXPORT_DATA: {
     k: 'export-data',
