@@ -134,7 +134,6 @@ function eventListeners() {
     }
 
     getNavItem(eventUuid).attr('disabled', 'disabled');
-
     worker.postMessage(clientActions.DEL_BY_CLIENTUUID.f(eventUuid));
   });
 }
@@ -370,7 +369,6 @@ function onWorkerMessage(event) {
       case workerStates.DEL_COMP.k:
         const { data: delUuid } = msg;
         getNavItem(delUuid).detach();
-        console.log('deletion completed');
         break;
       case workerStates.EXPORT_DATA.k:
         const { data: notes } = msg;

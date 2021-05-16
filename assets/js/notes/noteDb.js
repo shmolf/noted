@@ -101,9 +101,7 @@ function createNewRecord(note) {
             isDeleted: false,
           }).then(() => resolve(uuid));
       })
-      .catch((reason) => {
-        reject(reason);
-      });
+      .catch((reason) => reject(reason));
   });
 }
 
@@ -128,15 +126,13 @@ function getRecordByClientUuid(uuid) {
     getTable()
       .then((table) => table.where(schema.clientUuid).equals(uuid))
       .then((records) => resolve(records))
-      .catch((reason) => {
-        reject(reason);
-      });
+      .catch((reason) => reject(reason));
   });
 }
 
 /**
  * @param {string} uuid
- * @returns {Promise<?Dexie.Collection<any, any>>}
+ * @returns {Promise<?void>}
  */
 function delRecordByClientUuid(uuid) {
   return new Promise((resolve, reject) => {
@@ -145,16 +141,15 @@ function delRecordByClientUuid(uuid) {
     }
 
     getTable()
-      .then((table) => {
-        return { 'table': table, 'records': table.where(schema.clientUuid).equals(uuid) };
-      })
+      .then((table) => ({ table, 'records': table.where(schema.clientUuid).equals(uuid) }))
       .then((data) => {
         const { table, records } = data;
-        return records.toArray().then((arr) => table.delete(arr[0].id));
+        records.toArray()
+          .then((arr) => table.delete(arr[0].id))
+          .then(() => resolve())
+          .catch((reason) => reject(reason));
       })
-      .catch((reason) => {
-        reject(reason);
-      });
+      .catch((reason) => reject(reason));
   });
 }
 
@@ -171,9 +166,7 @@ function getRecordById(id) {
     getTable()
       .then((table) => table.where(schema.id).equals(id))
       .then((records) => resolve(records))
-      .catch((reason) => {
-        reject(reason);
-      });
+      .catch((reason) => reject(reason));
   });
 }
 

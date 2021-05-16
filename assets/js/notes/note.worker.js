@@ -72,8 +72,7 @@ function handleAction(msg) {
         const { data: delUuid } = msg;
         noteDb.delRecordByClientUuid(delUuid)
           .catch((reason) => console.warn(reason))
-          .then(() => delByClientUuid(msg.data))
-          .then((response) => console.log(response))
+          .then(() => delByClientUuid(delUuid))
           .then(() => worker.postMessage(workerStates.DEL_COMP.f(delUuid)))
           .catch((reason) => console.warn(reason));
         break;
