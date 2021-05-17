@@ -5,4 +5,4 @@ twig:
     exception_controller: null
     globals:
         image_base_path: 'build/images'
-        public_base_path: 'build'
+        public_base_path: ''
