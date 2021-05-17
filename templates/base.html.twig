@@ -3,6 +3,11 @@
 <head>
     <meta charset='UTF-8'>
     <meta name= 'viewport' content = 'width = device-width'>
+        <meta name="mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <link rel="manifest" href="{{ public_base_path }}/manifest.json">
+        <link rel="shortcut icon" href="{{ public_base_path }}/xinu.png" type="image/png">
+        <link rel="icon" type="image/png" href="{{ public_base_path }}/xinu.png" />
     <title>{% block title %}Note'd{% endblock %}</title>
     {% block stylesheets %}
         {{ encore_entry_link_tags('app') }}

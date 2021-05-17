@@ -4,4 +4,5 @@ twig:
     strict_variables: '%kernel.debug%'
     exception_controller: null
     globals:
-        image_base_path: 'build/images/'
+        image_base_path: 'build/images'
+        public_base_path: 'build'
