@@ -101,10 +101,10 @@ function parseFrontMatter(markdown) {
   };
 
   matches.forEach((match) => {
-    const bitsByBrackNot = splitDotNotation(match)
+    const pathArray = splitDotNotation(match)
       .reduce((pathArr, str) => pathArr.concat(splitIndexNotation(str)), []);
 
-    const value = get(bitsByBrackNot, data);
+    const value = get(pathArray, data);
 
     if (value !== undefined && value !== null) {
       const regexString = `\\{\\{ page\\.${escapeRegExp(match)} \\}\\}`;
