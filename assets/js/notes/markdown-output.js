@@ -74,17 +74,39 @@ function parseFrontMatter(markdown) {
     .map((match) => match[1])
     .filter((value, index, self) => self.indexOf(value) === index);
 
-  matches.forEach((match) => {
-    let value;
-    try {
-      // eslint-disable-next-line no-eval
-      value = eval(`data.${match}`);
-    } catch (e) {
-      console.warn(`Could not interpret '${match}'. Error:\n${e}`);
-      return;
-    }
+  // This'll try to get a value from an object/array, given a path given as an array. Defaults to `null` if not found.
+  const get = (path, obj) => path.reduce((xs, x) => (xs && xs[x]) ? xs[x] : null, obj);
+  /**
+   * @param {string} str
+   * @returns {string[]}
+   */
+  const splitDotNotation = (str) => str.split('.');
+  /**
+   * @param {string} str
+   * @returns {string[]}
+   */
+  const splitIndexNotation = (str) => {
+    /*
+     * Consider if `str` is `fruits[0][1]`
+     * We expect the array from a split to be `["fruits", "0", "", "1", ""]`
+     * Notice that the first index should be the only even index that should have a value.
+     *
+     * Take as a counter example: `fruits[0][1]invalidText`
+     * This'll yield `["fruits", "0", "", "1", "invalidText"]`, where index 4 (an even, non-zero index) has a value.
+     */
 
-    if (value !== undefined) {
+    return str.split(/\[([^\]]+)\]/).reduce((parts, part, i) => {
+      return part === '' ? parts : (i === 0 || i % 2 === 1 ? parts.concat([part]) : parts);
+    }, []);
+  };
+
+  matches.forEach((match) => {
+    const pathArray = splitDotNotation(match)
+      .reduce((pathArr, str) => pathArr.concat(splitIndexNotation(str)), []);
+
+    const value = get(pathArray, data);
+
+    if (value !== undefined && value !== null) {
       const regexString = `\\{\\{ page\\.${escapeRegExp(match)} \\}\\}`;
       const placeholderMatch = new RegExp(regexString, 'g');
       content = content.replaceAll(placeholderMatch, value);
