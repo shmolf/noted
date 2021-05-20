@@ -57,17 +57,27 @@ const modifiedNotes = {};
 const noteSaveDelay = 3 * 1000;
 const noteDelayMax = 10 * 1000;
 
+/** @type {string|null} */
+const cmTheme = localStorage.getItem(CM_THEME_COOKIE);
+
 $(() => {
   loadSw();
   initJqueryVariables();
+
+  if (cmTheme !== null) {
+    // Need to set the select menu value, before Materialize is initialized.
+    $codeMirrorTheme.val(cmTheme);
+  }
+
   initMaterialize();
   initCodeMirror();
   initMarkdownIt();
   initNoteNav();
 
-  const cmTheme = localStorage.getItem(CM_THEME_COOKIE);
   if (cmTheme !== null) {
     setCodeMirrorTheme(cmTheme);
+    $codeMirrorTheme.val(cmTheme);
+    $codeMirrorTheme.find(`[value="${cmTheme}"`).attr('selected', 'selected');
   }
 
   renderMarkdown(sample);
@@ -197,6 +207,7 @@ function initMaterialize() {
     },
   });
 
+  M.FormSelect.init($codeMirrorTheme);
 }
 
 function updatePageTheme() {
