@@ -1,5 +1,16 @@
 interface MapStringTo<T> { [key:string]:T; }
 
+export interface Note extends MapStringTo<any> {
+    clientUuid?: string|null;
+    title: string;
+    content: string;
+    tags: string[];
+    inTrashcan?: boolean;
+    isDeleted?: boolean;
+    createdDate?: Date|null;
+    lastModified?: Date|null;
+}
+
 export const clientActions = Object.freeze({
   GET_LIST: {
     k: 'getNoteList',
@@ -74,18 +85,6 @@ function stringIt(obj: Object): string {
   return JSON.stringify(obj);
 }
 
-export interface NotePackageOptions extends MapStringTo<any> {
-    id?: number;
-    clientUuid?: string;
-    title: string;
-    content: string;
-    tags: string[];
-    inTrashcan?: boolean;
-    isDeleted?: boolean;
-    createdDate?: Date;
-    lastModified?: Date;
-}
-
 export interface NotePackageExport extends MapStringTo<any> {
     id?: number;
     clientUuid?: string;
@@ -109,7 +108,7 @@ export class NotePackage {
     createdDate: Date|null;
     lastModified: Date|null;
 
-    constructor(optionalProperties: NotePackageOptions) {
+    constructor(optionalProperties: Note) {
         this.id = optionalProperties.id ?? null;
         this.clientUuid = optionalProperties.clientUuid?.trim() || null;
         this.title = optionalProperties.title.trim();

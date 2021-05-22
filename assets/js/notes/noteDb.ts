@@ -1,7 +1,7 @@
 import { trim } from 'jquery';
 import Dexie from 'NODE/dexie/dist/dexie';
 import { v4 as uuidv4 } from 'uuid';
-import { NotePackage } from './worker-client-api';
+import { Note, NotePackage } from './worker-client-api';
 
 const DB_NAME = 'noted-notes';
 const db = new Dexie(DB_NAME);
@@ -9,7 +9,19 @@ const db = new Dexie(DB_NAME);
 export const TABLE_NOTE = 'notes';
 export const NOTE_ACTIONS = Object.freeze({ update: 'update', delete: 'delete' });
 
-let noteTable: Dexie.Table<NotePackage>|null = null;
+let noteTable: Dexie.Table<DexieNote>|null = null;
+
+export interface DexieNote extends Note {
+    id?: number;
+    clientUuid: string|null;
+    title: string;
+    content: string;
+    tags: string[];
+    inTrashcan: boolean;
+    isDeleted: boolean;
+    createdDate: Date|null;
+    lastModified: Date|null;
+}
 
 const schema = {
     id: 'id',
@@ -17,8 +29,6 @@ const schema = {
     title: 'title',
     content: 'content',
     tags: 'tags',
-    opened: 'opened',
-    synced: 'synced',
     syncAction: 'syncAction',
     inTrashcan: 'inTrashcan',
     isDeleted: 'isDeleted',
@@ -32,14 +42,24 @@ function buildDb(): Promise<Dexie> {
         db.version(1).stores({
             // 'opened' do not need to be indexed, so omit from schema
             notes: '++id, &clientUuid, title, content, *tags, lastSynced',
+        })
+        db.version(2).stores({
+            // No change in indexes
+            notes: '++id, &clientUuid, title, content, *tags, lastSynced',
+        }).upgrade((transactions) => {
+            // @ts-ignore
+            return transactions.notes.toCollection().modify (note => {
+                delete note.opened;
+                delete note.synced;
+              });
         });
 
-    return db.open()
-        .then((dbInstance) => {
-            noteTable = dbInstance.table(TABLE_NOTE);
-            resolve(dbInstance);
-        })
-        .catch((error) => reject(error));
+        return db.open()
+            .then((dbInstance) => {
+                noteTable = dbInstance.table(TABLE_NOTE);
+                resolve(dbInstance);
+            })
+            .catch((error) => reject(error));
   });
 }
 
@@ -71,7 +91,7 @@ function modifyRecord(note: NotePackage): Promise<string> {
     });
 }
 
-function createNewRecord(note: NotePackage): Promise<string> {
+function createNewRecord(note: Note): Promise<string> {
     return new Promise((resolve, reject) => {
         getTable()
             .then((table) => {
@@ -82,10 +102,10 @@ function createNewRecord(note: NotePackage): Promise<string> {
                         content: note.content || '',
                         tags: note.tags || [],
                         clientUuid: uuid,
-                        opened: true,
-                        synced: false,
                         inTrashcan: false,
                         isDeleted: false,
+                        createdDate: null,
+                        lastModified: null,
                     })
                     .then(() => resolve(uuid));
             })
@@ -97,7 +117,7 @@ function syncRecords(notes: NotePackage[]) {
   // Need to do a bulk update using Dexie.
 }
 
-function getRecordByClientUuid(uuid: string): Promise<Dexie.Collection<NotePackage, any>> {
+function getRecordByClientUuid(uuid: string): Promise<Dexie.Collection<DexieNote, any>> {
     return new Promise((resolve, reject) => {
         getTable()
             .then((table) => table.where(schema.clientUuid).equals(uuid))
@@ -138,7 +158,7 @@ function getRecordById(id: number): Promise<Dexie.Collection<any, any>> {
     });
 }
 
-function getTable(): Promise<Dexie.Table<NotePackage>> {
+function getTable(): Promise<Dexie.Table<DexieNote>> {
     return new Promise((resolve, reject) => {
         if (noteTable !== null) {
             resolve(noteTable);
