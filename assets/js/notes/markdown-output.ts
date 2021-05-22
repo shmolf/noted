@@ -11,25 +11,22 @@ import twemoji from 'twemoji';
 import { loadFront } from 'yaml-front-matter';
 import hljs from 'highlight.js';
 
-let md;
-
-/** @type {JQuery} */
-let $mdView;
+let md: mdIt;
+let $mdView: JQuery;
 
 /**
  * Initialized the Markdown-It library
  */
 export function initMarkdownIt() {
-  $mdView = $('#markdown-output');
-  md = mdIt()
-    .use(markdownItApexCharts)
-    // .use(mdItGraphs)
-    .use(mdItEmoji)
-    .use(mdItCheckbox, {
-      enabled: true,
-    });
+    $mdView = $('#markdown-output');
+    md = mdIt()
+        .use(markdownItApexCharts)
+        .use(mdItEmoji)
+        .use(mdItCheckbox, {
+            enabled: true,
+        });
 
-  md.renderer.rules.emoji = (token, idx) => twemoji.parse(token[idx].content);
+    md.renderer.rules.emoji = (token, idx) => twemoji.parse(token[idx].content);
 }
 
 /**
@@ -40,86 +37,70 @@ export function initMarkdownIt() {
  * @param {string} markdown
  * @returns {{[x: string]: any}
  */
-export function renderMarkdown(markdown) {
-  const { content, data } = parseFrontMatter(markdown);
-  const render = md.render(content, { d3 });
-  $mdView.html(render);
-  ApexRender();
-  $mdView.find('pre code').each((i, elem) => {
-    const codeBlock = elem;
-    codeBlock.innerHTML = hljs.highlightAuto(elem.textContent).value;
-  });
+export function renderMarkdown(markdown: string): MapStringTo<any> {
+    const { content, data } = parseFrontMatter(markdown);
+    const render = md.render(content, { d3 });
+    $mdView.html(render);
+    ApexRender();
+    $mdView.find('pre code').each((i, elem) => {
+        const codeBlock = elem;
+        codeBlock.innerHTML = hljs.highlightAuto(String(elem.textContent)).value;
+    });
 
-  return data;
+    return data;
 }
 
-/**
- * @param {string} markdown
- * @returns {{content: string, data: Object.<string, any>}}
- */
-function parseFrontMatter(markdown) {
-  let parsedFrontMatter;
+function parseFrontMatter(markdown: string) {
+    let parsedFrontMatter;
 
-  try {
-    parsedFrontMatter = loadFront(markdown);
-  } catch (e) {
-    console.warn(e);
-    return { content: markdown, data: {} };
-  }
-  const pagePlaceholder = /\{\{ page\.([^}}]+) \}\}/g;
-  // eslint-disable-next-line prefer-const
-  let { __content: content, ...data } = parsedFrontMatter;
-
-  const matches = [...markdown.matchAll(pagePlaceholder)]
-    .map((match) => match[1])
-    .filter((value, index, self) => self.indexOf(value) === index);
-
-  // This'll try to get a value from an object/array, given a path given as an array. Defaults to `null` if not found.
-  const get = (path, obj) => path.reduce((xs, x) => (xs && xs[x]) ? xs[x] : null, obj);
-  /**
-   * @param {string} str
-   * @returns {string[]}
-   */
-  const splitDotNotation = (str) => str.split('.');
-  /**
-   * @param {string} str
-   * @returns {string[]}
-   */
-  const splitIndexNotation = (str) => {
-    /*
-     * Consider if `str` is `fruits[0][1]`
-     * We expect the array from a split to be `["fruits", "0", "", "1", ""]`
-     * Notice that the first index should be the only even index that should have a value.
-     *
-     * Take as a counter example: `fruits[0][1]invalidText`
-     * This'll yield `["fruits", "0", "", "1", "invalidText"]`, where index 4 (an even, non-zero index) has a value.
-     */
-
-    return str.split(/\[([^\]]+)\]/).reduce((parts, part, i) => {
-      return part === '' ? parts : (i === 0 || i % 2 === 1 ? parts.concat([part]) : parts);
-    }, []);
-  };
-
-  matches.forEach((match) => {
-    const pathArray = splitDotNotation(match)
-      .reduce((pathArr, str) => pathArr.concat(splitIndexNotation(str)), []);
-
-    const value = get(pathArray, data);
-
-    if (value !== undefined && value !== null) {
-      const regexString = `\\{\\{ page\\.${escapeRegExp(match)} \\}\\}`;
-      const placeholderMatch = new RegExp(regexString, 'g');
-      content = content.replaceAll(placeholderMatch, value);
+    try {
+        parsedFrontMatter = loadFront(markdown);
+    } catch (e) {
+        console.warn(e);
+        return { content: markdown, data: {} };
     }
-  });
+    const pagePlaceholder = /\{\{ page\.([^}}]+) \}\}/g;
+    // eslint-disable-next-line prefer-const
+    let { __content: content, ...data } = parsedFrontMatter;
 
-  return { content, data };
+    const matches = Array.from(markdown.matchAll(pagePlaceholder))
+        .map((match: RegExpMatchArray) => match[1])
+        .filter((value, index, self) => self.indexOf(value) === index);
+
+    // This'll try to get a value from an object/array, given a path given as an array. Defaults to `null` if not found.
+    const get = (path: string[], obj: any): any|null => path.reduce((xs, x) => (xs && xs[x]) ? xs[x] : null, obj);
+    const splitDotNotation = (str: string): string[] => str.split('.');
+    const splitIndexNotation = (str: string): string[] => {
+        /*
+        * Consider if `str` is `fruits[0][1]`
+        * We expect the array from a split to be `["fruits", "0", "", "1", ""]`
+        * Notice that the first index should be the only even index that should have a value.
+        *
+        * Take as a counter example: `fruits[0][1]invalidText`
+        * This'll yield `["fruits", "0", "", "1", "invalidText"]`, where index 4 (an even, non-zero index) has a value.
+        */
+
+        return str.split(/\[([^\]]+)\]/).reduce((parts, part, i) => {
+            return part === '' || i === 0 || i % 2 === 1 ? parts : parts.concat([part]);
+        }, new Array<string>());
+    };
+
+    matches.forEach((match) => {
+        const pathArray = splitDotNotation(match)
+            .reduce((pathArr, str) => pathArr.concat(splitIndexNotation(str)), new Array<string>());
+
+        const value = get(pathArray, data);
+
+        if (value !== undefined && value !== null) {
+            const regexString = `\\{\\{ page\\.${escapeRegExp(match)} \\}\\}`;
+            const placeholderMatch = new RegExp(regexString, 'g');
+            content = content.replaceAll(placeholderMatch, value);
+        }
+    });
+
+    return { content, data };
 }
 
-/**
- * @param {string} string
- * @returns {string}
- */
-function escapeRegExp(string) {
+function escapeRegExp(string: string): string {
   return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
 }

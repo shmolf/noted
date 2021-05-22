@@ -1,5 +1,3 @@
-interface MapStringTo<T> { [key:string]:T; }
-
 export interface Note extends MapStringTo<any> {
     clientUuid?: string|null;
     title: string;
