@@ -1,101 +1,89 @@
-/* eslint-disable no-case-declarations */
-/* eslint-disable no-restricted-globals */
-/* eslint-env self */
-/// <reference lib="webworker" />\
-
 import noteDb from 'JS/notes/noteDb';
-import { workerStates, clientActions, NotePackage } from 'JS/notes/worker-client-api';
+import { workerStates, clientActions, NotePackage, NotePackageOptions } from 'JS/notes/worker-client-api';
 import axios from 'axios';
+const windowNavigator = window.navigator;
+interface MapStringTo<T> { [key:string]:T; }
 
-if ('setAppBadge' in navigator && 'clearAppBadge' in navigator) {
-  // @ts-ignore
-  navigator.setAppBadge(1).catch((error) => {
-    console.error(error);
-  });
+if ('setAppBadge' in windowNavigator && 'clearAppBadge' in windowNavigator) {
+    // @ts-ignore
+    windowNavigator.setAppBadge(1).catch((error: any) => {
+        console.error(error);
+    });
 }
 
-/** @typedef {import('JS/notes/worker-client-api').NotePackageOptions} NotePackageOptions */
-
-/** @type {Worker} */
-const worker = (/** @type {any} */(self));
+const worker:Worker = self as any;
 
 (() => {
-  noteDb.buildDb().then(() => {
-    worker.postMessage(workerStates.READY.f());
-  });
+    noteDb.buildDb().then(() => {
+        worker.postMessage(workerStates.READY.f());
+    });
 
-  worker.onmessage = (e) => {
-    const msg = JSON.parse(e.data);
+    worker.onmessage = (e) => {
+        const msg = JSON.parse(e.data);
 
-    if ('action' in msg) {
-      handleAction(msg);
-    }
-  };
+        if ('action' in msg) {
+            handleAction(msg);
+        }
+    };
 })();
 
-/**
- * @param {Object.<string, any>} msg
- */
-function handleAction(msg) {
-  if ('action' in msg) {
-    switch (msg.action) {
-      case clientActions.MODIFY.k:
-        const { data: noteData } = msg;
-        noteDb
-          .modifyRecord(new NotePackage(noteData))
-          .then((uuid) => noteDb.getRecordByClientUuid(uuid))
-          .then((records) => records.toArray())
-          .then((arr) => sendUpsert(new NotePackage(arr[0])).then((r) => r).catch((e) => console.warn(e)))
-          .then((response) => worker.postMessage(workerStates.UPD8_COMP.f(response)))
-          .catch((error) => console.warn(`Inbound request to modify record failed.\n${error}`));
-        break;
-      case clientActions.GET_BY_CLIENTUUID.k:
-        const { data: uuid } = msg;
-        noteDb
-          .getRecordByClientUuid(uuid)
-          .then((records) => records.toArray())
-          .then((recordsArray) => {
-            if (recordsArray === null || recordsArray === undefined || recordsArray.length === 0) {
-              getByClientUuid(uuid)
-                .then((note) => noteDb.modifyRecord(new NotePackage(note)))
-                .then((clientUuid) => noteDb.getRecordByClientUuid(clientUuid))
-                .then((records) => records.toArray())
-                .then((arr) => worker.postMessage(workerStates.NOTE_DATA.f(arr[0])))
+function handleAction(msg: MapStringTo<any>) {
+    if ('action' in msg) {
+        switch (msg.action) {
+            case clientActions.MODIFY.k:
+                const { data: noteData } = msg;
+                noteDb
+                    .modifyRecord(new NotePackage(noteData))
+                    .then((uuid) => noteDb.getRecordByClientUuid(uuid))
+                    .then((records) => records.toArray())
+                    .then((arr) => sendUpsert(arr[0]).then((r) => r).catch((e) => console.warn(e)))
+                    .then((response) => worker.postMessage(workerStates.UPD8_COMP.f(response)))
+                    .catch((error) => console.warn(`Inbound request to modify record failed.\n${error}`));
+                break;
+            case clientActions.GET_BY_CLIENTUUID.k:
+                const { data: reqUuid } = msg;
+                noteDb
+                    .getRecordByClientUuid(reqUuid ?? '')
+                    .then((records) => records.toArray())
+                    .then((recordsArray) => {
+                        if (recordsArray.length === 0) {
+                            getFromApiByClientUuid(reqUuid)
+                                .then((note) => noteDb.modifyRecord(new NotePackage(note)))
+                                .then((uuid) => noteDb.getRecordByClientUuid(uuid))
+                                .then((records) => records.toArray())
+                                .then((arr) => worker.postMessage(workerStates.NOTE_DATA.f(arr[0])))
+                                .catch((error) => console.warn(error));
+                        } else {
+                            worker.postMessage(workerStates.NOTE_DATA.f(recordsArray[0]));
+                        }
+                    })
                 .catch((error) => console.warn(error));
-            } else {
-              worker.postMessage(workerStates.NOTE_DATA.f(/** @type {NotePackageOptions} */recordsArray[0]));
-            }
-          })
-          .catch((error) => console.warn(error));
-        break;
-      case clientActions.DEL_BY_CLIENTUUID.k:
-        const { data: delUuid } = msg;
-        noteDb.delRecordByClientUuid(delUuid)
-          .catch((reason) => console.warn(reason))
-          .then(() => delByClientUuid(delUuid))
-          .then(() => worker.postMessage(workerStates.DEL_COMP.f(delUuid)))
-          .catch((reason) => console.warn(reason));
-        break;
-      case clientActions.GET_LIST.k:
-        getList()
-          .then((response) => {
-            noteDb.syncRecords(response.map((note) => new NotePackage(note)));
-            worker.postMessage(workerStates.NOTE_LIST.f(response));
-          })
-          .catch((error) => console.warn(`Inbound request to fetch a record failed.\n${error}`));
-        break;
-      case clientActions.EXPORT_NOTES.k:
-        exportNotes().then((response) => worker.postMessage(workerStates.EXPORT_DATA.f(response)));
-        break;
-      default:
+                break;
+            case clientActions.DEL_BY_CLIENTUUID.k:
+                const { data: delUuid } = msg;
+                noteDb.delRecordByClientUuid(delUuid)
+                .catch((reason) => console.warn(reason))
+                .then(() => delFromApiByClientUuid(delUuid))
+                .then(() => worker.postMessage(workerStates.DEL_COMP.f(delUuid)))
+                .catch((reason) => console.warn(reason));
+                break;
+            case clientActions.GET_LIST.k:
+                getList()
+                .then((response) => {
+                    noteDb.syncRecords(response.map((note) => new NotePackage(note)));
+                    worker.postMessage(workerStates.NOTE_LIST.f(response));
+                })
+                .catch((error) => console.warn(`Inbound request to fetch a record failed.\n${error}`));
+                break;
+            case clientActions.EXPORT_NOTES.k:
+                exportNotes().then((response) => worker.postMessage(workerStates.EXPORT_DATA.f(response)));
+                break;
+            default:
+        }
     }
-  }
 }
 
-/**
- * @returns {Promise<Array>}
- */
-function getList() {
+function getList(): Promise<any[]> {
   return new Promise((resolve, reject) => {
     axios.get('/🔌/v1/note/list')
       .then((response) => resolve(response.data))
@@ -103,10 +91,7 @@ function getList() {
   });
 }
 
-/**
- * @returns {Promise<Array>}
- */
-function exportNotes() {
+function exportNotes(): Promise<any[]> {
   return new Promise((resolve, reject) => {
     axios.get('/🔌/v1/note/export')
       .then((response) => resolve(response.data))
@@ -114,80 +99,56 @@ function exportNotes() {
   });
 }
 
-/**
- * @param {NotePackage} note
- * @returns {Promise}
- */
-function sendUpsert(note) {
-  return new Promise((resolve, reject) => {
-    const {
-      clientUuid,
-      title,
-      content,
-      tags,
-      inTrashcan,
-      isDeleted,
-    } = note.toObj();
+function sendUpsert(note: NotePackage): Promise<any> {
+    return new Promise((resolve, reject) => {
+        const {
+            clientUuid,
+            title,
+            content,
+            tags,
+            inTrashcan,
+            isDeleted,
+        } = note.toObj();
 
-    axios.put('/🔌/v1/note/upsert', {
-      clientUuid,
-      title,
-      content,
-      tags,
-      inTrashcan,
-      isDeleted,
-    })
-      .then((response) => resolve(response.data))
-      .catch((error) => {
-        if (error.response) {
-          // The request was made and the server responded with a status code
-          // that falls out of the range of 2xx
-          console.error(error.response.data);
-        }
+        axios.put('/🔌/v1/note/upsert', {
+            clientUuid,
+            title,
+            content,
+            tags,
+            inTrashcan,
+            isDeleted,
+        })
+            .then((response) => resolve(response.data))
+            .catch((error) => {
+                if (error.response) console.error(error.response.data);
 
-        reject(error);
-      });
-  });
+                reject(error);
+            });
+    });
 }
 
-/**
- * @param {string} uuid
- * @returns {Promise}
- */
-function getByClientUuid(uuid) {
-  return new Promise((resolve, reject) => {
-    axios.get(`/🔌/v1/note/client-uuid/${uuid}`)
-      .then((response) => resolve(response.data))
-      .catch((error) => {
-        if (error.response) {
-          // The request was made and the server responded with a status code
-          // that falls out of the range of 2xx
-          console.error(error.response.data);
-        }
+function getFromApiByClientUuid(uuid: string): Promise<any> {
+    return new Promise((resolve, reject) => {
+        axios.get(`/🔌/v1/note/client-uuid/${uuid}`)
+            .then((response) => resolve(response.data))
+            .catch((error) => {
+                if (error.response) console.error(error.response.data);
 
-        reject(error);
-      });
-  });
+                reject(error);
+            });
+    });
 }
 
-/**
- * @param {string} uuid
- * @returns {Promise}
- */
-function delByClientUuid(uuid) {
+function delFromApiByClientUuid(uuid: string): Promise<any> {
   return new Promise((resolve, reject) => {
     axios.delete(`/🔌/v1/note/client-uuid/${uuid}`)
       .then((response) => resolve(response.data))
       .catch((error) => {
-        if (error.response) {
-          // The request was made and the server responded with a status code
-          // that falls out of the range of 2xx
-          console.error(error.response.data);
-        }
+        if (error.response) console.error(error.response.data);
 
         reject(error);
       });
   });
 }
 
-export default {};
+export default () => {};
