@@ -9,7 +9,7 @@ const db = new Dexie(DB_NAME);
 export const TABLE_NOTE = 'notes';
 export const NOTE_ACTIONS = Object.freeze({ update: 'update', delete: 'delete' });
 
-let noteTable: Dexie.Table|null = null;
+let noteTable: Dexie.Table<NotePackage>|null = null;
 
 const schema = {
     id: 'id',
@@ -97,7 +97,7 @@ function syncRecords(notes: NotePackage[]) {
   // Need to do a bulk update using Dexie.
 }
 
-function getRecordByClientUuid(uuid: string): Promise<Dexie.Collection<any, any>> {
+function getRecordByClientUuid(uuid: string): Promise<Dexie.Collection<NotePackage, any>> {
     return new Promise((resolve, reject) => {
         getTable()
             .then((table) => table.where(schema.clientUuid).equals(uuid))
@@ -138,7 +138,7 @@ function getRecordById(id: number): Promise<Dexie.Collection<any, any>> {
     });
 }
 
-function getTable(): Promise<Dexie.Table> {
+function getTable(): Promise<Dexie.Table<NotePackage>> {
     return new Promise((resolve, reject) => {
         if (noteTable !== null) {
             resolve(noteTable);
