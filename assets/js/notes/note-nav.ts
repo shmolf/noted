@@ -1,53 +1,46 @@
 import $ from 'jquery';
 
-/** @type {JQuery} */
-let $noteListNav;
-
-/** @type {JQuery} */
-let $noteListTemplate;
-
-/** @type {JQuery} */
-let $menu;
-
-/** @type {JQuery} */
-let $outClick;
+let $noteListNav: JQuery;
+let $noteListTemplate: JQuery;
+let $menu: JQuery;
+let $outClick: JQuery;
 
 export function initNoteNav () {
-  $noteListNav = $('#note-items');
-  $noteListTemplate = $('#note-item-template');
-  $menu = $('#note-menu');
-  $outClick = $('#note-menu-out-click');
-  eventListeners();
+    $noteListNav = $('#note-items');
+    $noteListTemplate = $('#note-item-template');
+    $menu = $('#note-menu');
+    $outClick = $('#note-menu-out-click');
+    eventListeners();
 }
 
 function eventListeners() {
-  $('.toggle-nav').on('click', (e) => {
-    e.stopPropagation();
-    $(document).off('click', autoCloseNav);
-    $('.toggle-nav i').removeClass('fa-chevron-right').addClass('fa-chevron-left');
-    $('#note-navigation').toggleClass('expanded');
-    $(document).on('click', '#noted, #new-note, #note-navigation .note-item', autoCloseNav);
+    $('.toggle-nav').on('click', (e) => {
+        e.stopPropagation();
+        $(document).off('click', autoCloseNav);
+        $('.toggle-nav i').removeClass('fa-chevron-right').addClass('fa-chevron-left');
+        $('#note-navigation').toggleClass('expanded');
+        $(document).on('click', '#noted, #new-note, #note-navigation .note-item', autoCloseNav);
 
-  });
+    });
 
-  $(document).on('contextmenu', '#note-items .note-item', (e) => {
-    e.preventDefault();
+    $(document).on('contextmenu', '#note-items .note-item', (e) => {
+        e.preventDefault();
 
-    $menu
-      .css({
-        top: `${e.clientY}px`,
-        left: `${e.clientX}px`,
-      })
-      .addClass('show')
-      .data('uuid', $(e.currentTarget).data('client-uuid'));
+        $menu
+            .css({
+                top: `${e.clientY}px`,
+                left: `${e.clientX}px`,
+            })
+            .addClass('show')
+            .data('uuid', $(e.currentTarget).data('client-uuid'));
 
-    $outClick.css({ display: 'block' });
-  });
+        $outClick.css({ display: 'block' });
+    });
 
-  $outClick.add($menu).on('click', () => {
-    $menu.removeClass('show').data('uuid', null);
-    $outClick.css('display', 'none');
-  });
+    $outClick.add($menu).on('click', () => {
+        $menu.removeClass('show').data('uuid', null);
+        $outClick.css('display', 'none');
+    });
 }
 
 function autoCloseNav() {
@@ -56,10 +49,7 @@ function autoCloseNav() {
   $('#note-navigation').removeClass('expanded');
 }
 
-/**
- * @param {NoteListItem[]} notes
- */
- export function renderNoteList(notes) {
+export function renderNoteList(notes: NoteListItem[]) {
   $noteListNav.find('.note-item:not(#note-load-template)').off('click').detach();
 
   notes.forEach((note) => {
@@ -71,16 +61,13 @@ function autoCloseNav() {
   });
 }
 
-/**
- *
- * @param {string} clientUuid
- * @param {string} title
- * @param {string[]} tags
- * @param {?Date} lastModifiedDate
- * @param {?Date} createdDate
- * @returns {JQuery}
- */
- export function createNewNoteNavItem(clientUuid, title, tags, lastModifiedDate, createdDate) {
+export function createNewNoteNavItem(
+     clientUuid: string,
+     title: string,
+     tags: string[],
+     lastModifiedDate: Date|null,
+     createdDate: Date|null
+): JQuery {
   const $noteBtn = $noteListTemplate.clone().removeAttr('id');
   const lastModified = lastModifiedDate ?? new Date();
   const created = createdDate ?? new Date();
@@ -106,7 +93,7 @@ function autoCloseNav() {
   return $noteBtn;
 }
 
-export function setNavItemTitle(uuid, title) {
+export function setNavItemTitle(uuid: string, title: string) {
   let $navListItem = getNavItem(uuid);
 
   if ($navListItem.length === 0) {
@@ -127,8 +114,8 @@ export function setNavItemTitle(uuid, title) {
  * @param {string} uuid
  * @param {'save'|'inProgress'|'default'} state
  */
- export function setNavItemSaveState(uuid, state) {
-  const stateClasses = {
+ export function setNavItemSaveState(uuid: string, state: keyof saveStates) {
+  const stateClasses: saveStates = {
     save: 'saved',
     inProgress: 'not-saved',
     default: '',
@@ -142,29 +129,29 @@ export function setNavItemTitle(uuid, title) {
   }
 }
 
-/**
- * @param {string} uuid
- * @returns {JQuery}
- */
-export function getNavItem(uuid) {
+export function getNavItem(uuid: string): JQuery {
   return $noteListNav
     .find('.note-item')
     .filter((i, elem) => String($(elem).data('client-uuid')) === uuid);
 }
 
-/**
- * @typedef {Object} NoteListItem
- * @property {string} title
- * @property {string[]} tags
- * @property {string} clientUuid
- * @property {string} inTrashcan
- * @property {DateTime} createdDate
- * @property {DateTime} lastModified
- */
+interface NoteListItem {
+    title: string,
+    tags: string[],
+    clientUuid: string,
+    inTrashcan: string,
+    createdDate: DateTime,
+    lastModified: DateTime,
+}
 
-/**
- * @typedef {Object} DateTime
- * @property {string} date
- * @property {string} timezone
- * @property {number} timezone_type
- */
+interface DateTime {
+    date: string,
+    timezone: string,
+    timezone_type: number,
+}
+
+export interface saveStates {
+    save: string,
+    inProgress: string,
+    default: string,
+}
