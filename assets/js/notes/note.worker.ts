@@ -1,8 +1,7 @@
 import noteDb from 'JS/notes/noteDb';
-import { workerStates, clientActions, NotePackage, NotePackageOptions } from 'JS/notes/worker-client-api';
+import { workerStates, clientActions, NotePackage } from 'JS/notes/worker-client-api';
 import axios from 'axios';
 const windowNavigator = window.navigator;
-interface MapStringTo<T> { [key:string]:T; }
 
 if ('setAppBadge' in windowNavigator && 'clearAppBadge' in windowNavigator) {
     // @ts-ignore
@@ -36,7 +35,7 @@ function handleAction(msg: MapStringTo<any>) {
                     .modifyRecord(new NotePackage(noteData))
                     .then((uuid) => noteDb.getRecordByClientUuid(uuid))
                     .then((records) => records.toArray())
-                    .then((arr) => sendUpsert(arr[0]).then((r) => r).catch((e) => console.warn(e)))
+                    .then((arr) => sendUpsert(new NotePackage(arr[0])).then((r) => r).catch((e) => console.warn(e)))
                     .then((response) => worker.postMessage(workerStates.UPD8_COMP.f(response)))
                     .catch((error) => console.warn(`Inbound request to modify record failed.\n${error}`));
                 break;
@@ -51,10 +50,10 @@ function handleAction(msg: MapStringTo<any>) {
                                 .then((note) => noteDb.modifyRecord(new NotePackage(note)))
                                 .then((uuid) => noteDb.getRecordByClientUuid(uuid))
                                 .then((records) => records.toArray())
-                                .then((arr) => worker.postMessage(workerStates.NOTE_DATA.f(arr[0])))
+                                .then((arr) => worker.postMessage(workerStates.NOTE_DATA.f(new NotePackage(arr[0]))))
                                 .catch((error) => console.warn(error));
                         } else {
-                            worker.postMessage(workerStates.NOTE_DATA.f(recordsArray[0]));
+                            worker.postMessage(workerStates.NOTE_DATA.f(new NotePackage(recordsArray[0])));
                         }
                     })
                 .catch((error) => console.warn(error));
