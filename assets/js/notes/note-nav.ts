@@ -145,12 +145,6 @@ interface NoteListItem {
     lastModified: DateTime,
 }
 
-interface DateTime {
-    date: string,
-    timezone: string,
-    timezone_type: number,
-}
-
 export interface saveStates {
     save: string,
     inProgress: string,
