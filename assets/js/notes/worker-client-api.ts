@@ -1,187 +1,148 @@
+interface MapStringTo<T> { [key:string]:T; }
+
 export const clientActions = Object.freeze({
   GET_LIST: {
     k: 'getNoteList',
-    /**
-     * @returns {string}
-     */
-    f: () => packAction(clientActions.GET_LIST.k),
+    f: (): string => packAction(clientActions.GET_LIST.k),
   },
   MODIFY: {
     k: 'modify',
-    /**
-     * @param {NotePackage} note
-     * @returns {string}
-     */
-    f: (note) => packAction(clientActions.MODIFY.k, note),
+    f: (note: NotePackage): string => packAction(clientActions.MODIFY.k, note),
   },
   RECYCLE: {
     k: 'recycle',
-    /**
-     * @param {string} uuid
-     * @returns {string}
-     */
-    f: (uuid) => packAction(clientActions.RECYCLE.k, uuid),
+    f: (uuid: string): string => packAction(clientActions.RECYCLE.k, uuid),
   },
   GET_BY_CLIENTUUID: {
     k: 'retrieveByUuid',
-    /**
-     * @param {string} clientUuid
-     * @returns {string}
-     */
-    f: (clientUuid) => packAction(clientActions.GET_BY_CLIENTUUID.k, clientUuid),
+    f: (uuid: string):string => packAction(clientActions.GET_BY_CLIENTUUID.k, uuid),
   },
   DEL_BY_CLIENTUUID: {
     k: 'deleteByUuid',
-    /**
-     * @param {string} clientUuid
-     * @returns {string}
-     */
-    f: (clientUuid) => packAction(clientActions.DEL_BY_CLIENTUUID.k, clientUuid),
+    f: (uuid: string): string => packAction(clientActions.DEL_BY_CLIENTUUID.k, uuid),
   },
   EXPORT_NOTES: {
     k: 'exportNotes',
-    /**
-     * @returns {string}
-     */
-    f: () => packAction(clientActions.EXPORT_NOTES.k),
+    f: (): string => packAction(clientActions.EXPORT_NOTES.k),
   }
 });
 
 export const workerStates = Object.freeze({
   TEST: {
     k: 'test',
-    f: () => packState(workerStates.TEST.k),
+    f: (): string => packState(workerStates.TEST.k),
   },
   TEST_READY: {
     k: 'test-ready',
-    f: () => packState(workerStates.TEST_READY.k),
+    f: (): string => packState(workerStates.TEST_READY.k),
   },
   READY: {
     k: 'ready',
-    f: () => packState(workerStates.READY.k),
+    f: (): string => packState(workerStates.READY.k),
   },
   NOTE_LIST: {
     k: 'note-list',
-    /**
-     * @param {array} list
-     * @returns {string}
-     */
-    f: (list) => packState(workerStates.NOTE_LIST.k, list),
+    f: (list: any[]): string => packState(workerStates.NOTE_LIST.k, list),
   },
   NOTE_DATA: {
     k: 'note-data',
-    /**
-     * @param {NotePackage} note
-     * @returns {string}
-     */
-    f: (note) => packState(workerStates.NOTE_DATA.k, note),
+    f: (note: NotePackage): string => packState(workerStates.NOTE_DATA.k, note),
   },
   UPD8_COMP: {
     k: 'note-updated',
-    /**
-     * @param {any} response
-     * @returns {string}
-     */
-    f: (response) => packState(workerStates.UPD8_COMP.k, response),
+    f: (response: any): string => packState(workerStates.UPD8_COMP.k, response),
   },
   DEL_COMP: {
     k: 'note-deleted',
-    /**
-     * @param {string} uuid
-     * @returns {string}
-     */
-    f: (uuid) => packState(workerStates.DEL_COMP.k, uuid),
+    f: (uuid: string): string => packState(workerStates.DEL_COMP.k, uuid),
   },
   EXPORT_DATA: {
     k: 'export-data',
-    /**
-     * @param {NotePackage[]} notes
-     * @returns {string}
-     */
-    f: (notes) => packState(workerStates.EXPORT_DATA.k, notes),
+    f: (notes: NotePackage[]): string => packState(workerStates.EXPORT_DATA.k, notes),
   },
 });
 
-/**
- * Packages an action and data, into a transmittible object-string
- *
- * @param {string} action
- * @param {Object} data
- * @returns {string}
- */
-function packAction(action, data) {
+function packAction(action: string, data?: any): string {
   return stringIt({ action, data });
 }
 
-/**
- * Packages an action and data, into a transmittible object-string
- *
- * @param {string} state
- * @param {any} data
- * @returns {string}
- */
-function packState(state, data) {
+function packState(state: string, data?: any): string {
   return stringIt({ state, data });
 }
 
-/**
- * Json Stringifies an object
- *
- * @param {Object} obj
- * @returns {string}
- */
-function stringIt(obj) {
+function stringIt(obj: Object): string {
   return JSON.stringify(obj);
 }
 
-/**
- * @typedef {object} NotePackageOptions
- * @property {number} [id]
- * @property {string} [clientUuid]
- * @property {string} title
- * @property {string} content
- * @property {string[]} tags
- * @property {boolean} [inTrashcan=false]
- * @property {boolean} [isDeleted=false]
- * @property {?Date} [createdDate]
- * @property {?Date} [lastModified]
- */
+export interface NotePackageOptions extends MapStringTo<any> {
+    id?: number;
+    clientUuid?: string;
+    title: string;
+    content: string;
+    tags: string[];
+    inTrashcan?: boolean;
+    isDeleted?: boolean;
+    createdDate?: Date;
+    lastModified?: Date;
+}
+
+export interface NotePackageExport extends MapStringTo<any> {
+    id?: number;
+    clientUuid?: string;
+    title?: string;
+    content?: string;
+    tags?: string[];
+    inTrashcan?: boolean;
+    isDeleted?: boolean;
+    createdDate?: Date;
+    lastModified?: Date;
+}
+
 export class NotePackage {
-  /**
-   * @param {NotePackageOptions} optionalProperties
-   */
-  constructor(optionalProperties) {
-    this.id = optionalProperties.id ?? null;
-    this.clientUuid = optionalProperties.clientUuid?.trim() || null;
-    this.title = optionalProperties.title.trim();
-    this.content = optionalProperties.content;
-    this.tags = optionalProperties.tags.filter((value, index, self) => self.indexOf(value) === index);
-    this.inTrashcan = optionalProperties.inTrashcan ?? false;
-    this.isDeleted = optionalProperties.isDeleted ?? false;
-    this.createdDate = optionalProperties.createdDate ?? null;
-    this.lastModified = optionalProperties.lastModified ?? null;
-  }
+    id: number|null;
+    clientUuid: string|null;
+    title: string;
+    content: string;
+    tags: string[];
+    inTrashcan: boolean;
+    isDeleted: boolean;
+    createdDate: Date|null;
+    lastModified: Date|null;
 
-  /**
-   * @returns {NotePackageOptions}
-   */
-  toObj() {
-    const noteObj = {
-      id: this.id,
-      clientUuid: this.clientUuid,
-      title: this.title,
-      content: this.content,
-      tags: this.tags,
-      inTrashcan: this.inTrashcan,
-    };
+    constructor(optionalProperties: NotePackageOptions) {
+        this.id = optionalProperties.id ?? null;
+        this.clientUuid = optionalProperties.clientUuid?.trim() || null;
+        this.title = optionalProperties.title.trim();
+        this.content = optionalProperties.content;
+        this.tags = optionalProperties.tags.filter((value, index, self) => self.indexOf(value) === index);
+        this.inTrashcan = optionalProperties.inTrashcan ?? false;
+        this.isDeleted = optionalProperties.isDeleted ?? false;
+        this.createdDate = optionalProperties.createdDate ?? null;
+        this.lastModified = optionalProperties.lastModified ?? null;
+    }
 
-    // let's trim any null properties
-    Object.keys(noteObj).forEach((key) => {
-      if (noteObj[key] === null) {
-        delete noteObj[key];
-      }
-    });
+    public toObj(): NotePackageExport {
+        const noteObj: NotePackageExport = {};
 
-    return noteObj;
-  }
+        [
+            'clientUuid',
+            'title',
+            'content',
+            'tags',
+            'inTrashcan',
+            'isDeleted',
+            'createdDate',
+            'lastModified',
+        ].forEach((prop: string) => {
+            const value = this.getProperty(this, prop as keyof this);
+            if (value ?? false) noteObj[prop] = value;
+        });
+
+        return noteObj;
+    }
+
+    private getProperty<T, K extends keyof T>(o: T, propertyName: K): T[K] {
+        // o[propertyName] is of type T[K]
+        return o[propertyName];
+    }
 }
