@@ -1,4 +1,5 @@
 import $ from 'jquery';
+import { DateTime } from 'JS/types/Api';
 
 let $noteListNav: JQuery;
 let $noteListTemplate: JQuery;
@@ -44,21 +45,21 @@ function eventListeners() {
 }
 
 function autoCloseNav() {
-  $(document).off('click', autoCloseNav);
-  $('.toggle-nav i').addClass('fa-chevron-right').removeClass('fa-chevron-left');
-  $('#note-navigation').removeClass('expanded');
+    $(document).off('click', autoCloseNav);
+    $('.toggle-nav i').addClass('fa-chevron-right').removeClass('fa-chevron-left');
+    $('#note-navigation').removeClass('expanded');
 }
 
 export function renderNoteList(notes: NoteListItem[]) {
-  $noteListNav.find('.note-item:not(#note-load-template)').off('click').detach();
+    $noteListNav.find('.note-item:not(#note-load-template)').off('click').detach();
 
-  notes.forEach((note) => {
-    const lastModified = new Date(`${note.lastModified.date} ${note.lastModified.timezone}`);
-    const createdDate = new Date(`${note.createdDate.date} ${note.createdDate.timezone}`);
+    notes.forEach((note) => {
+        const lastModified = new Date(`${note.lastModified.date} ${note.lastModified.timezone}`);
+        const createdDate = new Date(`${note.createdDate.date} ${note.createdDate.timezone}`);
 
-    const $noteBtn = createNewNoteNavItem(note.clientUuid, note.title, note.tags, lastModified, createdDate);
-    $noteListNav.append($noteBtn);
-  });
+        const $noteBtn = createNewNoteNavItem(note.clientUuid, note.title, note.tags, lastModified, createdDate);
+        $noteListNav.append($noteBtn);
+    });
 }
 
 export function createNewNoteNavItem(
@@ -68,46 +69,46 @@ export function createNewNoteNavItem(
      lastModifiedDate: Date|null,
      createdDate: Date|null
 ): JQuery {
-  const $noteBtn = $noteListTemplate.clone().removeAttr('id');
-  const lastModified = lastModifiedDate ?? new Date();
-  const created = createdDate ?? new Date();
-  const noteTitle = title || lastModified.toDateString();
+    const $noteBtn = $noteListTemplate.clone().removeAttr('id');
+    const lastModified = lastModifiedDate ?? new Date();
+    const created = createdDate ?? new Date();
+    const noteTitle = title || lastModified.toDateString();
 
-  $noteBtn
-    .data('client-uuid', clientUuid)
-    .data('last-modified', lastModified.toDateString())
-    .data('created', created.toDateString())
-    .attr('data-tooltip', noteTitle)
-    .find('.title').text(noteTitle);
+    $noteBtn
+        .data('client-uuid', clientUuid)
+        .data('last-modified', lastModified.toDateString())
+        .data('created', created.toDateString())
+        .attr('data-tooltip', noteTitle)
+        .find('.title').text(noteTitle);
 
-    M.Tooltip.init($noteBtn);
+        M.Tooltip.init($noteBtn);
 
-  const $tagTemplate = $noteBtn.find('#note-tag-template').clone().removeAttr('id');
-  tags.forEach((tag) => $noteBtn.find('.tag-container').append($tagTemplate.clone().text(tag)));
+    const $tagTemplate = $noteBtn.find('#note-tag-template').clone().removeAttr('id');
+    tags.forEach((tag) => $noteBtn.find('.tag-container').append($tagTemplate.clone().text(tag)));
 
-  $noteBtn.on('click', (event) => {
-    const tooltipInstance = M.Tooltip.getInstance(event.currentTarget);
-    tooltipInstance.close();
-  });
+    $noteBtn.on('click', (event) => {
+        const tooltipInstance = M.Tooltip.getInstance(event.currentTarget);
+        tooltipInstance.close();
+    });
 
-  return $noteBtn;
+    return $noteBtn;
 }
 
 export function setNavItemTitle(uuid: string, title: string) {
-  let $navListItem = getNavItem(uuid);
+    let $navListItem = getNavItem(uuid);
 
-  if ($navListItem.length === 0) {
-    $navListItem = createNewNoteNavItem(uuid, title, [], null, null);
-  } else {
-    const tooltipInstacne = M.Tooltip.getInstance($navListItem.get(0));
-    tooltipInstacne.destroy();
-    $navListItem.attr('data-tooltip', title);
-    M.Tooltip.init($navListItem);
+    if ($navListItem.length === 0) {
+        $navListItem = createNewNoteNavItem(uuid, title, [], null, null);
+    } else {
+        const tooltipInstacne = M.Tooltip.getInstance($navListItem.get(0));
+        tooltipInstacne.destroy();
+        $navListItem.attr('data-tooltip', title);
+        M.Tooltip.init($navListItem);
 
-    $navListItem.find('.title').text(title);
-  }
+        $navListItem.find('.title').text(title);
+    }
 
-  $noteListNav.prepend($navListItem);
+    $noteListNav.prepend($navListItem);
 }
 
 /**
@@ -115,24 +116,24 @@ export function setNavItemTitle(uuid: string, title: string) {
  * @param {'save'|'inProgress'|'default'} state
  */
  export function setNavItemSaveState(uuid: string, state: keyof saveStates) {
-  const stateClasses: saveStates = {
-    save: 'saved',
-    inProgress: 'not-saved',
-    default: '',
-  };
+    const stateClasses: saveStates = {
+        save: 'saved',
+        inProgress: 'not-saved',
+        default: '',
+    };
 
-  let $navListItem = getNavItem(uuid);
+    let $navListItem = getNavItem(uuid);
 
-  if (state in stateClasses) {
-    const allStateClasses = Object.values(stateClasses).join(' ');
-    $navListItem.removeClass(allStateClasses).addClass(stateClasses[state]);
-  }
+    if (state in stateClasses) {
+        const allStateClasses = Object.values(stateClasses).join(' ');
+        $navListItem.removeClass(allStateClasses).addClass(stateClasses[state]);
+    }
 }
 
 export function getNavItem(uuid: string): JQuery {
-  return $noteListNav
-    .find('.note-item')
-    .filter((i, elem) => String($(elem).data('client-uuid')) === uuid);
+    return $noteListNav
+        .find('.note-item')
+        .filter((i, elem) => String($(elem).data('client-uuid')) === uuid);
 }
 
 interface NoteListItem {
