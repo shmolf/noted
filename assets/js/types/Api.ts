@@ -3,3 +3,9 @@ export interface DateTime {
     timezone: string,
     timezone_type: number,
 }
+
+export interface AjaxErrorRepsonse {
+    type: string,
+    title: string,
+    errors: string[],
+}
