@@ -7,11 +7,11 @@ import '@fortawesome/fontawesome-free/css/all.min.css';
 import MakeClickable from 'JS/ada/EmulateButton';
 
 $(() => {
-  $('.is-button').each((_, element) => {
-    MakeClickable(element);
-  });
-  $('.chip').on('mousout', (e) => {
-    $(e.currentTarget).trigger('blur');
-  });
-  M.AutoInit();
+    $('.is-button').each((_, element) => {
+        MakeClickable(element);
+    });
+    $('.chip').on('mousout', (e) => {
+        $(e.currentTarget).trigger('blur');
+    });
+    M.AutoInit();
 });
