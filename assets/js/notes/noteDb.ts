@@ -1,195 +1,158 @@
+import { trim } from 'jquery';
 import Dexie from 'NODE/dexie/dist/dexie';
 import { v4 as uuidv4 } from 'uuid';
 import { NotePackage } from './worker-client-api';
 
 const DB_NAME = 'noted-notes';
 const db = new Dexie(DB_NAME);
+
 export const TABLE_NOTE = 'notes';
-/** @enum {string} */
 export const NOTE_ACTIONS = Object.freeze({ update: 'update', delete: 'delete' });
 
-/** @typedef {import('./worker-client-api').NotePackageOptions} NotePackageOptions */
-
-/** @type {Dexie.Table|null} */
-let noteTable = null;
+let noteTable: Dexie.Table|null = null;
 
 const schema = {
-  id: 'id',
-  clientUuid: 'clientUuid',
-  title: 'title',
-  content: 'content',
-  tags: 'tags',
-  opened: 'opened',
-  synced: 'synced',
-  syncAction: 'syncAction',
-  inTrashcan: 'inTrashcan',
-  isDeleted: 'isDeleted',
+    id: 'id',
+    clientUuid: 'clientUuid',
+    title: 'title',
+    content: 'content',
+    tags: 'tags',
+    opened: 'opened',
+    synced: 'synced',
+    syncAction: 'syncAction',
+    inTrashcan: 'inTrashcan',
+    isDeleted: 'isDeleted',
 };
 
 /**
  * Initializes the various versions of the databases.
- *
- * @returns {Promise<Dexie>}
  */
-function buildDb() {
-  return new Promise((resolve, reject) => {
-    db.version(1).stores({
-      // 'opened' do not need to be indexed, so omit from schema
-      notes: '++id, &clientUuid, title, content, *tags, lastSynced',
-    });
+function buildDb(): Promise<Dexie> {
+    return new Promise((resolve, reject) => {
+        db.version(1).stores({
+            // 'opened' do not need to be indexed, so omit from schema
+            notes: '++id, &clientUuid, title, content, *tags, lastSynced',
+        });
 
     return db.open()
-      .then((dbInstance) => {
-        noteTable = dbInstance.table(TABLE_NOTE);
-        resolve(dbInstance);
-      })
-      .catch((error) => reject(error));
-  });
-}
-
-/**
- * @param {NotePackage} note
- * @returns {Promise<string>}
- */
-function modifyRecord(note) {
-  return new Promise((resolve, reject) => {
-    if (note.id === null && note.clientUuid === null) {
-      createNewRecord(note).then((uuid) => resolve(uuid));
-    } else {
-      getRecordByClientUuid(note.clientUuid)
-        .then((records) => {
-          records.toArray()
-            .then((arr) => {
-              if (arr.length === 0) {
-                const identifierType = typeof note.clientUuid === 'string' ? 'Uuid' : 'Id';
-                const identifierVal = typeof note.clientUuid === 'string' ? note.clientUuid : note.id;
-                throw new Error(`Could not find a record by ${identifierType}: '${identifierVal}'`);
-              } else {
-                records.modify(note.toObj()).then(() => resolve(note.clientUuid));
-              }
-            })
-            .catch((reason) => {
-              console.warn(`${reason}\nGoing to try creating a new record.`);
-              createNewRecord(note)
-                .then((uuid) => resolve(uuid))
-                .catch((response) => reject(response));
-            });
+        .then((dbInstance) => {
+            noteTable = dbInstance.table(TABLE_NOTE);
+            resolve(dbInstance);
         })
-        .catch((reason) => reject(reason));
-    }
+        .catch((error) => reject(error));
   });
 }
 
-/**
- * @param {NotePackage} note
- * @returns {Promise<string>}
- */
-function createNewRecord(note) {
-  return new Promise((resolve, reject) => {
-    getTable()
-      .then((table) => {
-        const uuid = note.clientUuid ?? uuidv4();
-        table
-          .add({
-            title: note.title || '',
-            content: note.content || '',
-            tags: note.tags || [],
-            clientUuid: uuid,
-            opened: true,
-            synced: false,
-            inTrashcan: false,
-            isDeleted: false,
-          }).then(() => resolve(uuid));
-      })
-      .catch((reason) => reject(reason));
-  });
+function modifyRecord(note: NotePackage): Promise<string> {
+    return new Promise((resolve, reject) => {
+        const uuid = String(note.clientUuid ?? '').length === 0 ? null : trim(note.clientUuid as string);
+
+        if (uuid === null) {
+            createNewRecord(note).then((uuid) => resolve(uuid));
+        } else {
+            getRecordByClientUuid(uuid)
+                .then((records) => {
+                    records.toArray()
+                        .then((arr) => {
+                            if (arr.length === 0) {
+                                throw new Error(`Could not find a record by Uuid: '${uuid}'`);
+                            } else {
+                                records.modify(note.toObj()).then(() => resolve(uuid));
+                            }
+                        })
+                        .catch(() => {
+                            createNewRecord(note)
+                                .then((newUuid) => resolve(newUuid))
+                                .catch((response) => reject(response));
+                        });
+                })
+                .catch((reason) => reject(reason));
+        }
+    });
 }
 
-/**
- * @param {NotePackage[]} notes
- * @returns void
- */
-function syncRecords(notes) {
+function createNewRecord(note: NotePackage): Promise<string> {
+    return new Promise((resolve, reject) => {
+        getTable()
+            .then((table) => {
+                const uuid = note.clientUuid ?? uuidv4();
+                table
+                    .add({
+                        title: note.title || '',
+                        content: note.content || '',
+                        tags: note.tags || [],
+                        clientUuid: uuid,
+                        opened: true,
+                        synced: false,
+                        inTrashcan: false,
+                        isDeleted: false,
+                    })
+                    .then(() => resolve(uuid));
+            })
+            .catch((reason) => reject(reason));
+    });
+}
+
+function syncRecords(notes: NotePackage[]) {
   // Need to do a bulk update using Dexie.
 }
 
-/**
- * @param {string} uuid
- * @returns {Promise<?Dexie.Collection<any, any>>}
- */
-function getRecordByClientUuid(uuid) {
-  return new Promise((resolve, reject) => {
-    if (uuid.trim().length === 0) {
-      resolve(null);
-    }
-
-    getTable()
-      .then((table) => table.where(schema.clientUuid).equals(uuid))
-      .then((records) => resolve(records))
-      .catch((reason) => reject(reason));
-  });
+function getRecordByClientUuid(uuid: string): Promise<Dexie.Collection<any, any>> {
+    return new Promise((resolve, reject) => {
+        getTable()
+            .then((table) => table.where(schema.clientUuid).equals(uuid))
+            .then((records) => resolve(records))
+            .catch((reason) => reject(reason));
+    });
 }
 
-/**
- * @param {string} uuid
- * @returns {Promise<?void>}
- */
-function delRecordByClientUuid(uuid) {
-  return new Promise((resolve, reject) => {
-    if (uuid.trim().length === 0) {
-      resolve(null);
-    }
+function delRecordByClientUuid(uuid: string): Promise<void|null> {
+    return new Promise((resolve, reject) => {
+        if (uuid.trim().length === 0) {
+            resolve(null);
+        }
 
-    getTable()
-      .then((table) => ({ table, 'records': table.where(schema.clientUuid).equals(uuid) }))
-      .then((data) => {
-        const { table, records } = data;
-        records.toArray()
-          .then((arr) => table.delete(arr[0].id))
-          .then(() => resolve())
-          .catch((reason) => reject(reason));
-      })
-      .catch((reason) => reject(reason));
-  });
+        getTable()
+            .then((table) => ({ table, 'records': table.where(schema.clientUuid).equals(uuid) }))
+            .then((data) => {
+                const { table, records } = data;
+                records.toArray()
+                    .then((arr) => table.delete(arr[0].id))
+                    .then(() => resolve(null))
+                    .catch((reason) => reject(reason));
+            })
+            .catch((reason) => reject(reason));
+    });
 }
 
-/**
- * @param {number} id
- * @returns {Promise<?Dexie.Collection<any, any>>}
- */
-function getRecordById(id) {
-  return new Promise((resolve, reject) => {
-    if (typeof id !== 'number' || id <= 0) {
-      throw Error(`Could note retrieve record by Id: '${id}'`);
-    }
+function getRecordById(id: number): Promise<Dexie.Collection<any, any>> {
+    return new Promise((resolve, reject) => {
+        if (typeof id !== 'number' || id <= 0) {
+            throw Error(`Could note retrieve record by Id: '${id}'`);
+        }
 
-    getTable()
-      .then((table) => table.where(schema.id).equals(id))
-      .then((records) => resolve(records))
-      .catch((reason) => reject(reason));
-  });
+        getTable()
+            .then((table) => table.where(schema.id).equals(id))
+            .then((records) => resolve(records))
+            .catch((reason) => reject(reason));
+    });
 }
 
-/**
- * Gets the Notes Table
- *
- * @returns {Promise<Dexie.Table>}
- */
-function getTable() {
-  return new Promise((resolve, reject) => {
-    if (noteTable !== null) {
-      resolve(noteTable);
-    } else {
-      reject(Error(`Could not load the table: '${TABLE_NOTE}'`));
-    }
-  });
+function getTable(): Promise<Dexie.Table> {
+    return new Promise((resolve, reject) => {
+        if (noteTable !== null) {
+            resolve(noteTable);
+        } else {
+            reject(Error(`Could not load the table: '${TABLE_NOTE}'`));
+        }
+    });
 }
 
-function packet(action, data) {
-  return JSON.stringify({
-    action,
-    data,
-  });
+function packet(action: any, data: any) {
+    return JSON.stringify({
+        action,
+        data,
+    });
 }
 
 export default {
