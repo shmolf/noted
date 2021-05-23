@@ -1,14 +1,13 @@
 import noteDb from 'JS/notes/noteDb';
 import { workerStates, clientActions, NotePackage } from 'JS/notes/worker-client-api';
 import axios from 'axios';
-const windowNavigator = window.navigator;
 
-if ('setAppBadge' in windowNavigator && 'clearAppBadge' in windowNavigator) {
-    // @ts-ignore
-    windowNavigator.setAppBadge(1).catch((error: any) => {
-        console.error(error);
-    });
-}
+// if ('setAppBadge' in window.navigator && 'clearAppBadge' in window.navigator) {
+//     // @ts-ignore
+//     window.navigator.setAppBadge(1).catch((error: any) => {
+//         console.error(error);
+//     });
+// }
 
 const worker:Worker = self as any;
 
@@ -149,5 +148,3 @@ function delFromApiByClientUuid(uuid: string): Promise<any> {
       });
   });
 }
-
-export default () => {};

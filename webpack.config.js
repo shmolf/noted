@@ -118,24 +118,31 @@ config.module.rules.push({
   }
 });
 
-config.module.rules.push({
-  test: /\.worker\.js$/i,
-  use: [
-    {
-      loader: "babel-loader",
-      options: {
-        presets: ["@babel/preset-env"],
-      },
-    },
-    {
-      loader: "worker-loader",
-      options: {
-        // publicPath: './',
-        filename: "[name].[contenthash].js",
-      },
-    },
-  ],
-});
+config.module.rules.push(
+  {
+    test: /\.worker\.js$/,
+    use: { loader: "worker-loader" },
+  }
+);
+// config.module.rules.push({
+//   test: /\.worker\.ts$/i,
+//   use: [
+//     'ts-loader',
+//     {
+//       loader: "babel-loader",
+//       options: {
+//         presets: ["@babel/preset-env"],
+//       },
+//     },
+//     {
+//       loader: "worker-loader",
+//       options: {
+//         // publicPath: './',
+//         filename: "[name].[contenthash].js",
+//       },
+//     },
+//   ],
+// });
 
 // let's clean the output folder, before repopulating
 config.output.clean= true;
