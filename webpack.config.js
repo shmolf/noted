@@ -45,6 +45,7 @@ Encore
     .addEntry('user-create', './assets/js/users/create.js')
     .addEntry('user-login', './assets/js/users/login.js')
     .addEntry('user-edit', './assets/js/users/edit.js')
+    .addEntry('forgot-request', './assets/js/password/forgot-request.js')
 
     // When enabled, Webpack "splits" your files into smaller pieces for greater optimization.
     .splitEntryChunks()

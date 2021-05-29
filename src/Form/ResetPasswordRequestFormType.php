@@ -10,6 +10,9 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 
 class ResetPasswordRequestFormType extends AbstractType
 {
+    public const TOKEN_ID = 'reset-pass';
+    public const TOKEN_FIELD = '_token';
+
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
@@ -25,6 +28,10 @@ class ResetPasswordRequestFormType extends AbstractType
 
     public function configureOptions(OptionsResolver $resolver): void
     {
-        $resolver->setDefaults([]);
+        $resolver->setDefaults([
+            'csrf_protection' => true,
+            'csrf_field_name' => self::TOKEN_FIELD,
+            'csrf_token_id'   => self::TOKEN_ID,
+        ]);
     }
 }
