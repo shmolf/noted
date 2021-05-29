@@ -114,7 +114,7 @@ const state = EditorState.create({
     ],
 });
 
-function createChangeListener(handler: CallableFunction): EditorState {
+function createChangeListener(handler: (markdown: string) => void): EditorState {
     return EditorState.create({
         extensions: [
             EditorView.updateListener.of(({ docChanged, state }) => {

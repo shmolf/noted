@@ -1,5 +1,5 @@
 import $ from 'jquery';
-import { Cookie, getCookie, deleteCookie } from 'cuki/dist/cuki';
+import { Cuki, getCookie, deleteCookie } from 'cuki';
 // @ts-ignore
 import CookieConsent from '@grrr/cookie-consent';
 import 'NODE/@grrr/cookie-consent/styles/cookie-consent.scss';
@@ -55,7 +55,7 @@ $(() => {
 
 function store(name: string, value: string|number|boolean, duration?: number): void {
   if (cookieConsent.isAccepted(FUNC)) {
-    (new Cookie({name, value, daysAlive: (duration ?? 365)})).persist();
+    new Cuki({name, value, daysAlive: (duration ?? 365)}).persist();
   }
 }
 

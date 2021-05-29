@@ -3187,10 +3187,10 @@ cssom@0.3.x, "cssom@>= 0.3.2 < 0.4.0":
   dependencies:
     cssom "0.3.x"
 
-cuki@^1.0.0:
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/cuki/-/cuki-1.0.2.tgz#7d9101067dee91bacc4934cfe8e8c469441a5073"
-  integrity sha512-Vd+hSJyC1ndulQ66Jph6yV9qfaijD/4KxlWd/c0Q4SgaT08ss/pVexq3xqD+um0Mi9lDVl3NQA0y4283u+C8tA==
+cuki@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/cuki/-/cuki-2.0.0.tgz#637c04043cd8fe97c82e075a37d25e671680dea0"
+  integrity sha512-7HAMVBdagCvDUkhxiUcIIndOVhJEDRUYSJGq8YO6flQA75rhPDl7PpDuAil8c3JNYaCFxVagLrRhXrWoek3FQA==
 
 d3-array@1, d3-array@^1.1.1, d3-array@^1.2.0:
   version "1.2.4"

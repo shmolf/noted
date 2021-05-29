@@ -147,11 +147,12 @@ function initJqueryVariables() {
  */
 function initCodeMirror() {
     codeMirrorEditor = initEditor($editor.get(0));
-    const newState = Object.assign({}, codeMirrorEditor.state, createChangeListener(() => {
+    // @ts-ignore
+    const newState = Object.assign({}, codeMirrorEditor.state, createChangeListener((markdown) => {
         if (manuallySettingValue) return;
-        queueNoteSave(String(codeMirrorEditor.state.doc));
+        queueNoteSave(markdown);
     }));
-    // codeMirrorEditor.setState(newState)
+    codeMirrorEditor.setState(newState)
 
     // codeMirrorEditor.on('change', (editor) => {
     //     if (manuallySettingValue) {
@@ -213,7 +214,6 @@ function setCodeMirrorTheme(theme: string) {
 
 function loadSw() {
     if (window.Worker) {
-        // @ts-ignore
         worker = new Worker();
         // @ts-ignore
         worker.postMessage(JSON.stringify({
