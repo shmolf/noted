@@ -14,6 +14,7 @@ use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Address;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
+use Symfony\Component\Security\Core\Exception\InvalidCsrfTokenException;
 use SymfonyCasts\Bundle\ResetPassword\Controller\ResetPasswordControllerTrait;
 use SymfonyCasts\Bundle\ResetPassword\Exception\ResetPasswordExceptionInterface;
 use SymfonyCasts\Bundle\ResetPassword\ResetPasswordHelperInterface;
@@ -41,6 +42,17 @@ class ResetPasswordController extends AbstractController
     {
         $form = $this->createForm(ResetPasswordRequestFormType::class);
         $form->handleRequest($request);
+
+        // Commented out the next section, while I ponder whether I want to manually handle CSFR token validation
+        //    or use the Form Validation default, which is to refresh the page.
+        // $submittedToken = $request->request
+        // ->get('reset_password_request_form')[ResetPasswordRequestFormType::TOKEN_FIELD] ?? null;
+        // if (
+        //     $form->isSubmitted()
+        //     && false === $this->isCsrfTokenValid(ResetPasswordRequestFormType::TOKEN_ID, $submittedToken)
+        // ) {
+        //     throw new InvalidCsrfTokenException();
+        // }
 
         if ($form->isSubmitted() && $form->isValid()) {
             return $this->processSendingPasswordResetEmail(
@@ -87,6 +99,7 @@ class ResetPasswordController extends AbstractController
         }
 
         $token = $this->getTokenFromSession();
+
         if (null === $token) {
             throw $this->createNotFoundException('No reset password token found in the URL or in the session.');
         }
@@ -122,7 +135,7 @@ class ResetPasswordController extends AbstractController
             // The session is cleaned up after the password has been changed.
             $this->cleanSessionAfterReset();
 
-            return $this->redirectToRoute('account');
+            return $this->redirectToRoute('account.profile');
         }
 
         return $this->render('reset_password/reset.html.twig', [

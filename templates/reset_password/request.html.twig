@@ -1,20 +1,29 @@
 {% extends 'base.html.twig' %}
 
+{% block stylesheets %}
+    {{ parent() }}
+    {{ encore_entry_link_tags('forgot-request') }}
+{% endblock %}
+
 {% block pageContext %}Reset your password{% endblock %}
 
 {% block body %}
     {% for flashError in app.flashes('reset_password_error') %}
         <div class="alert alert-danger" role="alert">{{ flashError }}</div>
     {% endfor %}
-    {{ form_start(requestForm) }}
-        {{ form_row(requestForm.email) }}
-        <div class="row">
-            <p>
-                Enter your email address and we we will send you a
-                link to reset your password.
-            </p>
-        </div>
+        <div id="form-container" class="row">
+            <div class="col s12 m6">
+            {{ form_start(requestForm) }}
+                {{ form_row(requestForm.email) }}
+                <div id="request-helper-comment">
+                    <p>
+                        Enter your email address and we we will send you a
+                        link to reset your password.
+                    </p>
+                </div>
 
-        <button class="btn btn-primary">Request Rest Link</button>
-    {{ form_end(requestForm) }}
+                <button class="btn btn-primary">Request Rest Link</button>
+            {{ form_end(requestForm) }}
+            </div>
+        </div>
 {% endblock %}
