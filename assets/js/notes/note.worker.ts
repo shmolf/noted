@@ -2,19 +2,10 @@ import noteDb from 'JS/notes/noteDb';
 import { workerStates, clientActions, NotePackage, Note } from 'JS/notes/worker-client-api';
 import axios from 'axios';
 
-// if ('setAppBadge' in window.navigator && 'clearAppBadge' in window.navigator) {
-//     // @ts-ignore
-//     window.navigator.setAppBadge(1).catch((error: any) => {
-//         console.error(error);
-//     });
-// }
-
 const worker:Worker = self as any;
 
 (() => {
-    noteDb.buildDb().then(() => {
-        worker.postMessage(workerStates.READY.f());
-    });
+    noteDb.buildDb().then(() => worker.postMessage(workerStates.READY.f()));
 
     worker.onmessage = (e) => {
         const msg = JSON.parse(e.data);
@@ -44,7 +35,7 @@ function handleAction(msg: MapStringTo<any>) {
                 GetNoteList();
                 break;
             case clientActions.EXPORT_NOTES.k:
-                exportNotes().then((response) => worker.postMessage(workerStates.EXPORT_DATA.f(response)));
+                ExportNotes();
                 break;
             default:
         }
@@ -52,19 +43,19 @@ function handleAction(msg: MapStringTo<any>) {
 }
 
 function getList(): Promise<any[]> {
-  return new Promise((resolve, reject) => {
-    axios.get('/🔌/v1/note/list')
-      .then((response) => resolve(response.data))
-      .catch((error) => reject(error));
-  });
+    return new Promise((resolve, reject) => {
+        axios.get('/🔌/v1/note/list')
+            .then((response) => resolve(response.data))
+            .catch((error) => reject(error));
+    });
 }
 
 function exportNotes(): Promise<any[]> {
   return new Promise((resolve, reject) => {
-    axios.get('/🔌/v1/note/export')
-      .then((response) => resolve(response.data))
-      .catch((error) => reject(error));
-  });
+        axios.get('/🔌/v1/note/export')
+            .then((response) => resolve(response.data))
+            .catch((error) => reject(error));
+    });
 }
 
 function sendUpsert(note: NotePackage): Promise<any> {
@@ -133,7 +124,7 @@ function GetNoteByUuid(uuid: string) {
                 worker.postMessage(workerStates.NOTE_DATA.f(new NotePackage(recordsArray[0])));
             }
         })
-    .catch((error) => console.warn(error));
+        .catch((error) => console.warn(error));
 }
 
 function DeleteNoteByUuid(uuid: string) {
@@ -151,4 +142,8 @@ function GetNoteList() {
             worker.postMessage(workerStates.NOTE_LIST.f(response));
         })
         .catch((error) => console.warn(`Inbound request to fetch a record failed.\n${error}`));
+}
+
+function ExportNotes() {
+    exportNotes().then((response) => worker.postMessage(workerStates.EXPORT_DATA.f(response)));
 }
