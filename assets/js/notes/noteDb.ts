@@ -65,7 +65,7 @@ function buildDb(): Promise<Dexie> {
 
 function modifyRecord(note: NotePackage): Promise<string> {
     return new Promise((resolve, reject) => {
-        const uuid = String(note.clientUuid ?? '').length === 0 ? null : trim(note.clientUuid as string);
+        const uuid = String(note.clientUuid ?? '').length === 0 ? null : (note.clientUuid as string).trim();
 
         if (uuid === null) {
             createNewRecord(note).then((uuid) => resolve(uuid));

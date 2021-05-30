@@ -13,8 +13,10 @@ import Cookies from 'JS/lib/cookie';
 import sample from './sample.md';
 
 // Library for the input side
-import { EditorView, init as initEditor, posToOffset, offsetToPos, createChangeListener } from './code-mirror-assets';
-import { ViewUpdate } from '@codemirror/view';
+import CM from './code-mirror-assets';
+import CodeMirror from 'codemirror';
+// import { EditorView, init as initEditor, posToOffset, offsetToPos, createChangeListener } from './code-mirror-assets';
+// import { ViewUpdate } from '@codemirror/view';
 
 // ---- Now, begins the application logic ----
 
@@ -30,15 +32,15 @@ let $codeMirrorTheme: JQuery;
 let $highlightJsTheme: JQuery;
 let $inputOutput: JQuery;
 
-let codeMirrorEditor: EditorView;
+let codeMirrorEditor: CodeMirror.Editor;
+// let codeMirrorEditor: EditorView;
 
 let worker: Worker|null = window.Worker ? new Worker() : null;
 
 // Since CodeMirror.setValue() triggers a change event, we'll want to prevent change events when manually setting value
 let manuallySettingValue = false;
 
-/** @type {Object.<string, NoteQueue>} */
-const modifiedNotes: MapStringTo<any> = {};
+const modifiedNotes: MapStringTo<NoteQueue> = {};
 
 const noteSaveDelay = 3 * 1000;
 const noteDelayMax = 10 * 1000;
@@ -68,9 +70,10 @@ $(() => {
 
     renderMarkdown(sample);
     manuallySettingValue = true;
-    codeMirrorEditor.dispatch({
-        changes: { from: 0, to: codeMirrorEditor.state.doc.length, insert: sample}
-    });
+    codeMirrorEditor.setValue(sample);
+    // codeMirrorEditor.dispatch({
+    //     changes: { from: 0, to: codeMirrorEditor.state.doc.length, insert: sample}
+    // });
     manuallySettingValue = false;
 
     eventListeners();
@@ -103,15 +106,26 @@ function eventListeners() {
         const $mdInpChecklist = $codeMirrorLines.find('.cm-meta:contains("[ ]"), .cm-property:contains("[x]")');
         const $cmCheckbox = $($mdInpChecklist.get(checkboxIndex));
 
-        let line = $codeMirrorLines.index($cmCheckbox.parents('.CodeMirror-line').first());
-        let ch = $cmCheckbox.closest('.CodeMirror-line').text().indexOf('[');
+        let cmLine = $codeMirrorLines.index($cmCheckbox.parents('.CodeMirror-line').first());
+        let cmCol = $cmCheckbox.closest('.CodeMirror-line').text().indexOf('[');
 
-        const state = codeMirrorEditor.state;
-        const posFrom = posToOffset(state, { line, ch: ++ch });
-        const posTo = posToOffset(state, { line, ch: ++ch });
-        codeMirrorEditor.dispatch({
-            changes: { from: posFrom, to: posTo, insert: newCheckedText}
-        });
+        codeMirrorEditor.replaceRange(
+            newCheckedText,
+            {
+                'line': cmLine,
+                'ch': ++cmCol,
+            },
+            {
+                'line': cmLine,
+                'ch': ++cmCol,
+            }
+        );
+        // const state = codeMirrorEditor.state;
+        // const posFrom = posToOffset(state, { line, ch: ++ch });
+        // const posTo = posToOffset(state, { line, ch: ++ch });
+        // codeMirrorEditor.dispatch({
+        //     changes: { from: posFrom, to: posTo, insert: newCheckedText}
+        // });
   });
 
   $(document).on('click', '.note-item', (event) => {
@@ -146,21 +160,36 @@ function initJqueryVariables() {
  * Initialized the CodeMirror library
  */
 function initCodeMirror() {
-    codeMirrorEditor = initEditor($editor.get(0));
-    // @ts-ignore
-    const newState = Object.assign({}, codeMirrorEditor.state, createChangeListener((markdown) => {
+    /** @see https://codemirror.net/doc/manual.html#config */
+    const cmOptions = {
+      mode: {
+            name: 'gfm',
+            tokenTypeOverrides: {
+                emoji: 'emoji',
+            },
+      },
+      lineNumbers: true,
+      viewportMargin: 500,
+      lineWrapping: true,
+      theme: 'default',
+      tabindex: 0,
+    };
+
+    // codeMirrorEditor = initEditor($editor.get(0));
+    codeMirrorEditor = CM.fromTextArea($editor.get(0), cmOptions);
+
+    codeMirrorEditor.on('change', (editor) => {
         if (manuallySettingValue) return;
-        queueNoteSave(markdown);
-    }));
-    codeMirrorEditor.setState(newState)
 
-    // codeMirrorEditor.on('change', (editor) => {
-    //     if (manuallySettingValue) {
-    //     return;
-    //     }
+        queueNoteSave(editor.getValue());
+    });
 
-    //     queueNoteSave(editor);
-    // });
+    // @ts-ignore
+    // const newState = Object.assign({}, codeMirrorEditor.state, createChangeListener((markdown) => {
+    //     if (manuallySettingValue) return;
+    //     queueNoteSave(markdown);
+    // }));
+    // codeMirrorEditor.setState(newState)
 }
 
 function initMaterialize() {
@@ -198,9 +227,10 @@ function updateHighlightJsTheme() {
 
 function newNote() {
     manuallySettingValue = true;
-    codeMirrorEditor.dispatch({
-        changes: { from: 0, to: codeMirrorEditor.state.doc.length, insert: ''}
-    });
+    codeMirrorEditor.setValue('');
+    // codeMirrorEditor.dispatch({
+    //     changes: { from: 0, to: codeMirrorEditor.state.doc.length, insert: ''}
+    // });
     manuallySettingValue = false;
     renderMarkdown('');
 }
@@ -208,18 +238,16 @@ function newNote() {
 function setCodeMirrorTheme(theme: string) {
     localStorage.setItem(CM_THEME_COOKIE, theme);
 
-    // codeMirrorEditor.setOption('theme', theme);
-    // codeMirrorEditor.refresh();
+    codeMirrorEditor.setOption('theme', theme);
+    codeMirrorEditor.refresh();
 }
 
 function loadSw() {
     if (window.Worker) {
         worker = new Worker();
-        // @ts-ignore
         worker.postMessage(JSON.stringify({
             some: 'data',
         }));
-        // @ts-ignore
         worker.onmessage = (e) => onWorkerMessage(e);
     }
 }
@@ -228,20 +256,18 @@ function queueNoteSave(markdown: string) {
     const frontmatterData = renderMarkdown(markdown);
     $inputOutput.addClass('not-saved');
 
-    if (worker ?? false) {
-        return;
-    }
+    if (worker === null) return;
 
     let title = frontmatterData.title ?? null;
     const note = packageNote(markdown, title);
     const uuid = note.clientUuid as string;
 
     if (!$editor.data('clientUuid')) {
-        $editor.data('clientUuid', note.clientUuid);
+        $editor.data('clientUuid', uuid);
     }
 
     if (uuid in modifiedNotes) {
-        clearTimeout(modifiedNotes[uuid].timeoutId);
+        clearTimeout(modifiedNotes[uuid].timeoutId ?? 0);
     } else {
         modifiedNotes[uuid] = {
             firstTimeout: new Date(),
@@ -251,15 +277,13 @@ function queueNoteSave(markdown: string) {
     }
 
     const totalDelay = (new Date()).getTime() - modifiedNotes[uuid].firstTimeout.getTime();
-        title = typeof note.title === 'string' && note.title.trim().length > 0
-            ? note.title
-            : (new Date()).toDateString();
+    // If ``note.title` is nullish, default to an empty string. If the title (or default) are empty, use the current date
+    title = (note.title || '').trim() || (new Date()).toDateString();
     setNavItemTitle(uuid, title);
     setNavItemSaveState(uuid, 'inProgress');
 
     if (totalDelay >= noteDelayMax) {
         delete modifiedNotes[uuid];
-        // @ts-ignore
         worker.postMessage(clientActions.MODIFY.f(note));
     } else {
         modifiedNotes[uuid].delayedCount += 1;
@@ -304,9 +328,10 @@ function onWorkerMessage(event: MessageEvent) {
             const { data: noteData } = msg;
             $editor.data('clientUuid', noteData.clientUuid);
             manuallySettingValue = true;
-            codeMirrorEditor.dispatch({
-                changes: { from: 0, to: codeMirrorEditor.state.doc.length, insert: noteData.content}
-            });
+            // codeMirrorEditor.dispatch({
+            //     changes: { from: 0, to: codeMirrorEditor.state.doc.length, insert: noteData.content}
+            // });
+            codeMirrorEditor.setValue(noteData.content);
             manuallySettingValue = false;
             $editor.scrollTop(0);
             renderMarkdown(noteData.content);
@@ -319,18 +344,16 @@ function onWorkerMessage(event: MessageEvent) {
             const { data: response } = msg;
 
             setNavItemSaveState(response.clientUuid, 'save');
-            setTimeout(() => {
-            setNavItemSaveState(response.clientUuid, 'default');
-            }, 3000);
+            setTimeout(() => setNavItemSaveState(response.clientUuid, 'default'), 3000);
 
             if (!(noteIsQueuedForSave(response.clientUuid)) && $editor.data('clientUuid') === response.clientUuid) {
-            $inputOutput.removeClass('not-saved').addClass('saved');
+                $inputOutput.removeClass('not-saved').addClass('saved');
 
-            setTimeout(() => {
-                if (!(noteIsQueuedForSave(response.clientUuid)) && $editor.data('clientUuid') === response.clientUuid) {
-                $inputOutput.removeClass('saved');
-                }
-            }, 3000);
+                setTimeout(() => {
+                    if (!(noteIsQueuedForSave(response.clientUuid)) && $editor.data('clientUuid') === response.clientUuid) {
+                        $inputOutput.removeClass('saved');
+                    }
+                }, 3000);
             }
             break;
         case workerStates.DEL_COMP.k:
@@ -345,9 +368,11 @@ function onWorkerMessage(event: MessageEvent) {
     }
 }
 
-/**
- * @typedef {object} NoteQueue
- * @property {Date} firstTimeout - Used to compare how much delay has passed since the edits started
- * @property {number} delayedCount
- * @property {number} timeoutId
- */
+interface NoteQueue {
+    /**
+     * Used to compare how much delay has passed since the edits started
+     */
+    firstTimeout: Date;
+    delayedCount: number;
+    timeoutId: number|null;
+}

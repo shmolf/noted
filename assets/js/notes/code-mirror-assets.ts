@@ -65,89 +65,128 @@ import 'NODE/codemirror/theme/zenburn.css';
 import 'NODE/codemirror/lib/codemirror.css';
 import 'NODE/codemirror/addon/display/fullscreen.css';
 
-// import CodeMirror from 'NODE/codemirror/lib/codemirror';
-import { EditorState, Compartment } from '@codemirror/state';
-import { basicSetup, EditorView } from '@codemirror/basic-setup';
-// import { language } from "@codemirror/language"
+// @ts-ignore
+import CodeMirror from 'NODE/codemirror/lib/codemirror';
 
-import { cpp } from '@codemirror/lang-cpp';
-import { css } from '@codemirror/lang-css';
-import { html } from '@codemirror/lang-html';
-import { java } from '@codemirror/lang-java';
-import { javascript } from '@codemirror/lang-javascript';
-import { json } from '@codemirror/lang-json';
-import { lezer } from '@codemirror/lang-lezer';
-import { markdown } from '@codemirror/lang-markdown';
-import { python } from '@codemirror/lang-python';
-import { rust } from '@codemirror/lang-rust';
-import { sql } from '@codemirror/lang-sql';
-import { xml } from '@codemirror/lang-xml';
+import 'NODE/codemirror/mode/apl/apl';
+import 'NODE/codemirror/mode/asciiarmor/asciiarmor';
+import 'NODE/codemirror/mode/asn.1/asn.1';
+import 'NODE/codemirror/mode/asterisk/asterisk';
+import 'NODE/codemirror/mode/brainfuck/brainfuck';
+import 'NODE/codemirror/mode/clike/clike';
+import 'NODE/codemirror/mode/clojure/clojure';
+import 'NODE/codemirror/mode/cmake/cmake';
+import 'NODE/codemirror/mode/cobol/cobol';
+import 'NODE/codemirror/mode/coffeescript/coffeescript';
+import 'NODE/codemirror/mode/commonlisp/commonlisp';
+import 'NODE/codemirror/mode/crystal/crystal';
+import 'NODE/codemirror/mode/css/css';
+import 'NODE/codemirror/mode/cypher/cypher';
+import 'NODE/codemirror/mode/d/d';
+import 'NODE/codemirror/mode/dart/dart';
+import 'NODE/codemirror/mode/diff/diff';
+import 'NODE/codemirror/mode/django/django';
+import 'NODE/codemirror/mode/dtd/dtd';
+import 'NODE/codemirror/mode/dylan/dylan';
+import 'NODE/codemirror/mode/ebnf/ebnf';
+import 'NODE/codemirror/mode/ecl/ecl';
+import 'NODE/codemirror/mode/eiffel/eiffel';
+import 'NODE/codemirror/mode/elm/elm';
+import 'NODE/codemirror/mode/erlang/erlang';
+import 'NODE/codemirror/mode/fcl/fcl';
+import 'NODE/codemirror/mode/forth/forth';
+import 'NODE/codemirror/mode/fortran/fortran';
+import 'NODE/codemirror/mode/gas/gas';
+import 'NODE/codemirror/mode/gfm/gfm';
+import 'NODE/codemirror/mode/gherkin/gherkin';
+import 'NODE/codemirror/mode/go/go';
+import 'NODE/codemirror/mode/groovy/groovy';
+import 'NODE/codemirror/mode/haml/haml';
+import 'NODE/codemirror/mode/haskell/haskell';
+import 'NODE/codemirror/mode/haskell-literate/haskell-literate';
+import 'NODE/codemirror/mode/haxe/haxe';
+import 'NODE/codemirror/mode/htmlembedded/htmlembedded';
+import 'NODE/codemirror/mode/htmlmixed/htmlmixed';
+import 'NODE/codemirror/mode/http/http';
+import 'NODE/codemirror/mode/idl/idl';
+import 'NODE/codemirror/mode/javascript/javascript';
+import 'NODE/codemirror/mode/jinja2/jinja2';
+import 'NODE/codemirror/mode/jsx/jsx';
+import 'NODE/codemirror/mode/julia/julia';
+import 'NODE/codemirror/mode/livescript/livescript';
+import 'NODE/codemirror/mode/lua/lua';
+import 'NODE/codemirror/mode/markdown/markdown';
+import 'NODE/codemirror/mode/mathematica/mathematica';
+import 'NODE/codemirror/mode/mbox/mbox';
+import 'NODE/codemirror/mode/meta';
+import 'NODE/codemirror/mode/mirc/mirc';
+import 'NODE/codemirror/mode/mllike/mllike';
+import 'NODE/codemirror/mode/modelica/modelica';
+import 'NODE/codemirror/mode/mscgen/mscgen';
+import 'NODE/codemirror/mode/mumps/mumps';
+import 'NODE/codemirror/mode/nginx/nginx';
+import 'NODE/codemirror/mode/ntriples/ntriples';
+import 'NODE/codemirror/mode/octave/octave';
+import 'NODE/codemirror/mode/oz/oz';
+import 'NODE/codemirror/mode/pascal/pascal';
+import 'NODE/codemirror/mode/pegjs/pegjs';
+import 'NODE/codemirror/mode/perl/perl';
+import 'NODE/codemirror/mode/php/php';
+import 'NODE/codemirror/mode/pig/pig';
+import 'NODE/codemirror/mode/powershell/powershell';
+import 'NODE/codemirror/mode/properties/properties';
+import 'NODE/codemirror/mode/protobuf/protobuf';
+import 'NODE/codemirror/mode/pug/pug';
+import 'NODE/codemirror/mode/puppet/puppet';
+import 'NODE/codemirror/mode/python/python';
+import 'NODE/codemirror/mode/q/q';
+import 'NODE/codemirror/mode/r/r';
+import 'NODE/codemirror/mode/rpm/rpm';
+import 'NODE/codemirror/mode/rst/rst';
+import 'NODE/codemirror/mode/ruby/ruby';
+import 'NODE/codemirror/mode/sas/sas';
+import 'NODE/codemirror/mode/sass/sass';
+import 'NODE/codemirror/mode/scheme/scheme';
+import 'NODE/codemirror/mode/shell/shell';
+import 'NODE/codemirror/mode/sieve/sieve';
+import 'NODE/codemirror/mode/slim/slim';
+import 'NODE/codemirror/mode/smalltalk/smalltalk';
+import 'NODE/codemirror/mode/smarty/smarty';
+import 'NODE/codemirror/mode/solr/solr';
+import 'NODE/codemirror/mode/soy/soy';
+import 'NODE/codemirror/mode/sparql/sparql';
+import 'NODE/codemirror/mode/spreadsheet/spreadsheet';
+import 'NODE/codemirror/mode/sql/sql';
+import 'NODE/codemirror/mode/stex/stex';
+import 'NODE/codemirror/mode/stylus/stylus';
+import 'NODE/codemirror/mode/swift/swift';
+import 'NODE/codemirror/mode/tcl/tcl';
+import 'NODE/codemirror/mode/textile/textile';
+import 'NODE/codemirror/mode/tiddlywiki/tiddlywiki';
+import 'NODE/codemirror/mode//tiki/tiki';
+import 'NODE/codemirror/mode/toml/toml';
+import 'NODE/codemirror/mode/tornado/tornado';
+import 'NODE/codemirror/mode/troff/troff';
+import 'NODE/codemirror/mode/ttcn/ttcn';
+import 'NODE/codemirror/mode/ttcn-cfg/ttcn-cfg';
+import 'NODE/codemirror/mode/turtle/turtle';
+import 'NODE/codemirror/mode/twig/twig';
+import 'NODE/codemirror/mode/vb/vb';
+import 'NODE/codemirror/mode/vbscript/vbscript';
+import 'NODE/codemirror/mode/velocity/velocity';
+import 'NODE/codemirror/mode/verilog/verilog';
+import 'NODE/codemirror/mode/vhdl/vhdl';
+import 'NODE/codemirror/mode/vue/vue';
+import 'NODE/codemirror/mode/webidl/webidl';
+import 'NODE/codemirror/mode/xml/xml';
+import 'NODE/codemirror/mode/xquery/xquery';
+import 'NODE/codemirror/mode/yacas/yacas';
+import 'NODE/codemirror/mode/yaml/yaml';
+import 'NODE/codemirror/mode/yaml-frontmatter/yaml-frontmatter';
+import 'NODE/codemirror/mode/z80/z80';
 
-// Not sure how to use these
-import { GFM, Emoji } from 'NODE/lezer-markdown/src/index';
+import 'NODE/codemirror/addon/display/fullscreen';
+import 'NODE/codemirror/addon/fold/markdown-fold';
+import 'NODE/codemirror/addon/mode/overlay';
 
-const state = EditorState.create({
-    extensions: [
-        basicSetup,
-        (new Compartment()).of(EditorView.lineWrapping),
-        (new Compartment()).of(cpp()),
-        (new Compartment()).of(css()),
-        (new Compartment()).of(html()),
-        (new Compartment()).of(java()),
-        (new Compartment()).of(javascript({jsx: true, typescript: true})),
-        (new Compartment()).of(json()),
-        (new Compartment()).of(python()),
-        (new Compartment()).of(rust()),
-        (new Compartment()).of(sql()),
-        (new Compartment()).of(xml()),
-        (new Compartment()).of(lezer()),
-        (new Compartment()).of(markdown()),
-        // EditorView.updateListener.of(({ docChanged, state }) => {
-        //     const editable = (new Compartment()).get(state);
-
-        //     if (
-        //         state.facet(editable.facet)
-        //     ) {
-        //         handler(state.doc.toJSON().join(state.lineBreak))
-        //     }
-        // })
-    ],
-});
-
-function createChangeListener(handler: (markdown: string) => void): EditorState {
-    return EditorState.create({
-        extensions: [
-            EditorView.updateListener.of(({ docChanged, state }) => {
-                const editable = (new Compartment()).get(state);
-
-                if (editable !== undefined && docChanged) {
-                    handler(state.doc.toJSON().join(state.lineBreak));
-                }
-            })
-        ],
-    });
-}
-
-function init(element: HTMLElement): EditorView {
-    const view = new EditorView({
-        state,
-        parent: element,
-    });
-    return view;
-}
-
-function posToOffset(state: EditorState, pos: CmPosition) {
-    return state.doc.line(pos.line + 1).from + pos.ch;
-}
-
-function offsetToPos(state: EditorState, offset: number): CmPosition {
-    let line = state.doc.lineAt(offset);
-    return { line: line.number - 1, ch: offset - line.from };
-}
-
-interface CmPosition {
-    line: number, // line.number - 1
-    ch: number, // offset - line.from
-}
-
-export { EditorView, init, posToOffset, offsetToPos, createChangeListener };
+export default CodeMirror;

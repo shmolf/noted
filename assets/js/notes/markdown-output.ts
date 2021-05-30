@@ -59,6 +59,7 @@ function parseFrontMatter(markdown: string) {
         console.warn(e);
         return { content: markdown, data: {} };
     }
+
     const pagePlaceholder = /\{\{ page\.([^}}]+) \}\}/g;
     // eslint-disable-next-line prefer-const
     let { __content: content, ...data } = parsedFrontMatter;
@@ -74,14 +75,14 @@ function parseFrontMatter(markdown: string) {
         /*
         * Consider if `str` is `fruits[0][1]`
         * We expect the array from a split to be `["fruits", "0", "", "1", ""]`
-        * Notice that the first index should be the only even index that should have a value.
+        * Notice that only `even` indexes would reference a valid number/key
         *
         * Take as a counter example: `fruits[0][1]invalidText`
         * This'll yield `["fruits", "0", "", "1", "invalidText"]`, where index 4 (an even, non-zero index) has a value.
         */
 
         return str.split(/\[([^\]]+)\]/).reduce((parts, part, i) => {
-            return part === '' || i === 0 || i % 2 === 1 ? parts : parts.concat([part]);
+            return part === '' || (i > 0 && i % 2 === 0) ? parts : parts.concat([part]);
         }, new Array<string>());
     };
 

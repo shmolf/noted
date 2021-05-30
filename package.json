@@ -54,6 +54,7 @@
         "yaml-front-matter": "^4.1.1"
     },
     "devDependencies": {
+        "@types/codemirror": "^5.60.0",
         "@types/jquery": "^3.5.5",
         "@types/materialize-css": "^1.0.9",
         "@types/uuid": "^8.3.0",
