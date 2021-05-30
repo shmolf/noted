@@ -38,14 +38,14 @@ Encore
      * Each entry will result in one JavaScript file (e.g. app.js)
      * and one CSS file (e.g. app.css) if your JavaScript imports CSS.
      */
-    .addEntry('app', './assets/js/app.js')
-    .addEntry('welcome', './assets/js/welcome.js')
-    .addEntry('notes', './assets/js/notes/main.js')
-    .addEntry('user-admin', './assets/js/users/admin.js')
-    .addEntry('user-create', './assets/js/users/create.js')
-    .addEntry('user-login', './assets/js/users/login.js')
-    .addEntry('user-edit', './assets/js/users/edit.js')
-    .addEntry('forgot-request', './assets/js/password/forgot-request.js')
+    .addEntry('app', './assets/js/app.ts')
+    .addEntry('welcome', './assets/js/welcome.ts')
+    .addEntry('notes', './assets/js/notes/main.ts')
+    .addEntry('user-admin', './assets/js/users/admin.ts')
+    .addEntry('user-create', './assets/js/users/create.ts')
+    .addEntry('user-login', './assets/js/users/login.ts')
+    .addEntry('user-edit', './assets/js/users/edit.ts')
+    .addEntry('forgot-request', './assets/js/password/forgot-request.ts')
 
     // When enabled, Webpack "splits" your files into smaller pieces for greater optimization.
     .splitEntryChunks()
@@ -93,7 +93,7 @@ Encore
     .addLoader({ test: /\.md$/, loader: 'raw-loader' })
 
     // uncomment if you use TypeScript
-    //.enableTypeScriptLoader()
+    .enableTypeScriptLoader()
 
     // uncomment to get integrity="..." attributes on your script & link tags
     // requires WebpackEncoreBundle 1.4 or higher
@@ -119,24 +119,31 @@ config.module.rules.push({
   }
 });
 
-config.module.rules.push({
-  test: /\.worker\.js$/i,
-  use: [
-    {
-      loader: "babel-loader",
-      options: {
-        presets: ["@babel/preset-env"],
-      },
-    },
-    {
-      loader: "worker-loader",
-      options: {
-        // publicPath: './',
-        filename: "[name].[contenthash].js",
-      },
-    },
-  ],
-});
+config.module.rules.push(
+  {
+    test: /\.worker\.js$/,
+    use: { loader: "worker-loader" },
+  }
+);
+// config.module.rules.push({
+//   test: /\.worker\.ts$/i,
+//   use: [
+//     'ts-loader',
+//     {
+//       loader: "babel-loader",
+//       options: {
+//         presets: ["@babel/preset-env"],
+//       },
+//     },
+//     {
+//       loader: "worker-loader",
+//       options: {
+//         // publicPath: './',
+//         filename: "[name].[contenthash].js",
+//       },
+//     },
+//   ],
+// });
 
 // let's clean the output folder, before repopulating
 config.output.clean= true;

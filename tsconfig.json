@@ -1,0 +1,26 @@
+{
+    "compilerOptions": {
+        "target": "ES5",
+        "module": "commonjs",
+        "noImplicitAny": true,
+        "strictNullChecks": true,
+        "removeComments": true,
+        "preserveConstEnums": true,
+        "sourceMap": true,
+        "allowSyntheticDefaultImports": true,
+        "esModuleInterop": true,
+        "baseUrl": "./",
+        "lib": ["esnext", "webworker"],
+        "paths": {
+            "JS/*": ["./assets/js/*"],
+            "CSS/*": ["./assets/css/*"],
+            "Images/*": ["./assets/images/*"],
+            "NODE/*": ["./node_modules/*"]
+        }
+    },
+    // "include": ["src/**/*.ts"],
+    "exclude": [
+        "public/build/**/*",
+        "packages-cache"
+    ]
+  }
