@@ -132,14 +132,14 @@ export class NotePackage {
             'lastModified',
         ].forEach((prop: string) => {
             const value = this.getProperty(this, prop as keyof this);
-            if (value ?? false) noteObj[prop] = value;
+            if (value !== undefined) noteObj[prop] = value;
         });
 
         return noteObj;
     }
 
-    private getProperty<T, K extends keyof T>(o: T, propertyName: K): T[K] {
+    private getProperty<T, K extends keyof T>(o: T, propertyName: K): T[K]|undefined {
         // o[propertyName] is of type T[K]
-        return o[propertyName];
+        return o[propertyName] ?? undefined;
     }
 }
