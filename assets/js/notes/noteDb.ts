@@ -1,4 +1,3 @@
-import { trim } from 'jquery';
 import Dexie from 'NODE/dexie/dist/dexie';
 import { v4 as uuidv4 } from 'uuid';
 import { Note, NotePackage } from './worker-client-api';
@@ -60,7 +59,7 @@ function buildDb(): Promise<Dexie> {
                 resolve(dbInstance);
             })
             .catch((error) => reject(error));
-  });
+    });
 }
 
 function modifyRecord(note: NotePackage): Promise<string> {
@@ -176,11 +175,11 @@ function packet(action: any, data: any) {
 }
 
 export default {
-  buildDb,
-  getRecordByClientUuid,
-  delRecordByClientUuid,
-  getRecordById,
-  modifyRecord,
-  syncRecords,
-  packet,
+    buildDb,
+    getRecordByClientUuid,
+    delRecordByClientUuid,
+    getRecordById,
+    modifyRecord,
+    syncRecords,
+    packet,
 };

@@ -10,7 +10,7 @@
     <arg name="colors"/>
     <arg name="extensions" value="php"/>
 
-    <rule ref="PSR2"/>
+    <rule ref="PSR12"/>
 
     <exclude-pattern>config/</exclude-pattern>
     <file>bin/</file>
