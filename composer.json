@@ -1,6 +1,7 @@
 {
     "name": "shmolf/note-d",
     "type": "project",
+    "description": "Note'd application, for rendering the primary app's frontend. Input notes & maintain storage hosts.",
     "license": "SEE LICENSE IN 'LICENSE'",
     "require": {
         "php": ">=7.4.3",
