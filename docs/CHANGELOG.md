@@ -1,3 +1,11 @@
+### [1.0.1](https://github.com/shmolf/noted/compare/v1.0.0...v1.0.1) (2021-07-04)
+
+
+### Bug Fixes
+
+* **phpcs:** add exclusions for default files ([0399780](https://github.com/shmolf/noted/commit/0399780fc28c1ce8389f6ceb12a5e8e46130843f))
+* **w-c-api:** default to `undefined` for bad property ref ([6e687dc](https://github.com/shmolf/noted/commit/6e687dc5cb0ec3df1fc61fe23e72ae257859f2b0))
+
 ## 1.0.0 (2021-07-04)
 
 
