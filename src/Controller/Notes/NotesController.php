@@ -24,12 +24,12 @@ class NotesController extends AbstractController
             ->getRepository(MarkdownNote::class)
             ->findBy(['userId' => $user->getId()], ['lastModified' => 'DESC']);
 
-        $noteList = array_map(function(MarkdownNote $note) {
+        $noteList = array_map(function (MarkdownNote $note) {
             return [
                 'title' => $note->getTitle(),
-                'tags' => array_map(function(NoteTag $tag) {
+                'tags' => array_map(function (NoteTag $tag) {
                         return $tag->getName();
-                    }, $note->getTags()->toArray()),
+                }, $note->getTags()->toArray()),
                 'clientUuid' => $note->getClientUuid(),
                 'inTrashcan' => $note->getInTrashcan(),
                 'createdDate' => $note->getCreatedDate(),
