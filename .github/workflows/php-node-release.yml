@@ -7,9 +7,15 @@ on:
 
 jobs:
   build-php:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
+
+      - name: Install PHP74
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '7.4'
+          extensions: php-xml
 
       - name: Validate composer.json and composer.lock
         run: composer validate --strict
@@ -25,22 +31,18 @@ jobs:
             ${{ runner.os }}-php-
 
       - name: Install dependencies
-        with:
-          php-version: '7.4'
         run: composer install --prefer-dist --no-progress
 
       # Add a test script to composer.json, for instance: "test": "vendor/bin/phpunit"
       # Docs: https://getcomposer.org/doc/articles/scripts.md
 
       - name: Run all checks
-        with:
-          php-version: '7.4'
         run: composer run-script php-lint
 
   # Using `check-cache` will ensure the yarn.lock matches installed packages
   verify-dependencies:
     needs: build-php
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
