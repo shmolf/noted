@@ -30,7 +30,6 @@ class ExceptionListener
         ];
 
         return new JsonResponse($data, $exception->getCode());
-
     }
 
     private function buildPageResponse(Throwable $exception): Response

@@ -1,12 +1,13 @@
 {
     "name": "shmolf/note-d",
     "type": "project",
-    "license": "SEE LICENSE IN 'LICENSE'",
+    "description": "Note'd application, for rendering the primary app's frontend. Input notes & maintain storage hosts.",
+    "license": "MIT",
     "require": {
         "php": ">=7.4.3",
         "ext-ctype": "*",
         "ext-iconv": "*",
-        "composer/package-versions-deprecated": "1.11.99.1",
+        "composer/package-versions-deprecated": "^1.11",
         "doctrine/annotations": "^1.0",
         "doctrine/doctrine-bundle": "^2.3",
         "doctrine/doctrine-migrations-bundle": "^3.1",

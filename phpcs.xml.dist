@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
+<!--
+    Example: https://github.com/squizlabs/PHP_CodeSniffer/blob/master/phpcs.xml.dist
+-->
 <ruleset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:noNamespaceSchemaLocation="vendor/squizlabs/php_codesniffer/phpcs.xsd">
 
@@ -10,9 +12,10 @@
 
     <rule ref="PSR2"/>
 
+    <exclude-pattern>config/</exclude-pattern>
     <file>bin/</file>
     <file>config/</file>
-    <file>public/</file>
+    <exclude-pattern>config/bootstrap.php</exclude-pattern>
     <file>src/</file>
     <file>tests/</file>
 

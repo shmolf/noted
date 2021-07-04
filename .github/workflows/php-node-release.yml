@@ -1,0 +1,80 @@
+name: Noted Checks & Release
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-php:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install PHP74
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '7.4'
+          extensions: php-xml
+
+      - name: Validate composer.json and composer.lock
+        run: composer validate --strict
+
+      - name: Cache Composer packages
+        id: composer-cache
+        uses: actions/cache@v2
+        with:
+          php-version: '7.4'
+          path: vendor
+          key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-php-
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress
+
+      # Add a test script to composer.json, for instance: "test": "vendor/bin/phpunit"
+      # Docs: https://getcomposer.org/doc/articles/scripts.md
+
+      - name: Run all checks
+        run: composer run-script php-lint
+
+  # Using `check-cache` will ensure the yarn.lock matches installed packages
+  verify-dependencies:
+    needs: build-php
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: 12
+
+      - name: Cache NPM packages
+        id: npm-cache
+        uses: actions/cache@v2
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - run: npx yarn install --check-cache
+
+  release:
+    needs: verify-dependencies
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: 12
+
+      - name: Install NPM Packages
+        if: steps.npm-cache.outputs.cache-hit != 'true'
+        run: npx yarn install --check-cache
+
+      - name: Semantic Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          HUSKY: 0
+        run: npx yarn semantic-release
