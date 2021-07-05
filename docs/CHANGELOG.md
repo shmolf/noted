@@ -1,3 +1,10 @@
+### [1.1.1](https://github.com/shmolf/noted/compare/v1.1.0...v1.1.1) (2021-07-05)
+
+
+### Bug Fixes
+
+* **docker:** consolidate configs into docker files ([8a449c5](https://github.com/shmolf/noted/commit/8a449c53fa4ff4ca67486651c5c2f78ce02d9a5d))
+
 ## [1.1.0](https://github.com/shmolf/noted/compare/v1.0.1...v1.1.0) (2021-07-05)
 
 
