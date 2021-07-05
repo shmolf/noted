@@ -70,7 +70,6 @@
         "eslint-import-resolver-alias": "^1.1.2",
         "eslint-import-resolver-webpack": "^0.13.0",
         "eslint-plugin-import": "^2.22.0",
-        "eslint-plugin-jsdoc": "^30.1.0",
         "husky": "^7.0.0",
         "jshint": "^2.12.0",
         "semantic-release": "^17.4.4",
@@ -85,9 +84,14 @@
         "dev": "encore dev --bail --progress",
         "watch": "encore dev --watch",
         "build": "encore production --bail",
+        "eslint": "eslint -c ./.eslintrc.json ./assets/js",
+        "eslint-quiet": "eslint -c ./.eslintrc.json ./assets/js --quiet",
+        "jshint": "jshint ./assets/js",
         "lint-scss": "stylelint 'assets/css/**/*.scss'",
-        "lint-js": "JSDIR='./assets/js'; eslint -c ./.eslintrc.json $JSDIR && jshint $JSDIR",
-        "lint-js-fix": "eslint -c ./.eslintrc.json ./assets/js --fix"
+        "lint-js": "yarn eslint && jshint $JSDIR",
+        "lint-js-quiet": "yarn eslint-quiet && yarn jshint",
+        "lint-js-fix": "eslint -c ./.eslintrc.json ./assets/js --fix",
+        "lint-all": "yarn run lint-scss && yarn run lint-js"
     },
     "browserslist": [
         "defaults"

@@ -1,15 +1,12 @@
 const buttonCompatibleKeys = [' ', 'Enter'];
 
-export default function MakeClickable(element: HTMLElement) {
+export default function MakeClickable(element: HTMLElement): void {
   const elem = element;
   elem.tabIndex = 0;
   elem.addEventListener('keydown', (e) => eventClick(e));
 }
 
-/**
- * @param {KeyboardEvent} event
- */
-function eventClick(event: KeyboardEvent) {
+function eventClick(event: KeyboardEvent): void {
   if (buttonCompatibleKeys.includes(event.key)) {
     event.preventDefault();
     event.stopPropagation();

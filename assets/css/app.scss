@@ -21,26 +21,29 @@ main {
 nav {
   background: var(--color-5);
 
-  ul a, button, .brand-logo {
-    color: var(--color-2);
-
-    &:hover {
-      background-color: rgba(0, 0, 0, 0.3);
-    }
-  }
-
   .brand-logo {
     flex: 0 0 auto;
     padding-left: 15px;
     padding-right: 15px;
+    color: var(--color-2);
     background: rgba(0, 0, 0, 0);
     transition: background ease-in-out 0.2s;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 
-    &:active, &:hover {
+    &:active,
+    &:hover {
       background: rgba(0, 0, 0, 0.5);
+    }
+  }
+
+  ul a,
+  button {
+    color: var(--color-2);
+
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.3);
     }
   }
 }
@@ -83,7 +86,9 @@ footer.page-footer {
 }
 
 input {
-  &[type="text"]:not(.select-dropdown), &[type="email"], &[type="password"] {
+  &[type="text"]:not(.select-dropdown),
+  &[type="email"],
+  &[type="password"] {
     color: var(--color-2);
   }
 }
