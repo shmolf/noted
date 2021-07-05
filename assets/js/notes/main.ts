@@ -138,17 +138,11 @@ function eventListeners() {
         ch: cmCol += 1,
       },
     );
-    // const state = codeMirrorEditor.state;
-    // const posFrom = posToOffset(state, { line, ch: ++ch });
-    // const posTo = posToOffset(state, { line, ch: ++ch });
-    // codeMirrorEditor.dispatch({
-    //     changes: { from: posFrom, to: posTo, insert: newCheckedText}
-    // });
   });
 
   $(document).on('click', '.note-item', (event) => {
-    const eventUuid = $(event.currentTarget).data('clientUuid');
-    worker?.postMessage(clientActions.GET_BY_CLIENTUUID.f(eventUuid));
+    const eventUuid = $(event.currentTarget).data('uuid');
+    worker?.postMessage(clientActions.GET_BY_UUID.f(eventUuid));
   });
 
   $('#delete-note').on('click', (event) => {
@@ -159,7 +153,7 @@ function eventListeners() {
     }
 
     getNavItem(eventUuid).attr('disabled', 'disabled');
-    worker?.postMessage(clientActions.DEL_BY_CLIENTUUID.f(eventUuid));
+    worker?.postMessage(clientActions.DEL_BY_UUID.f(eventUuid));
   });
 }
 
@@ -306,10 +300,10 @@ function queueNoteSave(markdown: string) {
 
   let title = frontmatterData.title ?? null;
   const note = packageNote(markdown, title);
-  const uuid = note.clientUuid as string;
+  const uuid = note.uuid as string;
 
-  if (!$editor.data('clientUuid')) {
-    $editor.data('clientUuid', uuid);
+  if (!$editor.data('uuid')) {
+    $editor.data({ uuid });
   }
 
   if (uuid in modifiedNotes) {
@@ -353,13 +347,13 @@ function noteIsQueuedForSave(uuid: string): boolean {
  * @param title
  */
 function packageNote(content: string, noteTitle: string|null): NotePackage {
-  let clientUuid = $editor.data('clientUuid') || uuidv4();
-  clientUuid = typeof clientUuid === 'string' ? clientUuid.trim() : null;
+  let uuid = $editor.data('uuid') || uuidv4();
+  uuid = typeof uuid === 'string' ? uuid.trim() : null;
   const title = typeof noteTitle === 'string' ? noteTitle.trim() : '';
   const tags: string[] = [];
 
   return new NotePackage({
-    clientUuid,
+    uuid,
     title,
     content,
     tags,
@@ -379,7 +373,7 @@ function onWorkerMessage(event: MessageEvent) {
         break;
       case workerStates.NOTE_DATA.k: {
         const { data: noteData } = msg;
-        $editor.data('clientUuid', noteData.clientUuid);
+        $editor.data('uuid', noteData.uuid);
         manuallySettingValue = true;
         // codeMirrorEditor.dispatch({
         //     changes: { from: 0, to: codeMirrorEditor.state.doc.length, insert: noteData.content}
@@ -398,14 +392,14 @@ function onWorkerMessage(event: MessageEvent) {
       case workerStates.UPD8_COMP.k: {
         const { data: response } = msg;
 
-        setNavItemSaveState(response.clientUuid, 'save');
-        setTimeout(() => setNavItemSaveState(response.clientUuid, 'default'), 3000);
+        setNavItemSaveState(response.uuid, 'save');
+        setTimeout(() => setNavItemSaveState(response.uuid, 'default'), 3000);
 
-        if (!(noteIsQueuedForSave(response.clientUuid)) && $editor.data('clientUuid') === response.clientUuid) {
+        if (!(noteIsQueuedForSave(response.uuid)) && $editor.data('uuid') === response.uuid) {
           $inputOutput.removeClass('not-saved').addClass('saved');
 
           setTimeout(() => {
-            if (!(noteIsQueuedForSave(response.clientUuid)) && $editor.data('clientUuid') === response.clientUuid) {
+            if (!(noteIsQueuedForSave(response.uuid)) && $editor.data('uuid') === response.uuid) {
               $inputOutput.removeClass('saved');
             }
           }, 3000);

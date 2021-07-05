@@ -22,13 +22,13 @@ class NoteTag
     /**
      * @ORM\Column(type="string", length=255)
      */
-    private $name;
+    private ?string $name = null;
 
     /**
      * @ORM\ManyToOne(targetEntity=UserAccount::class, inversedBy="noteTags")
      * @ORM\JoinColumn(nullable=false)
      */
-    private $userId;
+    private UserAccount $user;
 
     /**
      * @ORM\ManyToMany(targetEntity=MarkdownNote::class, mappedBy="tags")
@@ -57,14 +57,14 @@ class NoteTag
         return $this;
     }
 
-    public function getUserId(): ?UserAccount
+    public function getUser(): ?UserAccount
     {
-        return $this->userId;
+        return $this->user;
     }
 
-    public function setUserId(?UserAccount $userId): self
+    public function setUser(?UserAccount $user): self
     {
-        $this->userId = $userId;
+        $this->user = $user;
 
         return $this;
     }

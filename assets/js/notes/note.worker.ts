@@ -31,12 +31,12 @@ function handleAction(msg: MapStringTo<any>) {
         ModifyNote(noteData);
         break;
       }
-      case clientActions.GET_BY_CLIENTUUID.k: {
+      case clientActions.GET_BY_UUID.k: {
         const { data: reqUuid } = msg;
         GetNoteByUuid(reqUuid);
         break;
       }
-      case clientActions.DEL_BY_CLIENTUUID.k: {
+      case clientActions.DEL_BY_UUID.k: {
         const { data: delUuid } = msg;
         DeleteNoteByUuid(delUuid);
         break;
@@ -80,16 +80,17 @@ function exportNotes(): Promise<any[]> {
 function sendUpsert(note: NotePackage): Promise<any> {
   return new Promise((resolve, reject) => {
     const {
-      clientUuid,
+      uuid,
       title,
       content,
       tags,
       inTrashcan,
       isDeleted,
     } = note.toObj();
+    console.debug(uuid);
 
     axios.put('/🔌/v1/note/upsert', {
-      clientUuid,
+      uuid,
       title,
       content,
       tags,
@@ -104,9 +105,9 @@ function sendUpsert(note: NotePackage): Promise<any> {
 /**
  * @param uuid
  */
-function getFromApiByClientUuid(uuid: string): Promise<Note> {
+function getFromApiByUuid(uuid: string): Promise<Note> {
   return new Promise((resolve, reject) => {
-    axios.get(`/🔌/v1/note/client-uuid/${uuid}`)
+    axios.get(`/🔌/v1/note/uuid/${uuid}`)
       .then((response) => resolve(response.data))
       .catch((error) => reject(error));
   });
@@ -115,9 +116,9 @@ function getFromApiByClientUuid(uuid: string): Promise<Note> {
 /**
  * @param uuid
  */
-function delFromApiByClientUuid(uuid: string): Promise<any> {
+function delFromApiByUuid(uuid: string): Promise<any> {
   return new Promise((resolve, reject) => {
-    axios.delete(`/🔌/v1/note/client-uuid/${uuid}`)
+    axios.delete(`/🔌/v1/note/uuid/${uuid}`)
       .then((response) => resolve(response.data))
       .catch((error) => reject(error));
   });
@@ -129,7 +130,7 @@ function delFromApiByClientUuid(uuid: string): Promise<any> {
 function ModifyNote(note: Note) {
   noteDb
     .modifyRecord(new NotePackage(note))
-    .then((uuid) => noteDb.getRecordByClientUuid(uuid))
+    .then((uuid) => noteDb.getRecordByUuid(uuid))
     .then((records) => records.toArray())
     .then((arr) => sendUpsert(new NotePackage(arr[0])).then((r) => r).catch((e) => console.warn(e)))
     .then((response) => worker.postMessage(workerStates.UPD8_COMP.f(response)))
@@ -141,13 +142,13 @@ function ModifyNote(note: Note) {
  */
 function GetNoteByUuid(uuid: string) {
   noteDb
-    .getRecordByClientUuid(uuid ?? '')
+    .getRecordByUuid(uuid ?? '')
     .then((records) => records.toArray())
     .then((recordsArray) => {
       if (recordsArray.length === 0) {
-        getFromApiByClientUuid(uuid)
+        getFromApiByUuid(uuid)
           .then((note) => noteDb.modifyRecord(new NotePackage(note)))
-          .then(() => noteDb.getRecordByClientUuid(uuid))
+          .then(() => noteDb.getRecordByUuid(uuid))
           .then((records) => records.toArray())
           .then((arr) => worker.postMessage(workerStates.NOTE_DATA.f(new NotePackage(arr[0]))))
           .catch((error) => console.warn(error));
@@ -162,9 +163,9 @@ function GetNoteByUuid(uuid: string) {
  * @param uuid
  */
 function DeleteNoteByUuid(uuid: string) {
-  noteDb.delRecordByClientUuid(uuid)
+  noteDb.delRecordByUuid(uuid)
     .catch((reason) => console.warn(reason))
-    .then(() => delFromApiByClientUuid(uuid))
+    .then(() => delFromApiByUuid(uuid))
     .then(() => worker.postMessage(workerStates.DEL_COMP.f(uuid)))
     .catch((reason) => console.warn(reason));
 }

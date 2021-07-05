@@ -11,7 +11,8 @@ use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use Exception;
 use Ramsey\Uuid\Uuid;
-use shmolf\NotedHydrator\Entity\NoteEntity as ClientNoteEntity;
+use shmolf\NotedHydrator\Entity\NoteEntity as HydratedNote;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @method MarkdownNote|null find($id, $lockMode = null, $lockVersion = null)
@@ -58,43 +59,59 @@ class MarkdownNoteRepository extends ServiceEntityRepository
     }
     */
 
-    public function upsert(ClientNoteEntity $noteData, UserAccount $user): MarkdownNote
+    public function new(UserAccount $user): MarkdownNote
     {
         $entityManager = $this->getEntityManager();
-        $userId = $user->getId();
+        $noteEntity = new MarkdownNote();
 
-        // First, try to fetch by the Host UUID, then the Client Uuid, and finally just create a new one
-        $noteEntity = $this->findOneBy(['userId' => $userId, 'noteUuid' => $noteData->noteUuid])
-            ?? $this->findOneBy(['userId' => $userId, 'clientUuid' => $noteData->clientUuid])
-            ?? new MarkdownNote();
-
-        $noteEntity->setUserId($user);
-        $noteEntity->setTitle($noteData->title);
-        $noteEntity->setContent($noteData->content);
-        $noteEntity->setInTrashcan($noteData->inTrashcan);
-        $noteEntity->setIsDeleted($noteData->isDeleted);
-
-        if ($noteEntity->getNoteUuid() === null) {
-            $noteEntity->setNoteUuid(Uuid::uuid4()->toString());
-        }
-
-        $noteEntity->setClientUuid($noteData->clientUuid ?? $noteEntity->getNoteUuid());
+        $noteEntity->setUser($user);
+        $noteEntity->setInTrashcan(false);
+        $noteEntity->setIsDeleted(false);
+        $noteEntity->setUuid(Uuid::uuid4()->toString());
 
         $now = new DateTime();
         $noteEntity->setLastModified($now);
+        $noteEntity->setCreatedDate($now);
 
-        if ($noteEntity->getCreatedDate() === null) {
-            $noteEntity->setCreatedDate($now);
+        try {
+            $entityManager->persist($noteEntity);
+            $entityManager->flush();
+            $entityManager->clear();
+        } catch (Exception $e) {
+            throw new EntitySaveException(Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
-        $noteEntity->clearTags();
+        return $noteEntity;
+    }
+
+    public function upsert(string $uuid, HydratedNote $noteData, UserAccount $user): MarkdownNote
+    {
+        $entityManager = $this->getEntityManager();
+        $noteEntity = $this->findOneBy(['user' => $user, 'uuid' => $uuid]);
+
+        if ($noteEntity === null) {
+            throw new EntitySaveException(Response::HTTP_NOT_FOUND, var_export([
+                $uuid
+            ], true));
+        }
+
+        $noteEntity
+            ->setTitle($noteData->title)
+            ->setContent($noteData->content)
+            ->setInTrashcan($noteData->inTrashcan)
+            ->setIsDeleted($noteData->isDeleted)
+            ->clearTags()
+            ->setLastModified(new DateTime());
 
         foreach ($noteData->tags as $tag) {
-            $noteTag = $this->noteTagRepo
-                ->findOneBy(['userId' => $userId, 'name' => $tag])
-                ?? new NoteTag();
+            $noteTag = $this->noteTagRepo->findOneBy(['user' => $user, 'name' => $tag]);
+
+            if ($noteTag === null) {
+                $noteTag = new NoteTag();
+                $noteTag->setUser($user);
+            }
+
             $noteTag->addMarkdownNote($noteEntity);
-            $noteTag->setUserId($user);
 
             if ($noteTag->getName() === null) {
                 $noteTag->setName($tag);
@@ -103,7 +120,7 @@ class MarkdownNoteRepository extends ServiceEntityRepository
             try {
                 $entityManager->persist($noteTag);
             } catch (Exception $e) {
-                throw new EntitySaveException(NoteTag::class, $e);
+                throw new EntitySaveException(500, null, $e);
             }
 
             $noteEntity->addTag($noteTag);
@@ -114,19 +131,16 @@ class MarkdownNoteRepository extends ServiceEntityRepository
             $entityManager->flush();
             $entityManager->clear();
         } catch (Exception $e) {
-            throw new EntitySaveException(MarkdownNote::class, $e);
+            throw new EntitySaveException(500, null, $e);
         }
 
         return $noteEntity;
     }
 
-    public function delete(string $clientUuid, UserAccount $user): bool
+    public function delete(string $uuid, UserAccount $user): bool
     {
         $entityManager = $this->getEntityManager();
-        $userId = $user->getId();
-
-        // First, try to fetch by the Host UUID, then the Client Uuid, and finally just create a new one
-        $noteEntity = $this->findOneBy(['userId' => $userId, 'clientUuid' => $clientUuid]);
+        $noteEntity = $this->findOneBy(['user' => $user, 'uuid' => $uuid]);
 
         if ($noteEntity === null) {
             return false;

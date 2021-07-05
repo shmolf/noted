@@ -1,7 +1,7 @@
 import { MapStringTo } from 'JS/types/Generic';
 
 export interface Note extends MapStringTo<any> {
-    clientUuid?: string|null;
+    uuid?: string|null;
     title: string;
     content: string;
     tags: string[];
@@ -9,6 +9,18 @@ export interface Note extends MapStringTo<any> {
     isDeleted?: boolean;
     createdDate?: Date|null;
     lastModified?: Date|null;
+}
+
+export interface NotePackageExport extends MapStringTo<any> {
+    id?: number;
+    uuid?: string;
+    title?: string;
+    content?: string;
+    tags?: string[];
+    inTrashcan?: boolean;
+    isDeleted?: boolean;
+    createdDate?: Date;
+    lastModified?: Date;
 }
 
 export const clientActions = Object.freeze({
@@ -24,13 +36,13 @@ export const clientActions = Object.freeze({
     k: 'recycle',
     f: (uuid: string): string => packAction(clientActions.RECYCLE.k, uuid),
   },
-  GET_BY_CLIENTUUID: {
+  GET_BY_UUID: {
     k: 'retrieveByUuid',
-    f: (uuid: string):string => packAction(clientActions.GET_BY_CLIENTUUID.k, uuid),
+    f: (uuid: string):string => packAction(clientActions.GET_BY_UUID.k, uuid),
   },
-  DEL_BY_CLIENTUUID: {
+  DEL_BY_UUID: {
     k: 'deleteByUuid',
-    f: (uuid: string): string => packAction(clientActions.DEL_BY_CLIENTUUID.k, uuid),
+    f: (uuid: string): string => packAction(clientActions.DEL_BY_UUID.k, uuid),
   },
   EXPORT_NOTES: {
     k: 'exportNotes',
@@ -96,40 +108,20 @@ function stringIt(obj: MapStringTo<any>): string {
   return JSON.stringify(obj);
 }
 
-export interface NotePackageExport extends MapStringTo<any> {
-    id?: number;
-    clientUuid?: string;
-    title?: string;
-    content?: string;
-    tags?: string[];
-    inTrashcan?: boolean;
-    isDeleted?: boolean;
-    createdDate?: Date;
-    lastModified?: Date;
-}
-
 export class NotePackage {
     id: number|null;
-
-    clientUuid: string|null;
-
+    uuid: string|null;
     title: string;
-
     content: string;
-
     tags: string[];
-
     inTrashcan: boolean;
-
     isDeleted: boolean;
-
     createdDate: Date|null;
-
     lastModified: Date|null;
 
     constructor(optionalProperties: Note) {
       this.id = optionalProperties.id ?? null;
-      this.clientUuid = optionalProperties.clientUuid?.trim() || null;
+      this.uuid = optionalProperties.uuid?.trim() || null;
       this.title = optionalProperties.title.trim();
       this.content = optionalProperties.content;
       this.tags = optionalProperties.tags.filter((value, index, self) => self.indexOf(value) === index);
@@ -143,7 +135,7 @@ export class NotePackage {
       const noteObj: NotePackageExport = {};
 
       [
-        'clientUuid',
+        'uuid',
         'title',
         'content',
         'tags',

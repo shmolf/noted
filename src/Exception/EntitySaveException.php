@@ -2,17 +2,19 @@
 
 namespace App\Exception;
 
-use Error;
-use Symfony\Component\HttpFoundation\Response;
+use Exception;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Throwable;
 
-class EntitySaveException extends Error
+class EntitySaveException extends HttpException implements Throwable
 {
-    public function __construct(string $className, Throwable $originalException)
-    {
-        parent::__construct();
-        $this->message = "Error occurred when creating Entity: `{$className}`\n{$originalException->getMessage()}";
-        $this->line = $originalException->getLine();
-        $this->code = Response::HTTP_INTERNAL_SERVER_ERROR;
+    public function __construct(
+        int $statusCode = 500,
+        string $message = null,
+        Exception $previous = null,
+        array $headers = [],
+        ?int $code = 0
+    ) {
+        parent::__construct($statusCode, $message, $previous, $headers, $code);
     }
 }

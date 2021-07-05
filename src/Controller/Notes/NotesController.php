@@ -22,7 +22,7 @@ class NotesController extends AbstractController
         $user = $this->getUser();
         $notes = $this->getDoctrine()
             ->getRepository(MarkdownNote::class)
-            ->findBy(['userId' => $user->getId()], ['lastModified' => 'DESC']);
+            ->findBy(['user' => $user], ['lastModified' => 'DESC']);
 
         $noteList = array_map(function (MarkdownNote $note) {
             return [
@@ -30,7 +30,6 @@ class NotesController extends AbstractController
                 'tags' => array_map(function (NoteTag $tag) {
                         return $tag->getName();
                 }, $note->getTags()->toArray()),
-                'clientUuid' => $note->getClientUuid(),
                 'inTrashcan' => $note->getInTrashcan(),
                 'createdDate' => $note->getCreatedDate(),
                 'lastModified' => $note->getLastModified(),
@@ -40,26 +39,13 @@ class NotesController extends AbstractController
         return new JsonResponse($noteList);
     }
 
-    public function getNoteByClientUuid(string $uuid): JsonResponse
-    {
-        /** @var UserAccount */
-        $user = $this->getUser();
-        $note = $this->getDoctrine()
-            ->getRepository(MarkdownNote::class)
-            ->findOneBy(['userId' => $user->getId(), 'clientUuid' => $uuid]);
-
-        return $this->json($note, 200, [], [
-            'groups' => ['main'],
-        ]);
-    }
-
     public function getNotesForUser(): JsonResponse
     {
         /** @var UserAccount */
         $user = $this->getUser();
         $notes = $this->getDoctrine()
             ->getRepository(MarkdownNote::class)
-            ->findBy(['userId' => $user->getId()]);
+            ->findBy(['user' => $user]);
 
         $jsonResponse = $this->json($notes, 200, [], [
             'groups' => ['main'],
@@ -76,14 +62,41 @@ class NotesController extends AbstractController
         return $jsonResponse;
     }
 
-    public function deleteNoteByClientUuid(string $uuid, MarkdownNoteRepository $repo): JsonResponse
+    public function newNote(MarkdownNoteRepository $repo): JsonResponse
+    {
+        $user = $this->getUser();
+        if (!$user instanceof UserAccount) {
+            throw new Exception('User is not logged in');
+        }
+
+        $noteEntity = $repo->new($user);
+
+        return $this->json($noteEntity, 200, [], [
+            'groups' => ['main'],
+        ]);
+    }
+
+    public function getNoteByUuid(string $uuid): JsonResponse
+    {
+        /** @var UserAccount */
+        $user = $this->getUser();
+        $note = $this->getDoctrine()
+            ->getRepository(MarkdownNote::class)
+            ->findOneBy(['user' => $user, 'uuid' => $uuid]);
+
+        return $this->json($note, 200, [], [
+            'groups' => ['main'],
+        ]);
+    }
+
+    public function deleteNoteByUuid(string $uuid, MarkdownNoteRepository $repo): JsonResponse
     {
         $didDelete = $repo->delete($uuid, $this->getUser());
 
         return new JsonResponse(null, ($didDelete ? 200 : 404));
     }
 
-    public function upsertNote(MarkdownNoteRepository $repo, Request $request): JsonResponse
+    public function upsertNote(string $uuid, MarkdownNoteRepository $repo, Request $request): JsonResponse
     {
         $hydrator = new NoteHydrator();
         $noteJsonString = $request->getContent();
@@ -92,7 +105,7 @@ class NotesController extends AbstractController
             throw new Exception("Could not hydrate note with given JSON:\n{$noteJsonString}");
         }
 
-        $noteEntity = $repo->upsert($note, $this->getUser());
+        $noteEntity = $repo->upsert($uuid, $note, $this->getUser());
 
         return $this->json($noteEntity, 200, [], [
             'groups' => ['main'],

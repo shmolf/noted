@@ -1,5 +1,4 @@
 import Dexie from 'NODE/dexie/dist/dexie';
-import { v4 as uuidv4 } from 'uuid';
 // eslint-disable-next-line import/extensions
 import { Note, NotePackage } from './worker-client-api';
 
@@ -11,7 +10,7 @@ export const NOTE_ACTIONS = Object.freeze({ update: 'update', delete: 'delete' }
 
 export interface DexieNote extends Note {
     id?: number;
-    clientUuid: string|null;
+    uuid: string|null;
     title: string;
     content: string;
     tags: string[];
@@ -25,7 +24,7 @@ let noteTable: Dexie.Table<DexieNote>|null = null;
 
 const schema = {
   id: 'id',
-  clientUuid: 'clientUuid',
+  uuid: 'uuid',
   title: 'title',
   content: 'content',
   tags: 'tags',
@@ -53,6 +52,17 @@ function buildDb(): Promise<Dexie> {
       // eslint-disable-next-line no-param-reassign
       transactions.notes.toCollection().modify((note) => { delete note.opened; delete note.synced; });
     });
+    db.version(3).stores({
+      // No change in indexes
+      notes: '++id, &uuid, title, content, *tags, lastSynced',
+    }).upgrade((transactions) => {
+      // Since the property id dynamic. Might needs to create a custom interface
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      // eslint-disable-next-line no-param-reassign
+      transactions.notes.toCollection().modify((note) => {
+        note.uuid = note.clientUuid; delete note.clientUuid; });
+    });
 
     return db.open()
       .then((dbInstance) => {
@@ -63,19 +73,16 @@ function buildDb(): Promise<Dexie> {
   });
 }
 
-/**
- * @param note
- */
 function modifyRecord(note: NotePackage): Promise<string> {
   return new Promise((resolve, reject) => {
-    const uuid = String(note.clientUuid ?? '').length === 0 ? null : (note.clientUuid as string).trim();
+    const uuid = String(note.uuid ?? '').length === 0 ? null : (note.uuid as string).trim();
 
     if (uuid === null) {
       // `ClientUUID` is being 🔪, so for now, ignore the error
       // eslint-disable-next-line no-shadow
       createNewRecord(note).then((uuid) => resolve(uuid));
     } else {
-      getRecordByClientUuid(uuid)
+      getRecordByUuid(uuid)
         .then((records) => {
           records.toArray()
             .then((arr) => {
@@ -96,20 +103,19 @@ function modifyRecord(note: NotePackage): Promise<string> {
   });
 }
 
-/**
- * @param note
- */
 function createNewRecord(note: Note): Promise<string> {
   return new Promise((resolve, reject) => {
     getTable()
       .then((table) => {
-        const uuid = note.clientUuid ?? uuidv4();
+        const uuid = note.uuid;
+        if (uuid === null || uuid === undefined) throw new Error('UUID does not exist');
+
         table
           .add({
             title: note.title || '',
             content: note.content || '',
             tags: note.tags || [],
-            clientUuid: uuid,
+            uuid,
             inTrashcan: false,
             isDeleted: false,
             createdDate: null,
@@ -121,36 +127,27 @@ function createNewRecord(note: Note): Promise<string> {
   });
 }
 
-/**
- * @param notes
- */
 function syncRecords(notes: NotePackage[]) {
   // Need to do a bulk update using Dexie.
 }
 
-/**
- * @param uuid
- */
-function getRecordByClientUuid(uuid: string): Promise<Dexie.Collection<DexieNote, any>> {
+function getRecordByUuid(uuid: string): Promise<Dexie.Collection<DexieNote, any>> {
   return new Promise((resolve, reject) => {
     getTable()
-      .then((table) => table.where(schema.clientUuid).equals(uuid))
+      .then((table) => table.where(schema.uuid).equals(uuid))
       .then((records) => resolve(records))
       .catch((reason) => reject(reason));
   });
 }
 
-/**
- * @param uuid
- */
-function delRecordByClientUuid(uuid: string): Promise<void|null> {
+function delRecordByUuid(uuid: string): Promise<void|null> {
   return new Promise((resolve, reject) => {
     if (uuid.trim().length === 0) {
       resolve(null);
     }
 
     getTable()
-      .then((table) => ({ table, records: table.where(schema.clientUuid).equals(uuid) }))
+      .then((table) => ({ table, records: table.where(schema.uuid).equals(uuid) }))
       .then((data) => {
         const { table, records } = data;
         records.toArray()
@@ -162,9 +159,6 @@ function delRecordByClientUuid(uuid: string): Promise<void|null> {
   });
 }
 
-/**
- * @param id
- */
 function getRecordById(id: number): Promise<Dexie.Collection<any, any>> {
   return new Promise((resolve, reject) => {
     if (typeof id !== 'number' || id <= 0) {
@@ -178,9 +172,6 @@ function getRecordById(id: number): Promise<Dexie.Collection<any, any>> {
   });
 }
 
-/**
- *
- */
 function getTable(): Promise<Dexie.Table<DexieNote>> {
   return new Promise((resolve, reject) => {
     if (noteTable !== null) {
@@ -191,10 +182,6 @@ function getTable(): Promise<Dexie.Table<DexieNote>> {
   });
 }
 
-/**
- * @param action
- * @param data
- */
 function packet(action: any, data: any) {
   return JSON.stringify({
     action,
@@ -204,8 +191,8 @@ function packet(action: any, data: any) {
 
 export default {
   buildDb,
-  getRecordByClientUuid,
-  delRecordByClientUuid,
+  getRecordByUuid: getRecordByUuid,
+  delRecordByUuid: delRecordByUuid,
   getRecordById,
   modifyRecord,
   syncRecords,
