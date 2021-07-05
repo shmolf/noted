@@ -1,3 +1,15 @@
+## [1.1.0](https://github.com/shmolf/noted/compare/v1.0.1...v1.1.0) (2021-07-05)
+
+
+### Features
+
+* **docker:** create docker configs ([05dea9f](https://github.com/shmolf/noted/commit/05dea9f72821fb38c292e93bae812e7a9ce8b9fc))
+
+
+### Bug Fixes
+
+* see description ([dc84117](https://github.com/shmolf/noted/commit/dc8411795a8e8ec583e9747526ce17314be729e2))
+
 ### [1.0.1](https://github.com/shmolf/noted/compare/v1.0.0...v1.0.1) (2021-07-04)
 
 
