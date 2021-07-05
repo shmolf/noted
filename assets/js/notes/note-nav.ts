@@ -2,18 +2,18 @@ import $ from 'jquery';
 import { DateTime } from 'JS/types/Api';
 
 interface NoteListItem {
-    title: string,
-    tags: string[],
-    uuid: string,
-    inTrashcan: string,
-    createdDate: DateTime,
-    lastModified: DateTime,
+  title: string,
+  tags: string[],
+  uuid: string,
+  inTrashcan: string,
+  createdDate: DateTime,
+  lastModified: DateTime,
 }
 
 export interface saveStates {
-    save: string,
-    inProgress: string,
-    default: string,
+  save: string,
+  inProgress: string,
+  default: string,
 }
 
 let $noteListNav: JQuery;

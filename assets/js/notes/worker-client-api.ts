@@ -109,49 +109,49 @@ function stringIt(obj: MapStringTo<any>): string {
 }
 
 export class NotePackage {
-    id: number|null;
-    uuid: string|null;
-    title: string;
-    content: string;
-    tags: string[];
-    inTrashcan: boolean;
-    isDeleted: boolean;
-    createdDate: Date|null;
-    lastModified: Date|null;
+  id: number|null;
+  uuid: string|null;
+  title: string;
+  content: string;
+  tags: string[];
+  inTrashcan: boolean;
+  isDeleted: boolean;
+  createdDate: Date|null;
+  lastModified: Date|null;
 
-    constructor(optionalProperties: Note) {
-      this.id = optionalProperties.id ?? null;
-      this.uuid = optionalProperties.uuid?.trim() || null;
-      this.title = optionalProperties.title.trim();
-      this.content = optionalProperties.content;
-      this.tags = optionalProperties.tags.filter((value, index, self) => self.indexOf(value) === index);
-      this.inTrashcan = optionalProperties.inTrashcan ?? false;
-      this.isDeleted = optionalProperties.isDeleted ?? false;
-      this.createdDate = optionalProperties.createdDate ?? null;
-      this.lastModified = optionalProperties.lastModified ?? null;
-    }
+  constructor(optionalProperties: Note) {
+    this.id = optionalProperties.id ?? null;
+    this.uuid = optionalProperties.uuid?.trim() || null;
+    this.title = optionalProperties.title.trim();
+    this.content = optionalProperties.content;
+    this.tags = optionalProperties.tags.filter((value, index, self) => self.indexOf(value) === index);
+    this.inTrashcan = optionalProperties.inTrashcan ?? false;
+    this.isDeleted = optionalProperties.isDeleted ?? false;
+    this.createdDate = optionalProperties.createdDate ?? null;
+    this.lastModified = optionalProperties.lastModified ?? null;
+  }
 
-    public toObj(): NotePackageExport {
-      const noteObj: NotePackageExport = {};
+  public toObj(): NotePackageExport {
+    const noteObj: NotePackageExport = {};
 
-      [
-        'uuid',
-        'title',
-        'content',
-        'tags',
-        'inTrashcan',
-        'isDeleted',
-        'createdDate',
-        'lastModified',
-      ].forEach((prop: string) => {
-        const value = this.getProperty(prop as keyof this);
-        if (value !== undefined) noteObj[prop] = value;
-      });
+    [
+      'uuid',
+      'title',
+      'content',
+      'tags',
+      'inTrashcan',
+      'isDeleted',
+      'createdDate',
+      'lastModified',
+    ].forEach((prop: string) => {
+      const value = this.getProperty(prop as keyof this);
+      if (value !== undefined) noteObj[prop] = value;
+    });
 
-      return noteObj;
-    }
+    return noteObj;
+  }
 
-    private getProperty<K extends keyof this>(propertyName: K): this[K]|undefined {
-      return this[propertyName] ?? undefined;
-    }
+  private getProperty<K extends keyof this>(propertyName: K): this[K]|undefined {
+    return this[propertyName] ?? undefined;
+  }
 }
