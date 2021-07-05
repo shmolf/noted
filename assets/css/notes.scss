@@ -15,22 +15,19 @@
   --note-color-4-mid: #9e2a2b;
   --note-color-5-mid: #540b0e;
   --counter-tone-mid: #00ffa1;
-  --note-color-1-dark: #69306D;
-  --note-color-2-dark: #A4243B;
-  --note-color-3-dark: #D8973C;
-  --note-color-4-dark: #368F8B;
-  --note-color-5-dark: #5E3023;
+  --note-color-1-dark: #69306d;
+  --note-color-2-dark: #a4243b;
+  --note-color-3-dark: #d8973c;
+  --note-color-4-dark: #368f8b;
+  --note-color-5-dark: #5e3023;
   --counter-tone-dark: #b9b9b9;
-
   --note-color-1: var(--note-color-1-light);
   --note-color-2: var(--note-color-2-light);
   --note-color-3: var(--note-color-3-light);
   --note-color-4: var(--note-color-4-light);
   --note-color-5: var(--note-color-5-light);
-
   --counter-tone: var(--counter-tone-light);
   --translucent: #909090b0;
-
   --chart-background: #ffffffc4;
   --page-background: var(--note-color-5);
 }
@@ -57,7 +54,6 @@ body {
     --note-color-4: var(--note-color-4-mid);
     --note-color-5: var(--note-color-5-mid);
     --counter-tone: var(--counter-tone-mid);
-
     --chart-background: #ffffff78;
   }
 
@@ -68,7 +64,6 @@ body {
     --note-color-4: var(--note-color-4-dark);
     --note-color-5: var(--note-color-5-dark);
     --counter-tone: var(--counter-tone-dark);
-
     --chart-background: #ffffff78;
   }
 }
@@ -81,7 +76,6 @@ body {
     --note-color-4: var(--note-color-4-light);
     --note-color-5: var(--note-color-5-light);
     --counter-tone: var(--counter-tone-light);
-
     --chart-background: #ffffff78;
   }
 }
@@ -94,17 +88,20 @@ body {
     --note-color-4: var(--note-color-4-dark);
     --note-color-5: var(--note-color-5-dark);
     --counter-tone: var(--counter-tone-dark);
-
     --chart-background: #ffffff78;
   }
 }
 
-nav .brand-logo, code {
+nav .brand-logo,
+code {
   font-family: 'Fira Code', monospace;
 }
 
 @supports (font-variation-settings: normal) {
-  nav .brand-logo, code { font-family: 'Fira Code VF', monospace; }
+  nav .brand-logo,
+  code {
+    font-family: 'Fira Code VF', monospace;
+  }
 }
 
 .emoji {
@@ -138,6 +135,32 @@ main {
       display: flex;
       flex-direction: column;
     }
+
+    #note-item-template {
+      display: none;
+    }
+
+    .note-item {
+      background-color: var(--page-notenav-item-bground);
+      color: var(--page-notenav-item-color);
+      color: var(--counter-tone);
+      border-left: solid 3px transparent;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+
+      &.not-saved {
+        border-color: #ffe45d;
+      }
+
+      &.saved {
+        border-color: #5dff8f;
+      }
+
+      &:not(:last-of-type) {
+        margin-bottom: 5px;
+      }
+    }
   }
 
   #noted {
@@ -150,7 +173,8 @@ main {
       overflow: hidden;
     }
 
-    #input-wrap, #output-wrap {
+    #input-wrap,
+    #output-wrap {
       flex: 1 0 0;
       display: flex;
       width: 100%;
@@ -161,6 +185,7 @@ main {
       &.not-saved {
         border-left-color: #ffe45d;
       }
+
       &.saved {
         border-left-color: #5dff8f;
       }
@@ -189,7 +214,8 @@ main {
   }
 }
 
-.CodeMirror-wrap, #markdown-output {
+.CodeMirror-wrap,
+#markdown-output {
   width: 100%;
   height: 100%;
   display: flex;
@@ -210,43 +236,17 @@ main {
   [type^="apex"] {
     background-color: var(--chart-background);
   }
-
+  /* stylelint-disable no-descending-specificity */
   :not(pre) > code {
     border: solid 1px var(--counter-tone);
     border-radius: 5px;
   }
+  /* stylelint-enable no-descending-specificity */
 
   .task-list-item-checkbox {
     position: relative;
     opacity: 1;
     pointer-events: auto;
-  }
-}
-
-#note-navigation {
-  #note-item-template {
-    display: none;
-  }
-
-  .note-item {
-    background-color: var(--page-notenav-item-bground);
-    color: var(--page-notenav-item-color);
-    color: var(--counter-tone);
-    border-left: solid 3px transparent;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    overflow: hidden;
-
-    &.not-saved {
-      border-color: #ffe45d;
-    }
-    &.saved {
-      border-color: #5dff8f;
-    }
-
-    &:not(:last-of-type) {
-      margin-bottom: 5px;
-    }
   }
 }
 
@@ -270,7 +270,8 @@ main {
         padding: 5px;
       }
 
-      #input-wrap, #output-wrap {
+      #input-wrap,
+      #output-wrap {
         border: none;
 
         &:not(.expanded) {
@@ -284,8 +285,8 @@ main {
 
 #note-menu {
   display: block;
-  background-color: var(--note-color-5);;
-  padding: 10px 0px;
+  background-color: var(--note-color-5);
+  padding: 10px 0;
   border-radius: 5px;
   position: absolute;
   transform-origin: center;

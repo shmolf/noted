@@ -9,15 +9,12 @@ $images-dir: '../images/';
     -webkit-filter: drop-shadow(0 0 0 #222);
     filter: drop-shadow(0 0 0 #222);
     transition: filter 0.1s ease-in-out, -webkit-filter 0.1s ease-in-out;
+    max-width: 100%;
   }
 
   &:focus img,
   &:hover img {
     -webkit-filter: drop-shadow(0 0 5px #222);
     filter: drop-shadow(0 0 5px #222);
-  }
-
-  img {
-    max-width: 100%;
   }
 }

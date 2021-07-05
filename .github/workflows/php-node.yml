@@ -33,14 +33,10 @@ jobs:
       - name: Install dependencies
         run: composer install --prefer-dist --no-progress
 
-      # Add a test script to composer.json, for instance: "test": "vendor/bin/phpunit"
-      # Docs: https://getcomposer.org/doc/articles/scripts.md
-
       - name: Run all checks
         run: composer run-script php-lint
 
-  # Using `check-cache` will ensure the yarn.lock matches installed packages
-  verify-dependencies:
+  cache-node-dependencies:
     needs: build-php
     runs-on: ubuntu-latest
     steps:
@@ -59,3 +55,19 @@ jobs:
             ${{ runner.os }}-node-
 
       - run: npx yarn install --check-cache
+
+  asset-linting:
+    needs: cache-node-dependencies
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: 12
+
+      - name: Install NPM Packages
+        if: steps.npm-cache.outputs.cache-hit != 'true'
+        run: npx yarn install --check-cache
+
+      - name: Linting
+        run: npx yarn run lint-all

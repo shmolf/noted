@@ -1,3 +1,4 @@
+/* eslint-disable */
 import 'NODE/codemirror/theme/3024-day.css';
 import 'NODE/codemirror/theme/3024-night.css';
 import 'NODE/codemirror/theme/abcdef.css';
@@ -83,66 +84,68 @@ import { rust } from '@codemirror/lang-rust';
 import { sql } from '@codemirror/lang-sql';
 import { xml } from '@codemirror/lang-xml';
 
-// Not sure how to use these
-import { GFM, Emoji } from 'NODE/lezer-markdown/src/index';
-
 const state = EditorState.create({
-    extensions: [
-        basicSetup,
-        (new Compartment()).of(EditorView.lineWrapping),
-        (new Compartment()).of(cpp()),
-        (new Compartment()).of(css()),
-        (new Compartment()).of(html()),
-        (new Compartment()).of(java()),
-        (new Compartment()).of(javascript({jsx: true, typescript: true})),
-        (new Compartment()).of(json()),
-        (new Compartment()).of(python()),
-        (new Compartment()).of(rust()),
-        (new Compartment()).of(sql()),
-        (new Compartment()).of(xml()),
-        (new Compartment()).of(lezer()),
-        (new Compartment()).of(markdown()),
-        // EditorView.updateListener.of(({ docChanged, state }) => {
-        //     const editable = (new Compartment()).get(state);
-
-        //     if (
-        //         state.facet(editable.facet)
-        //     ) {
-        //         handler(state.doc.toJSON().join(state.lineBreak))
-        //     }
-        // })
-    ],
+  extensions: [
+    basicSetup,
+    (new Compartment()).of(EditorView.lineWrapping),
+    (new Compartment()).of(cpp()),
+    (new Compartment()).of(css()),
+    (new Compartment()).of(html()),
+    (new Compartment()).of(java()),
+    (new Compartment()).of(javascript({ jsx: true, typescript: true })),
+    (new Compartment()).of(json()),
+    (new Compartment()).of(python()),
+    (new Compartment()).of(rust()),
+    (new Compartment()).of(sql()),
+    (new Compartment()).of(xml()),
+    (new Compartment()).of(lezer()),
+    (new Compartment()).of(markdown()),
+  ],
 });
 
+/**
+ * @param handler
+ */
 function createChangeListener(handler: (markdown: string) => void): EditorState {
-    return EditorState.create({
-        extensions: [
-            EditorView.updateListener.of(({ docChanged, state }) => {
-                const editable = (new Compartment()).get(state);
+  return EditorState.create({
+    extensions: [
+      EditorView.updateListener.of(({ docChanged, state }) => {
+        const editable = (new Compartment()).get(state);
 
-                if (editable !== undefined && docChanged) {
-                    handler(state.doc.toJSON().join(state.lineBreak));
-                }
-            })
-        ],
-    });
+        if (editable !== undefined && docChanged) {
+          handler(state.doc.toJSON().join(state.lineBreak));
+        }
+      }),
+    ],
+  });
 }
 
+/**
+ * @param element
+ */
 function init(element: HTMLElement): EditorView {
-    const view = new EditorView({
-        state,
-        parent: element,
-    });
-    return view;
+  const view = new EditorView({
+    state,
+    parent: element,
+  });
+  return view;
 }
 
+/**
+ * @param state
+ * @param pos
+ */
 function posToOffset(state: EditorState, pos: CmPosition) {
-    return state.doc.line(pos.line + 1).from + pos.ch;
+  return state.doc.line(pos.line + 1).from + pos.ch;
 }
 
+/**
+ * @param state
+ * @param offset
+ */
 function offsetToPos(state: EditorState, offset: number): CmPosition {
-    let line = state.doc.lineAt(offset);
-    return { line: line.number - 1, ch: offset - line.from };
+  const line = state.doc.lineAt(offset);
+  return { line: line.number - 1, ch: offset - line.from };
 }
 
 interface CmPosition {
@@ -150,4 +153,6 @@ interface CmPosition {
     ch: number, // offset - line.from
 }
 
-export { EditorView, init, posToOffset, offsetToPos, createChangeListener };
+export {
+  EditorView, init, posToOffset, offsetToPos, createChangeListener,
+};

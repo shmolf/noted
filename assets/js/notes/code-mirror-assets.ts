@@ -1,3 +1,4 @@
+/* eslint-disable */
 import 'NODE/codemirror/theme/3024-day.css';
 import 'NODE/codemirror/theme/3024-night.css';
 import 'NODE/codemirror/theme/abcdef.css';

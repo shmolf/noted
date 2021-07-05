@@ -1,1 +1,1 @@
-interface MapStringTo<T> { [key:string]:T; }
+export interface MapStringTo<T> { [key:string]:T; }
