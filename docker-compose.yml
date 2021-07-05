@@ -60,7 +60,7 @@ services:
       '--character-set-server=utf8mb4'
     ]
     volumes:
-      - noted-app-storage:/var/lib/mysql
+      - noted-app:/var/lib/mysql
     hostname: mysql-container
     ports:
       - "${DB_PORT}:3306"
@@ -77,4 +77,4 @@ networks:
     driver: "bridge"
 
 volumes:
-  noted-app-storage:
+  noted-app:
