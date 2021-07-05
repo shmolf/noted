@@ -15,6 +15,7 @@ services:
       - noted-net
     depends_on:
       - php
+      - node
 
   php:
     container_name: noted-php
@@ -33,59 +34,21 @@ services:
       - noted-net
     depends_on:
       - database
-      - composer
-
     # make 'database' a known service/host inside of 'php'
-    # use this to make a mysql connection to host 'database'
     links:
       - database
 
-  php-doctrine-migrate:
-    container_name: noted-php-doctrine-mig
-    image: shmolf/php-fpm:latest
+  node:
+    container_name: noted-node
+    build:
+      context: ./docker/node
+      dockerfile: Dockerfile
+    image: shmolf/node:latest
     volumes:
       - ${APP_PATH}:${DOCUMENT_ROOT}
     working_dir: ${DOCUMENT_ROOT}
     environment:
-      - DATABASE_URL=${SYMFONY_DB_URL}
-      - DATABASE_VERSION=${SYMFONY_DB_VERSION}
-    networks:
-      - noted-net
-    depends_on:
-      - database
-      - composer
-    links:
-      - database
-    command: bin/console doctrine:migrations:migrate --no-interaction --allow-no-migration
-
-  node-base:
-    container_name: noted-node-base
-    image: node:lts-alpine3.13
-    environment:
       - NODE_ENV=${NODE_ENV}
-    volumes:
-      - ${APP_PATH}:/app
-    working_dir: /app
-  node-install:
-    container_name: noted-node-install
-    extends:
-      service: node-base
-    command: npx yarn install
-  node-build:
-    container_name: noted-node-build
-    extends:
-      service: node-base
-    depends_on:
-      - node-install
-    command: npx yarn run dev
-
-  composer:
-    image: composer:2.1.3
-    container_name: noted-composer
-    command: 'composer install'
-    volumes:
-      # We map to `/app`, because that's the default dir for docker image
-      - ${APP_PATH}:/app
 
   database:
     container_name: noted-database
