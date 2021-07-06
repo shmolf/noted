@@ -1,7 +1,7 @@
 import $ from 'jquery';
 import M from 'materialize-css';
-import 'CSS/users/admin.css';
-import { DateTime } from 'JS/types/Api';
+import 'STYLES/users/admin.css';
+import { DateTime } from 'SCRIPTS/types/Api';
 
 let $editUserModal:JQuery;
 let $editRoleChips:JQuery;

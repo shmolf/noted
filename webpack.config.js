@@ -17,8 +17,8 @@ Encore
     //.setManifestKeyPrefix('build/')
 
     .addAliases({
-      JS: path.resolve(__dirname, './assets/js/'),
-      CSS: path.resolve(__dirname, './assets/css/'),
+      SCRIPTS: path.resolve(__dirname, './assets/scripts/'),
+      STYLES: path.resolve(__dirname, './assets/styles/'),
       NODE: path.resolve(__dirname, './node_modules/'),
       Images: path.resolve(__dirname, './assets/images/')
     })
@@ -38,14 +38,14 @@ Encore
      * Each entry will result in one JavaScript file (e.g. app.js)
      * and one CSS file (e.g. app.css) if your JavaScript imports CSS.
      */
-    .addEntry('app', './assets/js/app.ts')
-    .addEntry('welcome', './assets/js/welcome.ts')
-    .addEntry('notes', './assets/js/notes/main.ts')
-    .addEntry('user-admin', './assets/js/users/admin.ts')
-    .addEntry('user-create', './assets/js/users/create.ts')
-    .addEntry('user-login', './assets/js/users/login.ts')
-    .addEntry('user-edit', './assets/js/users/edit.ts')
-    .addEntry('forgot-request', './assets/js/password/forgot-request.ts')
+    .addEntry('app', './assets/scripts/app.ts')
+    .addEntry('welcome', './assets/scripts/welcome.ts')
+    .addEntry('notes', './assets/scripts/notes/main.ts')
+    .addEntry('user-admin', './assets/scripts/users/admin.ts')
+    .addEntry('user-create', './assets/scripts/users/create.ts')
+    .addEntry('user-login', './assets/scripts/users/login.ts')
+    .addEntry('user-edit', './assets/scripts/users/edit.ts')
+    .addEntry('forgot-request', './assets/scripts/password/forgot-request.ts')
 
     // When enabled, Webpack "splits" your files into smaller pieces for greater optimization.
     .splitEntryChunks()

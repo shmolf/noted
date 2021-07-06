@@ -1,5 +1,5 @@
 import $ from 'jquery';
-import { DateTime } from 'JS/types/Api';
+import { DateTime } from 'SCRIPTS/types/Api';
 
 interface NoteListItem {
   title: string,

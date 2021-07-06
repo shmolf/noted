@@ -1,4 +1,4 @@
-import { MapStringTo } from 'JS/types/Generic';
+import { MapStringTo } from 'SCRIPTS/types/Generic';
 
 export interface Note extends MapStringTo<any> {
     uuid: string;

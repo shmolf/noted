@@ -13,3 +13,7 @@ textarea.materialize-textarea {
   }
 }
 /* stylelint-enable no-descending-specificity */
+
+table.striped > tbody > tr:nth-child(odd) a {
+  color: darkblue;
+}

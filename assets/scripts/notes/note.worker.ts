@@ -1,8 +1,8 @@
 import {
   workerStates, clientActions, NotePackage, Note,
-} from 'JS/notes/worker-client-api';
+} from 'SCRIPTS/notes/worker-client-api';
 import axios from 'axios';
-import { MapStringTo } from 'JS/types/Generic';
+import { MapStringTo } from 'SCRIPTS/types/Generic';
 
 // eslint-disable-next-line no-restricted-globals
 const worker:Worker = self as any;

@@ -1,17 +1,17 @@
 import $ from 'jquery';
 import M from 'materialize-css';
-import 'CSS/notes.scss';
+import 'STYLES/notes.scss';
 
-import { MapStringTo } from 'JS/types/Generic';
-import { workerStates, clientActions, NotePackage } from 'JS/notes/worker-client-api';
-import { initMarkdownIt, renderMarkdown } from 'JS/notes/markdown-output';
+import { MapStringTo } from 'SCRIPTS/types/Generic';
+import { workerStates, clientActions, NotePackage } from 'SCRIPTS/notes/worker-client-api';
+import { initMarkdownIt, renderMarkdown } from 'SCRIPTS/notes/markdown-output';
 import {
   initNoteNav, renderNoteList, getNavItem, setNavItemSaveState, setNavItemTitle,
-} from 'JS/notes/note-nav';
+} from 'SCRIPTS/notes/note-nav';
 import FileDownload from 'js-file-download';
 // eslint-disable-next-line import/no-webpack-loader-syntax
 import Worker from 'worker-loader!./note.worker';
-import Cookies from 'JS/lib/cookie';
+import Cookies from 'SCRIPTS/lib/cookie';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import CodeMirror from 'codemirror';
@@ -20,7 +20,7 @@ import sample from './sample.md';
 // Library for the input side
 // eslint-disable-next-line import/extensions
 import CM from './code-mirror-assets';
-import { removeSpinner, showSpinner } from 'JS/lib/loading-spinner';
+import { removeSpinner, showSpinner } from 'SCRIPTS/lib/loading-spinner';
 // import { EditorView, init as initEdit, posToOffset, offsetToPos, createChangeListener } from './code-mirror-assets';
 // import { ViewUpdate } from '@codemirror/view';
 
