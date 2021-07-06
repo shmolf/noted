@@ -59,15 +59,18 @@ class MarkdownNoteRepository extends ServiceEntityRepository
     }
     */
 
-    public function new(UserAccount $user): MarkdownNote
+    public function newNote(UserAccount $user): MarkdownNote
     {
         $entityManager = $this->getEntityManager();
         $noteEntity = new MarkdownNote();
 
-        $noteEntity->setUser($user);
-        $noteEntity->setInTrashcan(false);
-        $noteEntity->setIsDeleted(false);
-        $noteEntity->setUuid(Uuid::uuid4()->toString());
+        $noteEntity
+            ->setUser($user)
+            ->setContent('')
+            ->setTitle('')
+            ->setInTrashcan(false)
+            ->setIsDeleted(false)
+            ->setUuid(Uuid::uuid4()->toString());
 
         $now = new DateTime();
         $noteEntity->setLastModified($now);
@@ -78,7 +81,7 @@ class MarkdownNoteRepository extends ServiceEntityRepository
             $entityManager->flush();
             $entityManager->clear();
         } catch (Exception $e) {
-            throw new EntitySaveException(Response::HTTP_INTERNAL_SERVER_ERROR);
+            throw new EntitySaveException(Response::HTTP_INTERNAL_SERVER_ERROR, 'In the Repo', $e);
         }
 
         return $noteEntity;

@@ -1,7 +1,7 @@
 import { MapStringTo } from 'JS/types/Generic';
 
 export interface Note extends MapStringTo<any> {
-    uuid?: string|null;
+    uuid: string;
     title: string;
     content: string;
     tags: string[];
@@ -11,8 +11,10 @@ export interface Note extends MapStringTo<any> {
     lastModified?: Date|null;
 }
 
+/**
+ * This interface is used to build up an initialized empty object literal.
+ */
 export interface NotePackageExport extends MapStringTo<any> {
-    id?: number;
     uuid?: string;
     title?: string;
     content?: string;
@@ -27,6 +29,10 @@ export const clientActions = Object.freeze({
   GET_LIST: {
     k: 'getNoteList',
     f: (): string => packAction(clientActions.GET_LIST.k),
+  },
+  NEW_NOTE: {
+    k: 'newNote',
+    f: (): string => packAction(clientActions.NEW_NOTE.k),
   },
   MODIFY: {
     k: 'modify',
@@ -71,6 +77,10 @@ export const workerStates = Object.freeze({
     k: 'note-data',
     f: (note: NotePackage): string => packState(workerStates.NOTE_DATA.k, note),
   },
+  NEW_NOTE_READY: {
+    k: 'new-note-ready',
+    f: (response: any): string => packState(workerStates.NEW_NOTE_READY.k, response),
+  },
   UPD8_COMP: {
     k: 'note-updated',
     f: (response: any): string => packState(workerStates.UPD8_COMP.k, response),
@@ -109,8 +119,7 @@ function stringIt(obj: MapStringTo<any>): string {
 }
 
 export class NotePackage {
-  id: number|null;
-  uuid: string|null;
+  uuid: string;
   title: string;
   content: string;
   tags: string[];
@@ -120,10 +129,9 @@ export class NotePackage {
   lastModified: Date|null;
 
   constructor(optionalProperties: Note) {
-    this.id = optionalProperties.id ?? null;
-    this.uuid = optionalProperties.uuid?.trim() || null;
-    this.title = optionalProperties.title.trim();
-    this.content = optionalProperties.content;
+    this.uuid = optionalProperties.uuid.trim();
+    this.title = optionalProperties.title.trim() || '';
+    this.content = optionalProperties.content || '';
     this.tags = optionalProperties.tags.filter((value, index, self) => self.indexOf(value) === index);
     this.inTrashcan = optionalProperties.inTrashcan ?? false;
     this.isDeleted = optionalProperties.isDeleted ?? false;

@@ -8,8 +8,6 @@ import { MapStringTo } from 'JS/types/Generic';
 const worker:Worker = self as any;
 
 (() => {
-  // Keep this around till at least the end of Aug 2021, to be sure all client local storage is cleared.
-  localStorage.clear();
   worker.onmessage = (e) => {
     const msg = JSON.parse(e.data);
 
@@ -24,14 +22,18 @@ const worker:Worker = self as any;
 function handleAction(msg: MapStringTo<any>) {
   if ('action' in msg) {
     switch (msg.action) {
+      case clientActions.NEW_NOTE.k: {
+        NewNote();
+        break;
+      }
       case clientActions.MODIFY.k: {
         const { data: noteData } = msg;
         ModifyNote(noteData);
         break;
       }
       case clientActions.GET_BY_UUID.k: {
-        const { data: reqUuid } = msg;
-        GetNoteByUuid(reqUuid);
+        const { data: uuid } = msg;
+        GetNoteByUuid(uuid);
         break;
       }
       case clientActions.DEL_BY_UUID.k: {
@@ -66,6 +68,14 @@ function exportNotes(): Promise<any[]> {
   });
 }
 
+function sendNewNoteRequest(): Promise<any> {
+  return new Promise((resolve, reject) => {
+    axios.post('/🔌/v1/note/new')
+      .then((response) => resolve(response.data))
+      .catch((error) => reject(error));
+  });
+}
+
 function sendUpsert(note: NotePackage): Promise<any> {
   return new Promise((resolve, reject) => {
     const {
@@ -76,9 +86,8 @@ function sendUpsert(note: NotePackage): Promise<any> {
       inTrashcan,
       isDeleted,
     } = note.toObj();
-    console.debug(uuid);
 
-    axios.put('/🔌/v1/note/upsert', {
+    axios.put(`/🔌/v1/note/uuid/${uuid}`, {
       uuid,
       title,
       content,
@@ -105,6 +114,13 @@ function delFromApiByUuid(uuid: string): Promise<any> {
       .then((response) => resolve(response.data))
       .catch((error) => reject(error));
   });
+}
+
+function NewNote() {
+  sendNewNoteRequest()
+    .then((r) => r).catch((e) => console.warn(e))
+    .then((response) => worker.postMessage(workerStates.NEW_NOTE_READY.f(response)))
+    .catch((error) => console.warn(`Request to create a new note failed.\n${error}`));
 }
 
 function ModifyNote(note: Note) {

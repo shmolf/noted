@@ -12,6 +12,7 @@ use shmolf\NotedHydrator\NoteHydrator;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 
 class NotesController extends AbstractController
@@ -33,6 +34,7 @@ class NotesController extends AbstractController
                 'inTrashcan' => $note->getInTrashcan(),
                 'createdDate' => $note->getCreatedDate(),
                 'lastModified' => $note->getLastModified(),
+                'uuid' => $note->getUuid(),
             ];
         }, $notes);
 
@@ -69,7 +71,7 @@ class NotesController extends AbstractController
             throw new Exception('User is not logged in');
         }
 
-        $noteEntity = $repo->new($user);
+        $noteEntity = $repo->newNote($user);
 
         return $this->json($noteEntity, 200, [], [
             'groups' => ['main'],
@@ -84,16 +86,13 @@ class NotesController extends AbstractController
             ->getRepository(MarkdownNote::class)
             ->findOneBy(['user' => $user, 'uuid' => $uuid]);
 
+        if ($note === null) {
+            return new JsonResponse(null, Response::HTTP_NOT_FOUND);
+        }
+
         return $this->json($note, 200, [], [
             'groups' => ['main'],
         ]);
-    }
-
-    public function deleteNoteByUuid(string $uuid, MarkdownNoteRepository $repo): JsonResponse
-    {
-        $didDelete = $repo->delete($uuid, $this->getUser());
-
-        return new JsonResponse(null, ($didDelete ? 200 : 404));
     }
 
     public function upsertNote(string $uuid, MarkdownNoteRepository $repo, Request $request): JsonResponse
@@ -110,5 +109,12 @@ class NotesController extends AbstractController
         return $this->json($noteEntity, 200, [], [
             'groups' => ['main'],
         ]);
+    }
+
+    public function deleteNoteByUuid(string $uuid, MarkdownNoteRepository $repo): JsonResponse
+    {
+        $didDelete = $repo->delete($uuid, $this->getUser());
+
+        return new JsonResponse(null, ($didDelete ? 200 : 404));
     }
 }

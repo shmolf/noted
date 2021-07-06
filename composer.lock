@@ -2449,16 +2449,16 @@
         },
         {
             "name": "shmolf/noted-hydrator",
-            "version": "v2.0.0",
+            "version": "v2.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/shmolf/noted-hydrator.git",
-                "reference": "dd707a5f415dc1e70c4d821869cd3758e33a2ba1"
+                "reference": "30095840a9792bc50565789299b3cb40c65bc25d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/shmolf/noted-hydrator/zipball/dd707a5f415dc1e70c4d821869cd3758e33a2ba1",
-                "reference": "dd707a5f415dc1e70c4d821869cd3758e33a2ba1",
+                "url": "https://api.github.com/repos/shmolf/noted-hydrator/zipball/30095840a9792bc50565789299b3cb40c65bc25d",
+                "reference": "30095840a9792bc50565789299b3cb40c65bc25d",
                 "shasum": ""
             },
             "require": {
@@ -2496,9 +2496,9 @@
             ],
             "support": {
                 "issues": "https://github.com/shmolf/noted-hydrator/issues",
-                "source": "https://github.com/shmolf/noted-hydrator/tree/v2.0.0"
+                "source": "https://github.com/shmolf/noted-hydrator/tree/v2.1.0"
             },
-            "time": "2021-07-03T22:07:11+00:00"
+            "time": "2021-07-06T05:18:53+00:00"
         },
         {
             "name": "swaggest/json-diff",

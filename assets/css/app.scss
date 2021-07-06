@@ -99,6 +99,21 @@ input {
   border: var(--error-red) solid 1px;
 }
 
+.loading-spinner-parent {
+  position: relative;
+
+  &:after {
+    content: '';
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 1;
+    background: #00000073;
+  }
+}
+
 .loading-spinner {
   &,
   &:before,
@@ -116,7 +131,10 @@ input {
     color: #ffffff;
     text-indent: -9999em;
     margin: 88px auto;
-    position: relative;
+    position: absolute;
+    left: 50%;
+    top: min(50%, 20px);
+    z-index: 2;
     font-size: 11px;
     -webkit-transform: translateZ(0);
     -moz-transform: translateZ(0);

@@ -31,13 +31,13 @@ class MarkdownNote
      * @ORM\Column(type="string", length=16777215, nullable=true)
      * @Groups("main")
      */
-    private ?string $content;
+    private ?string $content = null;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      * @Groups("main")
      */
-    private ?string $title;
+    private ?string $title = null;
 
     /**
      * @ORM\ManyToOne(targetEntity=UserAccount::class, inversedBy="markdownNotes")
@@ -67,20 +67,19 @@ class MarkdownNote
     /**
      * @ORM\Column(type="boolean", options={"default" : false})
      * @Groups("main")
-     * @var bool
      */
-    private $inTrashcan;
+    private bool $inTrashcan = false;
 
     /**
      * @ORM\Column(type="guid", unique=true)
-     * @var string
+     * @Groups("main")
      */
-    private $uuid;
+    private string $uuid;
 
     /**
      * @ORM\Column(type="boolean", options={"default" : false})
      */
-    private $isDeleted;
+    private bool $isDeleted = false;
 
     public function __construct()
     {

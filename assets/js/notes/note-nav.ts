@@ -89,12 +89,12 @@ export function createNewNoteNavItem(
   const noteTitle = title || lastModified.toDateString();
 
   $noteBtn
-    .data('uuid', uuid)
+    .data({ uuid })
     .data('last-modified', lastModified.toDateString())
     .data('created', created.toDateString())
     .attr('data-tooltip', noteTitle)
     .find('.title')
-    .text(noteTitle);
+      .text(noteTitle);
 
   M.Tooltip.init($noteBtn);
 
@@ -115,8 +115,8 @@ export function setNavItemTitle(uuid: string, title: string) {
   if ($navListItem.length === 0) {
     $navListItem = createNewNoteNavItem(uuid, title, [], null, null);
   } else {
-    const tooltipInstacne = M.Tooltip.getInstance($navListItem.get(0));
-    tooltipInstacne.destroy();
+    const tooltipInstance = M.Tooltip.getInstance($navListItem.get(0));
+    tooltipInstance.destroy();
     $navListItem.attr('data-tooltip', title);
     M.Tooltip.init($navListItem);
 
