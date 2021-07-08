@@ -1,3 +1,22 @@
+## [2.0.0](https://github.com/shmolf/noted/compare/v1.1.1...v2.0.0) (2021-07-08)
+
+
+### ⚠ BREAKING CHANGES
+
+* decommission `clientuuid` in favor of `uuid`
+
+### Features
+
+* **new-note:** add route for explicitly creating a new note ([4ee8767](https://github.com/shmolf/noted/commit/4ee8767e0117b0162ead115139a615626a43b510))
+* **welcome:** improved welcome page ([cf38710](https://github.com/shmolf/noted/commit/cf38710fbd7cfd39fcdc735ddc3fce69b5967a0a))
+* massive overhaul to remove `clientuuid` in favor of `uuid` ([2190d81](https://github.com/shmolf/noted/commit/2190d81a2217343d9d6028b0b4140919e48182a8))
+* **dexie:** remove local note storage ([bba2523](https://github.com/shmolf/noted/commit/bba2523990edf3196fdfa0b84af1e4f97e9adad0))
+
+
+### Bug Fixes
+
+* **lint:** fixed style and script linting errors ([4913dde](https://github.com/shmolf/noted/commit/4913dde8bbba49499ed1cba306095a384200fea3))
+
 ### [1.1.1](https://github.com/shmolf/noted/compare/v1.1.0...v1.1.1) (2021-07-05)
 
 
