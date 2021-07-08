@@ -37,33 +37,9 @@
 {% block body %}
     {% if is_granted('ROLE_USER') %}
         {{ _self.settingsPopup(pageThemes, highlightJsThemes) }}
-        <aside id="note-navigation">
-            <div id="toolbox">
-                <button type="button" id="new-note" class="btn">New Note</button>
-            </div>
-            <div id="note-items">
-                {{ _self.noteTitleTemplate() }}
-            </div>
-            <ul id="note-menu">
-                <li id="delete-note" class="menu-item" data-action="delete">Delete</li>
-                {# <li id="copy-note" class="menu-item" data-action="copy">Copy</li> #}
-            </ul>
-            <div id="note-menu-out-click"></div>
-        </aside>
-        <div id="noted">
-            <div id="mobile-menu">
-                <button type="button" class="toggle-nav btn"><i class="fas fa-chevron-right"></i></button>
-                <button type="button" class="toggle-view btn"><i class="fas fa-book-open"></i></button>
-            </div>
-            <div id="input-wrap">
-                <textarea id="markdown-input" data-noteref="" data-theme="" placeholder="Markdown note goes here..."></textarea>
-            </div>
-            <div id="output-wrap" class="expanded">
-                <div id="markdown-output" class="hljs"></div>
-            </div>
-        </div>
+        {{ _self.notePage() }}
     {% else %}
-        Please <a href="{{ path('login') }}">Login</a> to see your notes.
+        {{ _self.welcomePage() }}
     {% endif %}
 {% endblock %}
 
@@ -138,4 +114,54 @@
         <option value="{{ key }}" {{ theme.isSelected ? 'selected' }}>{{ key }}</option>
     {% endfor %}
     </select>
+{% endmacro %}
+
+{% macro notePage() %}
+    <aside id="note-navigation">
+        <div id="toolbox">
+            <button type="button" id="new-note" class="btn">New Note</button>
+        </div>
+        <div id="note-items">
+            {{ _self.noteTitleTemplate() }}
+        </div>
+        <ul id="note-menu">
+            <li id="delete-note" class="menu-item" data-action="delete">Delete</li>
+            {# <li id="copy-note" class="menu-item" data-action="copy">Copy</li> #}
+        </ul>
+        <div id="note-menu-out-click"></div>
+    </aside>
+    <div id="noted">
+        <div id="mobile-menu">
+            <button type="button" class="toggle-nav btn"><i class="fas fa-chevron-right"></i></button>
+            <button type="button" class="toggle-view btn"><i class="fas fa-book-open"></i></button>
+        </div>
+        <div id="input-wrap">
+            <textarea id="markdown-input" data-noteref="" data-theme="" placeholder="Markdown note goes here..."></textarea>
+        </div>
+        <div id="output-wrap" class="expanded">
+            <div id="markdown-output" class="hljs"></div>
+        </div>
+    </div>
+{% endmacro %}
+
+{% macro welcomePage() %}
+    <h1>Note'd Markdown Notes</h1>
+    <h2>
+        <pre class="stylish-code">&lt;inserts amazing graphics here&gt;</pre>
+    </h2>
+    <hr>
+    <p>
+        This project is an expedition to provide a markdown application that works well on desktop and mobile devices,
+        while also providing the security of self-hosting the data using OAuth to validate credentials.
+    </p>
+    <ul class="fun-list">
+        <li>
+            <a href="https://github.com/shmolf/noted" target="_blank" title="Opens in a new window">This site's repo</a>
+        </li>
+        <li>
+            <a href="https://github.com/shmolf/noted-storage-symfony" target="_blank" title="Opens in a new window">
+                Repo to self-host your own note storage
+            </a>
+        </li>
+    </ul>
 {% endmacro %}

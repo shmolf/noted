@@ -19,6 +19,11 @@ main {
   margin: auto;
 }
 
+hr {
+  border-top: 1px solid #ff00ff;
+  border-bottom: none;
+}
+
 nav {
   background: var(--color-5);
 
