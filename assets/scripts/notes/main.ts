@@ -15,14 +15,14 @@ import Cookies from 'SCRIPTS/lib/cookie';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import CodeMirror from 'codemirror';
-import sample from './sample.md';
 
 // Library for the input side
+import { removeSpinner, showSpinner } from 'SCRIPTS/lib/loading-spinner';
 // eslint-disable-next-line import/extensions
 import CM from './code-mirror-assets';
-import { removeSpinner, showSpinner } from 'SCRIPTS/lib/loading-spinner';
 // import { EditorView, init as initEdit, posToOffset, offsetToPos, createChangeListener } from './code-mirror-assets';
 // import { ViewUpdate } from '@codemirror/view';
+import sample from './sample.md';
 
 // ---- Now, begins the application logic ----
 
@@ -156,7 +156,7 @@ function eventListeners() {
     worker?.postMessage(clientActions.GET_BY_UUID.f(eventUuid));
   });
 
-  $('#delete-note').on('click', (event) => {
+  $('#delete-note').on('click', () => {
     const eventUuid = $('#note-menu').data('uuid');
 
     if (!(eventUuid ?? false)) throw new Error('UUID was not available');

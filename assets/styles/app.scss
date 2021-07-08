@@ -108,7 +108,7 @@ input {
 .loading-spinner-parent {
   position: relative;
 
-  &:after {
+  &::after {
     content: '';
     height: 100%;
     width: 100%;
@@ -121,9 +121,27 @@ input {
 }
 
 .loading-spinner {
+  color: #ffffff;
+  text-indent: -9999em;
+  margin: 88px auto;
+  position: absolute;
+  left: 50%;
+  top: min(50%, 20px);
+  z-index: 2;
+  font-size: 11px;
+  -webkit-transform: translateZ(0);
+  -moz-transform: translateZ(0);
+  -ms-transform: translateZ(0);
+  -o-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-animation-delay: -0.16s;
+  -moz-animation-delay: -0.16s;
+  -o-animation-delay: -0.16s;
+  animation-delay: -0.16s;
+
   &,
-  &:before,
-  &:after {
+  &::before,
+  &::after {
     background: #ffffff;
     -webkit-animation: load1 1s infinite ease-in-out;
     -moz-animation: load1 1s infinite ease-in-out;
@@ -133,34 +151,14 @@ input {
     height: 4em;
   }
 
-  & {
-    color: #ffffff;
-    text-indent: -9999em;
-    margin: 88px auto;
-    position: absolute;
-    left: 50%;
-    top: min(50%, 20px);
-    z-index: 2;
-    font-size: 11px;
-    -webkit-transform: translateZ(0);
-    -moz-transform: translateZ(0);
-    -ms-transform: translateZ(0);
-    -o-transform: translateZ(0);
-    transform: translateZ(0);
-    -webkit-animation-delay: -0.16s;
-    -moz-animation-delay: -0.16s;
-    -o-animation-delay: -0.16s;
-    animation-delay: -0.16s;
-  }
-
-  &:before,
-  &:after {
+  &::before,
+  &::after {
     position: absolute;
     top: 0;
     content: '';
   }
 
-  &:before {
+  &::before {
     left: -1.5em;
     -webkit-animation-delay: -0.32s;
     -moz-animation-delay: -0.32s;
@@ -168,7 +166,7 @@ input {
     animation-delay: -0.32s;
   }
 
-  &:after {
+  &::after {
     left: 1.5em;
   }
 
@@ -179,6 +177,7 @@ input {
       box-shadow: 0 0;
       height: 4em;
     }
+
     40% {
       box-shadow: 0 -2em;
       height: 5em;

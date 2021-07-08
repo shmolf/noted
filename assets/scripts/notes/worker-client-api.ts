@@ -120,12 +120,19 @@ function stringIt(obj: MapStringTo<any>): string {
 
 export class NotePackage {
   uuid: string;
+
   title: string;
+
   content: string;
+
   tags: string[];
+
   inTrashcan: boolean;
+
   isDeleted: boolean;
+
   createdDate: Date|null;
+
   lastModified: Date|null;
 
   constructor(optionalProperties: Note) {

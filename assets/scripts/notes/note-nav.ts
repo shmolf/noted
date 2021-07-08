@@ -94,7 +94,7 @@ export function createNewNoteNavItem(
     .data('created', created.toDateString())
     .attr('data-tooltip', noteTitle)
     .find('.title')
-      .text(noteTitle);
+    .text(noteTitle);
 
   M.Tooltip.init($noteBtn);
 
