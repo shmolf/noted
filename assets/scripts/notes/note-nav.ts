@@ -1,19 +1,19 @@
 import $ from 'jquery';
-import { DateTime } from 'JS/types/Api';
+import { DateTime } from 'SCRIPTS/types/Api';
 
 interface NoteListItem {
-    title: string,
-    tags: string[],
-    clientUuid: string,
-    inTrashcan: string,
-    createdDate: DateTime,
-    lastModified: DateTime,
+  title: string,
+  tags: string[],
+  uuid: string,
+  inTrashcan: string,
+  createdDate: DateTime,
+  lastModified: DateTime,
 }
 
 export interface saveStates {
-    save: string,
-    inProgress: string,
-    default: string,
+  save: string,
+  inProgress: string,
+  default: string,
 }
 
 let $noteListNav: JQuery;
@@ -21,9 +21,6 @@ let $noteListTemplate: JQuery;
 let $menu: JQuery;
 let $outClick: JQuery;
 
-/**
- *
- */
 export function initNoteNav() {
   $noteListNav = $('#note-items');
   $noteListTemplate = $('#note-item-template');
@@ -32,9 +29,6 @@ export function initNoteNav() {
   eventListeners();
 }
 
-/**
- *
- */
 function eventListeners() {
   $('.toggle-nav').on('click', (e) => {
     e.stopPropagation();
@@ -53,7 +47,7 @@ function eventListeners() {
         left: `${e.clientX}px`,
       })
       .addClass('show')
-      .data('uuid', $(e.currentTarget).data('client-uuid'));
+      .data('uuid', $(e.currentTarget).data('uuid'));
 
     $outClick.css({ display: 'block' });
   });
@@ -64,18 +58,12 @@ function eventListeners() {
   });
 }
 
-/**
- *
- */
 function autoCloseNav() {
   $(document).off('click', autoCloseNav);
   $('.toggle-nav i').addClass('fa-chevron-right').removeClass('fa-chevron-left');
   $('#note-navigation').removeClass('expanded');
 }
 
-/**
- * @param notes
- */
 export function renderNoteList(notes: NoteListItem[]) {
   $noteListNav.find('.note-item:not(#note-load-template)').off('click').detach();
 
@@ -83,20 +71,13 @@ export function renderNoteList(notes: NoteListItem[]) {
     const lastModified = new Date(`${note.lastModified.date} ${note.lastModified.timezone}`);
     const createdDate = new Date(`${note.createdDate.date} ${note.createdDate.timezone}`);
 
-    const $noteBtn = createNewNoteNavItem(note.clientUuid, note.title, note.tags, lastModified, createdDate);
+    const $noteBtn = createNewNoteNavItem(note.uuid, note.title, note.tags, lastModified, createdDate);
     $noteListNav.append($noteBtn);
   });
 }
 
-/**
- * @param clientUuid
- * @param title
- * @param tags
- * @param lastModifiedDate
- * @param createdDate
- */
 export function createNewNoteNavItem(
-  clientUuid: string,
+  uuid: string,
   title: string,
   tags: string[],
   lastModifiedDate: Date|null,
@@ -108,7 +89,7 @@ export function createNewNoteNavItem(
   const noteTitle = title || lastModified.toDateString();
 
   $noteBtn
-    .data('client-uuid', clientUuid)
+    .data({ uuid })
     .data('last-modified', lastModified.toDateString())
     .data('created', created.toDateString())
     .attr('data-tooltip', noteTitle)
@@ -128,18 +109,14 @@ export function createNewNoteNavItem(
   return $noteBtn;
 }
 
-/**
- * @param uuid
- * @param title
- */
 export function setNavItemTitle(uuid: string, title: string) {
   let $navListItem = getNavItem(uuid);
 
   if ($navListItem.length === 0) {
     $navListItem = createNewNoteNavItem(uuid, title, [], null, null);
   } else {
-    const tooltipInstacne = M.Tooltip.getInstance($navListItem.get(0));
-    tooltipInstacne.destroy();
+    const tooltipInstance = M.Tooltip.getInstance($navListItem.get(0));
+    tooltipInstance.destroy();
     $navListItem.attr('data-tooltip', title);
     M.Tooltip.init($navListItem);
 
@@ -149,10 +126,6 @@ export function setNavItemTitle(uuid: string, title: string) {
   $noteListNav.prepend($navListItem);
 }
 
-/**
- * @param {string} uuid
- * @param {'save'|'inProgress'|'default'} state
- */
 export function setNavItemSaveState(uuid: string, state: keyof saveStates) {
   const stateClasses: saveStates = {
     save: 'saved',
@@ -168,11 +141,8 @@ export function setNavItemSaveState(uuid: string, state: keyof saveStates) {
   }
 }
 
-/**
- * @param uuid
- */
 export function getNavItem(uuid: string): JQuery {
   return $noteListNav
     .find('.note-item')
-    .filter((i, elem) => String($(elem).data('client-uuid')) === uuid);
+    .filter((i, elem) => String($(elem).data('uuid')) === uuid);
 }

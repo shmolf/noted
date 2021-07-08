@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\MarkdownNoteRepository;
+use DateTimeInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -12,8 +13,8 @@ use Symfony\Component\Serializer\Annotation\Groups;
 /**
  * @ORM\Entity(repositoryClass=MarkdownNoteRepository::class)
  * @UniqueEntity(
- *      fields={"user_id","client_uuid"},
- *      message="Each user will have a their own set of unique client-side uuids."
+ *      fields={"user","uuid"},
+ *      message="Each user will have a their own set of unique uuids."
  * )
  */
 class MarkdownNote
@@ -29,37 +30,32 @@ class MarkdownNote
     /**
      * @ORM\Column(type="string", length=16777215, nullable=true)
      * @Groups("main")
-     * @var string
      */
-    private $content;
+    private ?string $content = null;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      * @Groups("main")
-     * @var string
      */
-    private $title;
+    private ?string $title = null;
 
     /**
      * @ORM\ManyToOne(targetEntity=UserAccount::class, inversedBy="markdownNotes")
      * @ORM\JoinColumn(nullable=false)
-     * @var int
      */
-    private $userId;
+    private UserAccount $user;
 
     /**
      * @ORM\Column(type="datetime")
      * @Groups("main")
-     * @var DateTime
      */
-    private $createdDate;
+    private DateTimeInterface $createdDate;
 
     /**
      * @ORM\Column(type="datetime")
      * @Groups("main")
-     * @var DateTime
      */
-    private $lastModified;
+    private DateTimeInterface $lastModified;
 
     /**
      * @ORM\ManyToMany(targetEntity=NoteTag::class, inversedBy="markdownNotes")
@@ -71,27 +67,19 @@ class MarkdownNote
     /**
      * @ORM\Column(type="boolean", options={"default" : false})
      * @Groups("main")
-     * @var bool
      */
-    private $inTrashcan;
+    private bool $inTrashcan = false;
 
     /**
      * @ORM\Column(type="guid", unique=true)
-     * @var string
-     */
-    private $noteUuid;
-
-    /**
-     * @ORM\Column(type="guid", nullable=true)
      * @Groups("main")
-     * @var string
      */
-    private $clientUuid;
+    private string $uuid;
 
     /**
      * @ORM\Column(type="boolean", options={"default" : false})
      */
-    private $isDeleted;
+    private bool $isDeleted = false;
 
     public function __construct()
     {
@@ -127,36 +115,36 @@ class MarkdownNote
         return $this;
     }
 
-    public function getUserId(): ?UserAccount
+    public function getUser(): ?UserAccount
     {
-        return $this->userId;
+        return $this->user;
     }
 
-    public function setUserId(?UserAccount $userId): self
+    public function setUser(?UserAccount $user): self
     {
-        $this->userId = $userId;
+        $this->user = $user;
 
         return $this;
     }
 
-    public function getCreatedDate(): ?\DateTimeInterface
+    public function getCreatedDate(): ?DateTimeInterface
     {
         return $this->createdDate;
     }
 
-    public function setCreatedDate(\DateTimeInterface $createdDate): self
+    public function setCreatedDate(DateTimeInterface $createdDate): self
     {
         $this->createdDate = $createdDate;
 
         return $this;
     }
 
-    public function getLastModified(): ?\DateTimeInterface
+    public function getLastModified(): ?DateTimeInterface
     {
         return $this->lastModified;
     }
 
-    public function setLastModified(\DateTimeInterface $lastModified): self
+    public function setLastModified(DateTimeInterface $lastModified): self
     {
         $this->lastModified = $lastModified;
 
@@ -208,26 +196,14 @@ class MarkdownNote
         return $this;
     }
 
-    public function getNoteUuid(): ?string
+    public function getUuid(): ?string
     {
-        return $this->noteUuid;
+        return $this->uuid;
     }
 
-    public function setNoteUuid(string $noteUuid): self
+    public function setUuid(string $uuid): self
     {
-        $this->noteUuid = $noteUuid;
-
-        return $this;
-    }
-
-    public function getClientUuid(): ?string
-    {
-        return $this->clientUuid;
-    }
-
-    public function setClientUuid(?string $clientUuid): self
-    {
-        $this->clientUuid = $clientUuid;
+        $this->uuid = $uuid;
 
         return $this;
     }

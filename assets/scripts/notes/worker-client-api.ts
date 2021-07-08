@@ -1,7 +1,7 @@
-import { MapStringTo } from 'JS/types/Generic';
+import { MapStringTo } from 'SCRIPTS/types/Generic';
 
 export interface Note extends MapStringTo<any> {
-    clientUuid?: string|null;
+    uuid: string;
     title: string;
     content: string;
     tags: string[];
@@ -11,10 +11,28 @@ export interface Note extends MapStringTo<any> {
     lastModified?: Date|null;
 }
 
+/**
+ * This interface is used to build up an initialized empty object literal.
+ */
+export interface NotePackageExport extends MapStringTo<any> {
+    uuid?: string;
+    title?: string;
+    content?: string;
+    tags?: string[];
+    inTrashcan?: boolean;
+    isDeleted?: boolean;
+    createdDate?: Date;
+    lastModified?: Date;
+}
+
 export const clientActions = Object.freeze({
   GET_LIST: {
     k: 'getNoteList',
     f: (): string => packAction(clientActions.GET_LIST.k),
+  },
+  NEW_NOTE: {
+    k: 'newNote',
+    f: (): string => packAction(clientActions.NEW_NOTE.k),
   },
   MODIFY: {
     k: 'modify',
@@ -24,13 +42,13 @@ export const clientActions = Object.freeze({
     k: 'recycle',
     f: (uuid: string): string => packAction(clientActions.RECYCLE.k, uuid),
   },
-  GET_BY_CLIENTUUID: {
+  GET_BY_UUID: {
     k: 'retrieveByUuid',
-    f: (uuid: string):string => packAction(clientActions.GET_BY_CLIENTUUID.k, uuid),
+    f: (uuid: string):string => packAction(clientActions.GET_BY_UUID.k, uuid),
   },
-  DEL_BY_CLIENTUUID: {
+  DEL_BY_UUID: {
     k: 'deleteByUuid',
-    f: (uuid: string): string => packAction(clientActions.DEL_BY_CLIENTUUID.k, uuid),
+    f: (uuid: string): string => packAction(clientActions.DEL_BY_UUID.k, uuid),
   },
   EXPORT_NOTES: {
     k: 'exportNotes',
@@ -58,6 +76,10 @@ export const workerStates = Object.freeze({
   NOTE_DATA: {
     k: 'note-data',
     f: (note: NotePackage): string => packState(workerStates.NOTE_DATA.k, note),
+  },
+  NEW_NOTE_READY: {
+    k: 'new-note-ready',
+    f: (response: any): string => packState(workerStates.NEW_NOTE_READY.k, response),
   },
   UPD8_COMP: {
     k: 'note-updated',
@@ -96,70 +118,55 @@ function stringIt(obj: MapStringTo<any>): string {
   return JSON.stringify(obj);
 }
 
-export interface NotePackageExport extends MapStringTo<any> {
-    id?: number;
-    clientUuid?: string;
-    title?: string;
-    content?: string;
-    tags?: string[];
-    inTrashcan?: boolean;
-    isDeleted?: boolean;
-    createdDate?: Date;
-    lastModified?: Date;
-}
-
 export class NotePackage {
-    id: number|null;
+  uuid: string;
 
-    clientUuid: string|null;
+  title: string;
 
-    title: string;
+  content: string;
 
-    content: string;
+  tags: string[];
 
-    tags: string[];
+  inTrashcan: boolean;
 
-    inTrashcan: boolean;
+  isDeleted: boolean;
 
-    isDeleted: boolean;
+  createdDate: Date|null;
 
-    createdDate: Date|null;
+  lastModified: Date|null;
 
-    lastModified: Date|null;
+  constructor(optionalProperties: Note) {
+    this.uuid = optionalProperties.uuid.trim();
+    this.title = optionalProperties.title.trim() || '';
+    this.content = optionalProperties.content || '';
+    this.tags = optionalProperties.tags.filter((value, index, self) => self.indexOf(value) === index);
+    this.inTrashcan = optionalProperties.inTrashcan ?? false;
+    this.isDeleted = optionalProperties.isDeleted ?? false;
+    this.createdDate = optionalProperties.createdDate ?? null;
+    this.lastModified = optionalProperties.lastModified ?? null;
+  }
 
-    constructor(optionalProperties: Note) {
-      this.id = optionalProperties.id ?? null;
-      this.clientUuid = optionalProperties.clientUuid?.trim() || null;
-      this.title = optionalProperties.title.trim();
-      this.content = optionalProperties.content;
-      this.tags = optionalProperties.tags.filter((value, index, self) => self.indexOf(value) === index);
-      this.inTrashcan = optionalProperties.inTrashcan ?? false;
-      this.isDeleted = optionalProperties.isDeleted ?? false;
-      this.createdDate = optionalProperties.createdDate ?? null;
-      this.lastModified = optionalProperties.lastModified ?? null;
-    }
+  public toObj(): NotePackageExport {
+    const noteObj: NotePackageExport = {};
 
-    public toObj(): NotePackageExport {
-      const noteObj: NotePackageExport = {};
+    [
+      'uuid',
+      'title',
+      'content',
+      'tags',
+      'inTrashcan',
+      'isDeleted',
+      'createdDate',
+      'lastModified',
+    ].forEach((prop: string) => {
+      const value = this.getProperty(prop as keyof this);
+      if (value !== undefined) noteObj[prop] = value;
+    });
 
-      [
-        'clientUuid',
-        'title',
-        'content',
-        'tags',
-        'inTrashcan',
-        'isDeleted',
-        'createdDate',
-        'lastModified',
-      ].forEach((prop: string) => {
-        const value = this.getProperty(prop as keyof this);
-        if (value !== undefined) noteObj[prop] = value;
-      });
+    return noteObj;
+  }
 
-      return noteObj;
-    }
-
-    private getProperty<K extends keyof this>(propertyName: K): this[K]|undefined {
-      return this[propertyName] ?? undefined;
-    }
+  private getProperty<K extends keyof this>(propertyName: K): this[K]|undefined {
+    return this[propertyName] ?? undefined;
+  }
 }

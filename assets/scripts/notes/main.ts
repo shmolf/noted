@@ -1,28 +1,28 @@
 import $ from 'jquery';
 import M from 'materialize-css';
-import 'CSS/notes.scss';
+import 'STYLES/notes.scss';
 
-import { MapStringTo } from 'JS/types/Generic';
-import { workerStates, clientActions, NotePackage } from 'JS/notes/worker-client-api';
-import { initMarkdownIt, renderMarkdown } from 'JS/notes/markdown-output';
+import { MapStringTo } from 'SCRIPTS/types/Generic';
+import { workerStates, clientActions, NotePackage } from 'SCRIPTS/notes/worker-client-api';
+import { initMarkdownIt, renderMarkdown } from 'SCRIPTS/notes/markdown-output';
 import {
   initNoteNav, renderNoteList, getNavItem, setNavItemSaveState, setNavItemTitle,
-} from 'JS/notes/note-nav';
-import { v4 as uuidv4 } from 'uuid';
+} from 'SCRIPTS/notes/note-nav';
 import FileDownload from 'js-file-download';
 // eslint-disable-next-line import/no-webpack-loader-syntax
 import Worker from 'worker-loader!./note.worker';
-import Cookies from 'JS/lib/cookie';
+import Cookies from 'SCRIPTS/lib/cookie';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import CodeMirror from 'codemirror';
-import sample from './sample.md';
 
 // Library for the input side
+import { removeSpinner, showSpinner } from 'SCRIPTS/lib/loading-spinner';
 // eslint-disable-next-line import/extensions
 import CM from './code-mirror-assets';
 // import { EditorView, init as initEdit, posToOffset, offsetToPos, createChangeListener } from './code-mirror-assets';
 // import { ViewUpdate } from '@codemirror/view';
+import sample from './sample.md';
 
 // ---- Now, begins the application logic ----
 
@@ -46,6 +46,8 @@ let $pageTheme: JQuery;
 let $codeMirrorTheme: JQuery;
 let $highlightJsTheme: JQuery;
 let $inputOutput: JQuery;
+let $noteNavMenu: JQuery;
+let $notedContainer: JQuery;
 
 let codeMirrorEditor: CodeMirror.Editor;
 // let codeMirrorEditor: EditorView;
@@ -66,6 +68,7 @@ const cmTheme = localStorage.getItem(CM_THEME_COOKIE);
 $(() => {
   loadSw();
   initJqueryVariables();
+  startInitialPageSpinners();
 
   if (cmTheme !== null) {
     // Need to set the select menu value, before Materialize is initialized.
@@ -92,11 +95,14 @@ $(() => {
   manuallySettingValue = false;
 
   eventListeners();
+  removeSpinner($notedContainer.get(0));
 });
 
-/**
- *
- */
+function startInitialPageSpinners() {
+  showSpinner($noteNavMenu.get(0));
+  showSpinner($notedContainer.get(0));
+}
+
 function eventListeners() {
   $pageTheme.on('change', updatePageTheme);
   $codeMirrorTheme.on('change', updateCodeMirrorTheme);
@@ -138,34 +144,28 @@ function eventListeners() {
         ch: cmCol += 1,
       },
     );
-    // const state = codeMirrorEditor.state;
-    // const posFrom = posToOffset(state, { line, ch: ++ch });
-    // const posTo = posToOffset(state, { line, ch: ++ch });
-    // codeMirrorEditor.dispatch({
-    //     changes: { from: posFrom, to: posTo, insert: newCheckedText}
-    // });
   });
 
   $(document).on('click', '.note-item', (event) => {
-    const eventUuid = $(event.currentTarget).data('clientUuid');
-    worker?.postMessage(clientActions.GET_BY_CLIENTUUID.f(eventUuid));
+    const eventUuid = $(event.currentTarget).data('uuid');
+
+    if (!(eventUuid ?? false)) throw new Error('UUID was not available');
+
+    showSpinner($notedContainer.get(0));
+    showSpinner($noteNavMenu.get(0));
+    worker?.postMessage(clientActions.GET_BY_UUID.f(eventUuid));
   });
 
-  $('#delete-note').on('click', (event) => {
+  $('#delete-note').on('click', () => {
     const eventUuid = $('#note-menu').data('uuid');
 
-    if (eventUuid === undefined) {
-      return;
-    }
+    if (!(eventUuid ?? false)) throw new Error('UUID was not available');
 
     getNavItem(eventUuid).attr('disabled', 'disabled');
-    worker?.postMessage(clientActions.DEL_BY_CLIENTUUID.f(eventUuid));
+    worker?.postMessage(clientActions.DEL_BY_UUID.f(eventUuid));
   });
 }
 
-/**
- *
- */
 function initJqueryVariables() {
   $pageTheme = $('#page-theme');
   $codeMirrorTheme = $('#codemirror-theme');
@@ -173,8 +173,9 @@ function initJqueryVariables() {
   $settingsModal = $('#settings-popup');
   $editor = $('#markdown-input');
   $inputOutput = $('#input-wrap, #output-wrap');
-
   $newNoteBtn = $('#new-note');
+  $noteNavMenu = $('#note-navigation');
+  $notedContainer = $('#noted');
 }
 
 /**
@@ -196,7 +197,6 @@ function initCodeMirror() {
     tabindex: 0,
   };
 
-  // codeMirrorEditor = initEditor($editor.get(0));
   codeMirrorEditor = CM.fromTextArea($editor.get(0), cmOptions);
 
   codeMirrorEditor.on('change', (editor) => {
@@ -204,19 +204,8 @@ function initCodeMirror() {
 
     queueNoteSave(editor.getValue());
   });
-
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  // const newState = Object.assign({}, codeMirrorEditor.state, createChangeListener((markdown) => {
-  //     if (manuallySettingValue) return;
-  //     queueNoteSave(markdown);
-  // }));
-  // codeMirrorEditor.setState(newState)
 }
 
-/**
- *
- */
 function initMaterialize() {
   M.Modal.init($settingsModal, {
     // onCloseStart: () => clearModal(),
@@ -229,9 +218,6 @@ function initMaterialize() {
   M.FormSelect.init($codeMirrorTheme);
 }
 
-/**
- *
- */
 function updatePageTheme() {
   const optionClasses = $pageTheme.find('option').map((i, element) => element.value).get().join(' ');
   const selectedTheme = String($pageTheme.val()).trim();
@@ -240,17 +226,11 @@ function updatePageTheme() {
   $(document.body).removeClass(optionClasses).addClass(selectedTheme);
 }
 
-/**
- *
- */
 function updateCodeMirrorTheme() {
   const theme = String($codeMirrorTheme.val());
   setCodeMirrorTheme(theme);
 }
 
-/**
- *
- */
 function updateHighlightJsTheme() {
   const selectedTheme = String($highlightJsTheme.val()).trim();
   Cookies.store(HLJS_THEME_COOKIE, selectedTheme, 365);
@@ -259,22 +239,17 @@ function updateHighlightJsTheme() {
   $(`link[title="${selectedTheme}"]`).removeAttr('disabled').addClass('current');
 }
 
-/**
- *
- */
 function newNote() {
+  $newNoteBtn.attr('disabled', 'disabled');
+  showSpinner($notedContainer.get(0));
+  removeSpinner($noteNavMenu.get(0));
+  worker?.postMessage(clientActions.NEW_NOTE.f());
   manuallySettingValue = true;
   codeMirrorEditor.setValue('');
-  // codeMirrorEditor.dispatch({
-  //     changes: { from: 0, to: codeMirrorEditor.state.doc.length, insert: ''}
-  // });
   manuallySettingValue = false;
   renderMarkdown('');
 }
 
-/**
- * @param theme
- */
 function setCodeMirrorTheme(theme: string) {
   localStorage.setItem(CM_THEME_COOKIE, theme);
 
@@ -282,9 +257,6 @@ function setCodeMirrorTheme(theme: string) {
   codeMirrorEditor.refresh();
 }
 
-/**
- *
- */
 function loadSw() {
   if (window.Worker) {
     worker = new Worker();
@@ -295,9 +267,6 @@ function loadSw() {
   }
 }
 
-/**
- * @param markdown
- */
 function queueNoteSave(markdown: string) {
   const frontmatterData = renderMarkdown(markdown);
   $inputOutput.addClass('not-saved');
@@ -306,10 +275,10 @@ function queueNoteSave(markdown: string) {
 
   let title = frontmatterData.title ?? null;
   const note = packageNote(markdown, title);
-  const uuid = note.clientUuid as string;
+  const uuid = note.uuid as string;
 
-  if (!$editor.data('clientUuid')) {
-    $editor.data('clientUuid', uuid);
+  if (!$editor.data('uuid')) {
+    $editor.data({ uuid });
   }
 
   if (uuid in modifiedNotes) {
@@ -353,13 +322,13 @@ function noteIsQueuedForSave(uuid: string): boolean {
  * @param title
  */
 function packageNote(content: string, noteTitle: string|null): NotePackage {
-  let clientUuid = $editor.data('clientUuid') || uuidv4();
-  clientUuid = typeof clientUuid === 'string' ? clientUuid.trim() : null;
+  let uuid = $editor.data('uuid');
+  uuid = typeof uuid === 'string' ? uuid.trim() : null;
   const title = typeof noteTitle === 'string' ? noteTitle.trim() : '';
   const tags: string[] = [];
 
   return new NotePackage({
-    clientUuid,
+    uuid,
     title,
     content,
     tags,
@@ -378,34 +347,50 @@ function onWorkerMessage(event: MessageEvent) {
         worker?.postMessage(clientActions.GET_LIST.f());
         break;
       case workerStates.NOTE_DATA.k: {
-        const { data: noteData } = msg;
-        $editor.data('clientUuid', noteData.clientUuid);
+        const noteData = msg.data as NotePackage;
+        const content = noteData.content ?? '';
+
+        $editor.data('uuid', noteData.uuid);
         manuallySettingValue = true;
-        // codeMirrorEditor.dispatch({
-        //     changes: { from: 0, to: codeMirrorEditor.state.doc.length, insert: noteData.content}
-        // });
-        codeMirrorEditor.setValue(noteData.content);
+        codeMirrorEditor.setValue(content);
         manuallySettingValue = false;
         $editor.scrollTop(0);
-        renderMarkdown(noteData.content);
+        renderMarkdown(content);
+        removeSpinner($notedContainer.get(0));
+        removeSpinner($noteNavMenu.get(0));
         break;
       }
       case workerStates.NOTE_LIST.k: {
         const { data: list } = msg;
         renderNoteList(list);
+        removeSpinner($noteNavMenu.get(0));
+        break;
+      }
+      case workerStates.NEW_NOTE_READY.k: {
+        const { data: response } = msg;
+
+        setNavItemTitle(response.uuid, '');
+        setNavItemSaveState(response.uuid, 'default');
+
+        $editor.data('uuid', response.uuid);
+        $inputOutput.removeClass('not-saved saved');
+
+        removeSpinner($notedContainer.get(0));
+        removeSpinner($noteNavMenu.get(0));
+        $newNoteBtn.attr('disabled', null);
         break;
       }
       case workerStates.UPD8_COMP.k: {
         const { data: response } = msg;
 
-        setNavItemSaveState(response.clientUuid, 'save');
-        setTimeout(() => setNavItemSaveState(response.clientUuid, 'default'), 3000);
+        setNavItemSaveState(response.uuid, 'save');
+        setTimeout(() => setNavItemSaveState(response.uuid, 'default'), 3000);
 
-        if (!(noteIsQueuedForSave(response.clientUuid)) && $editor.data('clientUuid') === response.clientUuid) {
+        if (!(noteIsQueuedForSave(response.uuid)) && $editor.data('uuid') === response.uuid) {
           $inputOutput.removeClass('not-saved').addClass('saved');
 
           setTimeout(() => {
-            if (!(noteIsQueuedForSave(response.clientUuid)) && $editor.data('clientUuid') === response.clientUuid) {
+            if (!(noteIsQueuedForSave(response.uuid)) && $editor.data('uuid') === response.uuid) {
               $inputOutput.removeClass('saved');
             }
           }, 3000);

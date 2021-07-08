@@ -12,7 +12,7 @@ import mdItCheckbox from 'markdown-it-task-lists';
 import twemoji from 'twemoji';
 import { loadFront } from 'yaml-front-matter';
 import hljs from 'highlight.js';
-import { MapStringTo } from 'JS/types/Generic';
+import { MapStringTo } from 'SCRIPTS/types/Generic';
 
 let md: mdIt;
 let $mdView: JQuery;

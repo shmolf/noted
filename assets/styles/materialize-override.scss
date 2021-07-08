@@ -2,7 +2,6 @@
 input:not([type]),
 input[type]:not(.browser-default),
 textarea.materialize-textarea {
-  width: auto;
   transition: width 0.2s;
 
   &.valid ~ .helper-text[data-success],
@@ -13,3 +12,7 @@ textarea.materialize-textarea {
   }
 }
 /* stylelint-enable no-descending-specificity */
+
+table.striped > tbody > tr:nth-child(odd) a {
+  color: darkblue;
+}

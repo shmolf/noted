@@ -1,5 +1,5 @@
 import $ from 'jquery';
-import { AjaxErrorRepsonse } from 'JS/types/Api';
+import { AjaxErrorRepsonse } from 'SCRIPTS/types/Api';
 
 let $form: JQuery;
 let $errorOutput: JQuery;

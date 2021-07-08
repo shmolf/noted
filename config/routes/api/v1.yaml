@@ -3,16 +3,28 @@ api.v1.account:
   controller: App\Controller\Users\AccountController::accountApi
   methods: GET
 
-api.v1.note.getByClientUuid:
-  path: /note/client-uuid/{uuid}
-  controller: App\Controller\Notes\NotesController::getNoteByClientUuid
+api.v1.note.new:
+  path: /note/new
+  controller: App\Controller\Notes\NotesController::newNote
+  methods: POST
+
+api.v1.note.getByUuid:
+  path: /note/uuid/{uuid}
+  controller: App\Controller\Notes\NotesController::getNoteByUuid
   methods: GET
   requirements:
     uuid: '[a-fA-F0-9\-]+'
 
-api.v1.note.deleteByClientUuid:
-  path: /note/client-uuid/{uuid}
-  controller: App\Controller\Notes\NotesController::deleteNoteByClientUuid
+api.v1.note.upsert:
+  path: /note/uuid/{uuid}
+  controller: App\Controller\Notes\NotesController::upsertNote
+  methods: PUT
+  requirements:
+    uuid: '[a-fA-F0-9\-]+'
+
+api.v1.note.deleteByUuid:
+  path: /note/uuid/{uuid}
+  controller: App\Controller\Notes\NotesController::deleteNoteByUuid
   methods: DELETE
   requirements:
     uuid: '[a-fA-F0-9\-]+'
@@ -26,8 +38,3 @@ api.v1.note.export:
   path: /note/export
   controller: App\Controller\Notes\NotesController::getNotesForUser
   methods: GET
-
-api.v1.note.upsert:
-  path: /note/upsert
-  controller: App\Controller\Notes\NotesController::upsertNote
-  methods: PUT

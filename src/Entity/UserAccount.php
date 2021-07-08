@@ -64,12 +64,12 @@ class UserAccount implements UserInterface
     public ?string $lastName;
 
     /**
-     * @ORM\OneToMany(targetEntity=MarkdownNote::class, mappedBy="userId", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity=MarkdownNote::class, mappedBy="user", orphanRemoval=true)
      */
     private $markdownNotes;
 
     /**
-     * @ORM\OneToMany(targetEntity=NoteTag::class, mappedBy="userId", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity=NoteTag::class, mappedBy="user", orphanRemoval=true)
      */
     private $noteTags;
 
@@ -176,7 +176,7 @@ class UserAccount implements UserInterface
     {
         if (!$this->markdownNotes->contains($markdownNote)) {
             $this->markdownNotes[] = $markdownNote;
-            $markdownNote->setUserId($this);
+            $markdownNote->setUser($this);
         }
 
         return $this;
@@ -186,8 +186,8 @@ class UserAccount implements UserInterface
     {
         if ($this->markdownNotes->removeElement($markdownNote)) {
             // set the owning side to null (unless already changed)
-            if ($markdownNote->getUserId() === $this) {
-                $markdownNote->setUserId(null);
+            if ($markdownNote->getUser() === $this) {
+                $markdownNote->setUser(null);
             }
         }
 
@@ -206,7 +206,7 @@ class UserAccount implements UserInterface
     {
         if (!$this->noteTags->contains($noteTag)) {
             $this->noteTags[] = $noteTag;
-            $noteTag->setUserId($this);
+            $noteTag->setUser($this);
         }
 
         return $this;
@@ -216,8 +216,8 @@ class UserAccount implements UserInterface
     {
         if ($this->noteTags->removeElement($noteTag)) {
             // set the owning side to null (unless already changed)
-            if ($noteTag->getUserId() === $this) {
-                $noteTag->setUserId(null);
+            if ($noteTag->getUser() === $this) {
+                $noteTag->setUser(null);
             }
         }
 

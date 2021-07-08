@@ -48,7 +48,6 @@
         "ts-loader": "8.0.1",
         "twemoji": "^13.0.2",
         "url-loader": "^4.1.0",
-        "uuid": "^8.3.2",
         "webpack-notifier": "^1.13.0",
         "worker-loader": "^3.0.8",
         "yaml-front-matter": "^4.1.1"
@@ -84,13 +83,13 @@
         "dev": "encore dev --bail --progress",
         "watch": "encore dev --watch",
         "build": "encore production --bail",
-        "eslint": "eslint -c ./.eslintrc.json ./assets/js",
-        "eslint-quiet": "eslint -c ./.eslintrc.json ./assets/js --quiet",
-        "jshint": "jshint ./assets/js",
-        "lint-scss": "stylelint 'assets/css/**/*.scss'",
+        "eslint": "eslint -c ./.eslintrc.json ./assets/scripts",
+        "eslint-quiet": "eslint -c ./.eslintrc.json ./assets/scripts --quiet",
+        "jshint": "jshint ./assets/scripts",
+        "lint-scss": "stylelint 'assets/styles/**/*.scss'",
         "lint-js": "yarn eslint && jshint $JSDIR",
         "lint-js-quiet": "yarn eslint-quiet && yarn jshint",
-        "lint-js-fix": "eslint -c ./.eslintrc.json ./assets/js --fix",
+        "lint-js-fix": "eslint -c ./.eslintrc.json ./assets/scripts --fix",
         "lint-all": "yarn run lint-scss && yarn run lint-js"
     },
     "browserslist": [
