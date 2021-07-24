@@ -129,15 +129,6 @@ input {
   top: min(50%, 20px);
   z-index: 2;
   font-size: 11px;
-  -webkit-transform: translateZ(0);
-  -moz-transform: translateZ(0);
-  -ms-transform: translateZ(0);
-  -o-transform: translateZ(0);
-  transform: translateZ(0);
-  -webkit-animation-delay: -0.16s;
-  -moz-animation-delay: -0.16s;
-  -o-animation-delay: -0.16s;
-  animation-delay: -0.16s;
 
   &,
   &::before,
@@ -168,6 +159,18 @@ input {
 
   &::after {
     left: 1.5em;
+  }
+
+  & {
+    -webkit-transform: translateZ(0);
+    -moz-transform: translateZ(0);
+    -ms-transform: translateZ(0);
+    -o-transform: translateZ(0);
+    transform: translateZ(0);
+    -webkit-animation-delay: -0.16s;
+    -moz-animation-delay: -0.16s;
+    -o-animation-delay: -0.16s;
+    animation-delay: -0.16s;
   }
 
   @keyframes load1 {

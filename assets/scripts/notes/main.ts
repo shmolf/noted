@@ -16,7 +16,6 @@ import Cookies from 'SCRIPTS/lib/cookie';
 // @ts-ignore
 import CodeMirror from 'codemirror';
 
-// Library for the input side
 import { removeSpinner, showSpinner } from 'SCRIPTS/lib/loading-spinner';
 // eslint-disable-next-line import/extensions
 import CM from './code-mirror-assets';

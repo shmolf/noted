@@ -20,11 +20,12 @@
         <div class="col s12">
             <div class="input-field col s12 m6">
                 <label for="email">Email:</label>
-                <input type="text" id="email" name="email" value="{{ last_username }}" required autofocus />
+                <input type="text" id="email" name="email" value="{{ last_username }}" autocomplete="username"
+                    required autofocus />
             </div>
             <div class="input-field col s12 m6">
                 <label for="password">Password:</label>
-                <input type="password" id="password" name="password" />
+                <input type="password" id="password" name="password"  autocomplete="current-password" />
             </div>
             <div class="row col s12">
                 <label>

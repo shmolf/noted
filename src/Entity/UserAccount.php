@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\UserAccountRepository;
+use DateTimeInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -44,12 +45,7 @@ class UserAccount implements UserInterface
      * @ORM\Column(type="datetime")
      * @Groups("main")
      */
-    public ?\DateTime $createdDate = null;
-
-    /**
-     * @ORM\Column(type="string", length=190, nullable=true)
-     */
-    public ?string $apiToken;
+    public ?DateTimeInterface $createdDate = null;
 
     /**
      * @ORM\Column(type="string", length=190, nullable=true)
@@ -73,10 +69,16 @@ class UserAccount implements UserInterface
      */
     private $noteTags;
 
+    /**
+     * @ORM\OneToMany(targetEntity=Workspace::class, mappedBy="user", orphanRemoval=true)
+     */
+    private $workspaces;
+
     public function __construct()
     {
         $this->markdownNotes = new ArrayCollection();
         $this->noteTags = new ArrayCollection();
+        $this->workspaces = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -218,6 +220,36 @@ class UserAccount implements UserInterface
             // set the owning side to null (unless already changed)
             if ($noteTag->getUser() === $this) {
                 $noteTag->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Workspace[]
+     */
+    public function getWorkspaces(): Collection
+    {
+        return $this->workspaces;
+    }
+
+    public function addWorkspace(Workspace $workspace): self
+    {
+        if (!$this->workspaces->contains($workspace)) {
+            $this->workspaces[] = $workspace;
+            $workspace->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeWorkspace(Workspace $workspace): self
+    {
+        if ($this->workspaces->removeElement($workspace)) {
+            // set the owning side to null (unless already changed)
+            if ($workspace->getUser() === $this) {
+                $workspace->setUser(null);
             }
         }
 

@@ -4,8 +4,10 @@ namespace App\Controller\Users;
 
 use App\Controller\BaseController;
 use App\Entity\UserAccount;
+use App\Entity\Workspace;
 use DateTime;
 use Exception;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -35,7 +37,16 @@ class AccountController extends BaseController
     {
         $this->denyAccessUnlessGranted('ROLE_USER');
 
-        return $this->render('account/index.html.twig', ['user' => $this->getUser()]);
+        return $this->render('account/index.html.twig', [
+            'user' => $this->getUser(),
+            'workspaces' => [
+                [
+                    'name' => 'fake',
+                    'created' => new DateTime(),
+                    'host' => 'https://yada.yada',
+                ],
+            ]
+        ]);
     }
 
     public function accountApi(): JsonResponse
@@ -110,7 +121,6 @@ class AccountController extends BaseController
         }
 
         return $this->redirectToRoute('login');
-        return new RedirectResponse($this->router->generate('login'));
     }
 
     public function edit(Request $request): Response
@@ -177,5 +187,32 @@ class AccountController extends BaseController
 
         return $this->redirectToRoute('login');
         return new RedirectResponse($this->router->generate('login'));
+    }
+
+    public function workspaceRegistration(Request $request, LoggerInterface $logger): Response
+    {
+        $appToken = $request->headers->get('X-AUTH-TOKEN');
+
+        if ($appToken === null) {
+            throw new Exception('App Token was not provided in the request');
+        }
+
+        $entityManager = $this->getDoctrine()->getManager();
+        $workspace = new Workspace();
+
+        $workspace->setCreationDate(new DateTime());
+        $workspace->setName('Temp - Need to fix');
+        $workspace->setToken($appToken);
+        $workspace->setUser($this->getUser());
+
+        try {
+            $entityManager->persist($workspace);
+            $entityManager->flush();
+            $entityManager->clear();
+        } catch (Exception $e) {
+            $logger->error($e->getMessage(), $e->getTrace());
+        }
+
+        return $this->redirectToRoute('account.profile');
     }
 }
