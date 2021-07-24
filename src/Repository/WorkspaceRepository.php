@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Entity\UserAccount;
 use App\Entity\Workspace;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -47,4 +48,19 @@ class WorkspaceRepository extends ServiceEntityRepository
         ;
     }
     */
+
+    public function delete(string $uuid, UserAccount $user): bool
+    {
+        $entityManager = $this->getEntityManager();
+        $workspaceEntity = $this->findOneBy(['user' => $user, 'uuid' => $uuid]);
+
+        if ($workspaceEntity === null) {
+            return false;
+        }
+
+        $entityManager->remove($workspaceEntity);
+        $entityManager->flush();
+
+        return true;
+    }
 }

@@ -1,11 +1,26 @@
 import 'STYLES/workspace/register.scss';
 import { MapStringTo } from 'SCRIPTS/types/Generic';
+import axios from 'axios';
+import { removeSpinner, showSpinner } from 'SCRIPTS/lib/loading-spinner';
+
+interface TokenSourcePayload {
+  accessToken: { token: string, expiration: string, uri: string },
+  refreshToken: { token: string, expiration: string, uri: string },
+};
+
+interface RegistrationData {
+  origin: string|null,
+  name: string|null,
+};
 
 let oauthWindow: Window|null;
 let openChannelIntervalId: ReturnType<typeof setTimeout>|null;
+let registrationForm: HTMLFormElement;
+const registrationContext: RegistrationData = { origin: null, name: null };
 
 window.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('registration-form')?.addEventListener('submit', (e) => formSubmit(e));
+  registrationForm = document.getElementById('registration-form') as HTMLFormElement;
+  registrationForm?.addEventListener('submit', (e) => formSubmit(e));
 });
 
 // https://developers.google.com/web/updates/2018/07/page-lifecycle-api#legacy-lifecycle-apis-to-avoid
@@ -13,21 +28,19 @@ window.addEventListener('DOMContentLoaded', () => {
 // https://developer.mozilla.org/en-US/docs/Web/API/Window/pagehide_event
 // https://developer.mozilla.org/en-US/docs/Web/API/Page_Visibility_API
 window.addEventListener('beforeunload', (event) => {
-  if ((oauthWindow ?? false) === false) {
+  if ((oauthWindow ?? null) !== null) {
     killChildWindow(oauthWindow);
-    // oauthWindow?.close();
-    // oauthWindow?.window?.close();
-    // console.log(oauthWindow);
-    // oauthWindow = null;
   }
 });
 
 function formSubmit(event: Event) {
   event.preventDefault();
-  const inputName = document.getElementById('workspace-name') as HTMLInputElement;
   const inputUri = document.getElementById('registration-uri') as HTMLInputElement;
-  const inputToken = document.getElementById('app-token') as HTMLInputElement;
+  const inputWorkspaceName = document.getElementById('workspace-name') as HTMLInputElement;
+  // const inputToken = document.getElementById('app-token') as HTMLInputElement;
   const url = inputUri.value;
+  registrationContext.origin = (new URL(url)).origin;
+  registrationContext.name = inputWorkspaceName.value;
 
   if (oauthWindow ?? null === false) {
     killChildWindow(oauthWindow);
@@ -43,10 +56,9 @@ function formSubmit(event: Event) {
 
   // Page isn't always available immediately, and the child window can't communicate upwards, w/o a pipe.
   openChannelIntervalId = setInterval(() => {
-    if (openChannelIntervalId ?? false !== false) openChannel(oauthWindow!, url), 2000
-  });
-  console.log({ pipeLoadAttempts: openChannelIntervalId });
-  oauthWindow?.addEventListener('message', (e: MessageEvent) => processWindowMessage(e, url));
+    if (openChannelIntervalId ?? false !== false) openChannel(oauthWindow!)
+  }, 2000);
+  oauthWindow?.addEventListener('message', (e: MessageEvent) => processWindowMessage(e));
 }
 
 /**
@@ -55,14 +67,19 @@ function formSubmit(event: Event) {
 function toggleWorkspaceInputs(isEnabled: boolean) {
   const inputName = document.getElementById('workspace-name') as HTMLInputElement;
   const inputUri = document.getElementById('registration-uri') as HTMLInputElement;
-  const inputToken = document.getElementById('app-token') as HTMLInputElement;
+  // const inputToken = document.getElementById('app-token') as HTMLInputElement;
 
   inputName.disabled = !isEnabled;
   inputUri.disabled = !isEnabled;
-  inputToken.disabled = !isEnabled;
+  // inputToken.disabled = !isEnabled;
 }
 
-function processWindowMessage(event: MessageEvent, uri: string) {
+function clearWorkspaceInputs() {
+  (document.getElementById('workspace-name') as HTMLInputElement).value = '';
+  (document.getElementById('registration-uri') as HTMLInputElement).value = '';
+}
+
+function processWindowMessage(event: MessageEvent) {
   console.log(event.data)
   const data = JSON.parse(event.data);
   const load = data?.load ?? null;
@@ -79,19 +96,19 @@ function processWindowMessage(event: MessageEvent, uri: string) {
 
   switch (state) {
     case 'ready':
-      openChannel(oauthWindow!, uri);
+      openChannel(oauthWindow!);
       break;
     default:
   }
 }
 
-function openChannel(page: Window, uri: string) {
+function openChannel(page: Window) {
   const channel = new MessageChannel();
   // Listen for messages on port1, coming from the other page
   channel.port1.onmessage = processPipeMessage;
 
   // Transfer port2 to the other page
-  page.postMessage(JSON.stringify({ state: 'pipe-ready'}), (new URL(uri)).origin, [channel.port2]);
+  page.postMessage(JSON.stringify({ state: 'pipe-ready'}), registrationContext.origin!, [channel.port2]);
 }
 
 /**
@@ -104,30 +121,24 @@ function openChannel(page: Window, uri: string) {
  * - Machine-friendly sitemap, for getting up-to-date routes of the above. Should be canonical.
  */
 function processPipeMessage(event: MessageEvent) {
-  console.log(event.data)
   const data = JSON.parse(event.data);
   const load: MapStringTo<any> = data?.load ?? {};
   const action = data?.action ?? null;
   const state = data?.state ?? null;
 
-  console.log({ load, action, state });
-
   Object.keys(load).forEach((packageLoad) => {
     switch (packageLoad) {
       case 'tokens':
-        try {
-          const tokenData = JSON.parse(load[packageLoad]);
-          console.log(tokenData);
-        } catch(e) {
-          console.debug([
-            e,
-            load[packageLoad],
-          ]);
-        }
-        console.log([
-          packageLoad,
-          load[packageLoad],
-        ]);
+        showSpinner(registrationForm);
+        const tokenData: TokenSourcePayload = load[packageLoad];
+
+        requestNewWorkspace(tokenData).then(() => {
+          registrationContext.name = null;
+          registrationContext.origin = null;
+          clearWorkspaceInputs();
+          removeSpinner(registrationForm);
+          window.location.reload();
+        }).catch((error) => console.debug(error));
         break;
       default:
     }
@@ -137,7 +148,6 @@ function processPipeMessage(event: MessageEvent) {
     case 'close':
       killChildWindow(oauthWindow);
       toggleWorkspaceInputs(true);
-      console.log(event.ports);
       event.ports.forEach((port: MessagePort) => port.close());
       break;
     default:
@@ -147,6 +157,7 @@ function processPipeMessage(event: MessageEvent) {
     case 'ready':
       clearInterval(openChannelIntervalId!);
       openChannelIntervalId = null;
+      console.debug('Connection established');
       // MessageChannel pipe is ready. Don't need to do anything but wait.
       break;
     case 'closing':
@@ -159,4 +170,31 @@ function processPipeMessage(event: MessageEvent) {
 function killChildWindow(child: Window|null) {
   child?.close();
   child = null;
+}
+
+function requestNewWorkspace(tokens: TokenSourcePayload): Promise<any> {
+  return new Promise((resolve, reject) => {
+    console.log(tokens.refreshToken);
+    const formData = new FormData();
+    formData.set('refreshToken', tokens.refreshToken.token ?? '');
+    formData.set('refreshExpiration', tokens.refreshToken.expiration ?? new Date().toDateString());
+    formData.set('refreshUri', tokens.refreshToken.uri ?? '');
+    formData.set('workspaceName', registrationContext.name ?? 'No Name Available');
+    formData.set('workspaceOrigin', registrationContext.origin ?? 'No Origin Available');
+
+    axios({
+      url: registrationForm.dataset.successuri,
+      method: 'post',
+      data: formData,
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    })
+      .then(() => resolve(true))
+      .catch((response) => {
+        console.debug(response instanceof Error ? response.message : response.data);
+        removeSpinner(registrationForm);
+        reject();
+      });
+  });
 }

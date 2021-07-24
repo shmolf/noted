@@ -5,9 +5,12 @@ namespace App\Controller\Users;
 use App\Controller\BaseController;
 use App\Entity\UserAccount;
 use App\Entity\Workspace;
+use App\Repository\WorkspaceRepository;
+use App\Utility\QoL;
 use DateTime;
 use Exception;
 use Psr\Log\LoggerInterface;
+use Ramsey\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -37,15 +40,22 @@ class AccountController extends BaseController
     {
         $this->denyAccessUnlessGranted('ROLE_USER');
 
+        $workSpaces = array_reduce(
+            $this->getUser()->getWorkspaces()->toArray(),
+            fn(array $workSpaces, Workspace $workSpace) => QoL::arrPush($workSpaces, [
+                'name' => $workSpace->getName(),
+                'expiration' => $workSpace->getTokenExpiration(),
+                'origin' => $workSpace->getOrigin(),
+                'creation' => $workSpace->getCreationDate(),
+                'uuid' => $workSpace->getUuid(),
+                'refreshUri' => $workSpace->getTokenUri(),
+            ]),
+            []
+        );
+
         return $this->render('account/index.html.twig', [
             'user' => $this->getUser(),
-            'workspaces' => [
-                [
-                    'name' => 'fake',
-                    'created' => new DateTime(),
-                    'host' => 'https://yada.yada',
-                ],
-            ]
+            'workspaces' => $workSpaces,
         ]);
     }
 
@@ -191,19 +201,17 @@ class AccountController extends BaseController
 
     public function workspaceRegistration(Request $request, LoggerInterface $logger): Response
     {
-        $appToken = $request->headers->get('X-AUTH-TOKEN');
-
-        if ($appToken === null) {
-            throw new Exception('App Token was not provided in the request');
-        }
-
         $entityManager = $this->getDoctrine()->getManager();
         $workspace = new Workspace();
 
         $workspace->setCreationDate(new DateTime());
-        $workspace->setName('Temp - Need to fix');
-        $workspace->setToken($appToken);
-        $workspace->setUser($this->getUser());
+        $workspace->setName($request->request->get('workspaceName', 'No Name Provided'));
+        $workspace->setToken($request->request->get('refreshToken', ''));
+        $workspace->setTokenExpiration(new DateTime($request->request->get('refreshExpiration', 'now')));
+        $workspace->setOrigin($request->request->get('workspaceOrigin', ''));
+        $workspace->setTokenUri($request->request->get('refreshUri', ''));
+        $workspace->setUuid(Uuid::uuid4()->toString());
+        $this->getUser()->addWorkspace($workspace);
 
         try {
             $entityManager->persist($workspace);
@@ -213,6 +221,12 @@ class AccountController extends BaseController
             $logger->error($e->getMessage(), $e->getTrace());
         }
 
-        return $this->redirectToRoute('account.profile');
+        return new JsonResponse(['state' => 'success']);
+    }
+
+    public function workspaceDelete(string $uuid, WorkspaceRepository $repository): Response
+    {
+        $didDelete = $repository->delete($uuid, $this->getUser());
+        return new JsonResponse(null, ($didDelete ? 200 : 404));
     }
 }

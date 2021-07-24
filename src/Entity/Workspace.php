@@ -38,6 +38,26 @@ class Workspace
      */
     private $user;
 
+    /**
+     * @ORM\Column(type="string", length=2000)
+     */
+    private $tokenUri;
+
+    /**
+     * @ORM\Column(type="datetime")
+     */
+    private $tokenExpiration;
+
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $origin;
+
+    /**
+     * @ORM\Column(type="guid", unique=true)
+     */
+    private $uuid;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -87,6 +107,54 @@ class Workspace
     public function setUser(?UserAccount $user): self
     {
         $this->user = $user;
+
+        return $this;
+    }
+
+    public function getTokenUri(): ?string
+    {
+        return $this->tokenUri;
+    }
+
+    public function setTokenUri(string $tokenUri): self
+    {
+        $this->tokenUri = $tokenUri;
+
+        return $this;
+    }
+
+    public function getTokenExpiration(): ?\DateTimeInterface
+    {
+        return $this->tokenExpiration;
+    }
+
+    public function setTokenExpiration(\DateTimeInterface $tokenExpiration): self
+    {
+        $this->tokenExpiration = $tokenExpiration;
+
+        return $this;
+    }
+
+    public function getOrigin(): ?string
+    {
+        return $this->origin;
+    }
+
+    public function setOrigin(string $origin): self
+    {
+        $this->origin = $origin;
+
+        return $this;
+    }
+
+    public function getUuid(): ?string
+    {
+        return $this->uuid;
+    }
+
+    public function setUuid(string $uuid): self
+    {
+        $this->uuid = $uuid;
 
         return $this;
     }

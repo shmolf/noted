@@ -20,7 +20,6 @@ final class Version20210424222334 extends AbstractMigration
     public function up(Schema $schema) : void
     {
         // this up() migration is auto-generated, please modify it to your needs
-        $this->addSql('ALTER TABLE markdown_note CHANGE content content MEDIUMTEXT DEFAULT NULL');
         $this->addSql('CREATE UNIQUE INDEX UNIQ_3DDA5752710541FE ON markdown_note (note_uuid)');
     }
 
@@ -28,6 +27,5 @@ final class Version20210424222334 extends AbstractMigration
     {
         // this down() migration is auto-generated, please modify it to your needs
         $this->addSql('DROP INDEX UNIQ_3DDA5752710541FE ON markdown_note');
-        $this->addSql('ALTER TABLE markdown_note CHANGE content content MEDIUMTEXT CHARACTER SET utf8mb4 DEFAULT NULL COLLATE `utf8mb4_unicode_ci`');
     }
 }

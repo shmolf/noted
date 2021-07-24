@@ -46,7 +46,7 @@ Encore
     .addEntry('user-login', './assets/scripts/users/login.ts')
     .addEntry('user-edit', './assets/scripts/users/edit.ts')
     .addEntry('forgot-request', './assets/scripts/password/forgot-request.ts')
-    .addEntry('workspace-register', './assets/scripts/workspace/register.ts')
+    .addEntry('workspace-management', './assets/scripts/workspace/management.ts')
 
     // When enabled, Webpack "splits" your files into smaller pieces for greater optimization.
     .splitEntryChunks()

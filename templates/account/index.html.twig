@@ -3,14 +3,14 @@
 {% block stylesheets %}
     {{ parent() }}
     {{ encore_entry_link_tags('user-edit') }}
-    {{ encore_entry_link_tags('workspace-register') }}
+    {{ encore_entry_link_tags('workspace-management') }}
 {% endblock %}
 
 
 {% block javascripts %}
     {{ parent() }}
     {{ encore_entry_script_tags('user-edit') }}
-    {{ encore_entry_script_tags('workspace-register') }}
+    {{ encore_entry_script_tags('workspace-management') }}
 {% endblock %}
 
 {% block pageContext %}- Account{% endblock %}
@@ -54,7 +54,7 @@
     <hr>
     <hr>
     <div class="row">
-        <form id="registration-form">
+        <form id="registration-form" data-successUri="{{ path('account.workspace.registrationSuccess') }}">
             <div class="row">
                 <div class="input-field col s12 m4">
                     {% set txtAppName = 'Workspace (Host) Name'|trans %}
@@ -73,7 +73,7 @@
                         pattern="https?://.*" />
                     <span class="helper-text" data-error="{{ 'Invalid'|trans }} {{ txtDateName }}" data-success="👍"></span>
                 </div>
-                <div class="input-field col s12 m4">
+                {# <div class="input-field col s12 m4">
                     {% set txtDateName = 'Application Token'|trans %}
                     <label for="app-token">{{ txtDateName }}</label>
                     <input type="text" id="app-token" name="app-token" class="active validate"
@@ -81,12 +81,11 @@
                         title="{{ txtDateName }}"
                         pattern="[\w]+" />
                     <span class="helper-text" data-error="{{ 'Invalid'|trans }} {{ txtDateName }}" data-success="👍"></span>
-                </div>
+                </div> #}
             </div>
             <div class="row">
                 <button id="generate-btn" type="submit" class="btn right">{{ 'Register'|trans }}</button>
             </div>
-            <input type="hidden" name="returnUrl" value="{{ absolute_url(path('account.workspace.registrationSuccess')) }}" />
         </form>
         <table class="striped highlight centered">
             <thead>
@@ -94,23 +93,35 @@
                     <th>{{ 'Name'|trans }}</th>
                     <th>{{ 'Host'|trans }}</th>
                     <th>{{ 'Created'|trans }}</th>
-                    <th></th>
+                    <th>{{ 'Expires'|trans }}</th>
+                    <th>Update Refresh Token</th>
+                    <th>Delete Workspace</th>
                 </tr>
             </thead>
             <tbody>
             {% if workspaces is empty %}
                 <tr class="token-record">
-                    <td colspan="4">
+                    <td colspan="6">
                         {{ 'You have not registered any workspaces yet.'|trans }}
                     </td>
                 </tr>
             {% else %}
                 {% for workspace in workspaces %}
-                    <tr class="workspace-record" data-url="fake">
+                    <tr class="workspace-record">
                         <td>{{ workspace.name }}</td>
-                        <td><a href="{{ workspace.host }}" target="_blank">{{ workspace.host }}</a></td>
-                        <td><time>{{ workspace.created|date('Y-m-d H:i:s') }}</time></td>
-                        <td><button type="button" class="btn delete">{{ 'Delete'|trans }}</button></td>
+                        <td><a href="{{ workspace.origin }}" target="_blank">{{ workspace.origin }}</a></td>
+                        <td><time>{{ workspace.creation|date('Y-m-d H:i:s') }}</time></td>
+                        <td><time>{{ workspace.expiration|date('Y-m-d H:i:s') }}</time></td>
+                        <td>
+                            <button type="button" class="btn refresh-token" data-uri="{{ workspace.refreshUri }}">
+                                {{ 'Refresh'|trans }} <i class="fas fa-sync"></i>
+                            </button>
+                        </td>
+                        <td>
+                            <button type="button" class="btn delete" data-uri="{{ path('account.workspace.delete', {'uuid': workspace.uuid}) }}">
+                                {{ 'Delete'|trans }}
+                            </button>
+                        </td>
                     </tr>
                 {% endfor %}
             {% endif %}
