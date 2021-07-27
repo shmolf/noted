@@ -57,7 +57,7 @@
         <form id="registration-form" data-successUri="{{ path('account.workspace.registrationSuccess') }}">
             <div class="row">
                 <div class="input-field col s12 m4">
-                    {% set txtAppName = 'Workspace (Host) Name'|trans %}
+                    {% set txtAppName = 'Workspace Name'|trans %}
                     <label for="name">{{ txtAppName }}</label>
                     <input type="text" id="workspace-name" name="name" class="active validate" required autofocus
                         title="{{ txtAppName }}"
