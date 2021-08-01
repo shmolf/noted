@@ -55,7 +55,7 @@ api.v1.workspace.update:
 
 api.v1.workspace.delete:
   path: /workspace/uuid/{uuid}
-  controller: App\Notes\WorkspaceController::workspaceDelete
+  controller: App\Controller\Notes\WorkspaceController::workspaceDelete
   methods: DELETE
   requirements:
     uuid: '[a-fA-F0-9\-]+'
