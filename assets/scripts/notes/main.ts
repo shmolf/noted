@@ -74,8 +74,6 @@ const noteDelayMax = 10 * 1000;
 /** @type {string|null} */
 const cmTheme = localStorage.getItem(CM_THEME_COOKIE);
 
-let activeWorkspace: WorkspacePackage;
-
 $(() => {
   loadSw();
   initJqueryVariables();
@@ -425,7 +423,6 @@ function onWorkerMessage(event: MessageEvent) {
       case workerStates.WORKSPACE_DATA.k: {
         const workspace: WorkspacePackage = msg.data;
         console.debug(workspace);
-        activeWorkspace = workspace;
         break;
       }
       default:

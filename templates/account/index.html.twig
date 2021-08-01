@@ -113,7 +113,7 @@
                         <td><time class="time-creation">{{ workspace.creation|date('Y-m-d H:i:s') }}</time></td>
                         <td><time class="time-expiration">{{ workspace.expiration|date('Y-m-d H:i:s') }}</time></td>
                         <td>
-                            <button type="button" class="btn refresh-token"
+                            <button type="button" class="btn refresh"
                                 data-uri="{{ path('api.v1.workspace.update', {'uuid': workspace.uuid}) }}"
                                 data-refresh-uri="{{ workspace.refreshUri }}">
                                 {{ 'Refresh'|trans }} <i class="fas fa-sync"></i>
