@@ -170,13 +170,13 @@ function killChildWindow(child: Window|null) {
   child = null;
 }
 
-function requestNewWorkspace(tokens: TokenSourcePayload): Promise<any> {
+function requestNewWorkspace(tokenData: TokenSourcePayload): Promise<any> {
   return new Promise((resolve, reject) => {
-    console.log(tokens.refreshToken);
+    console.log(tokenData);
     const formData = new FormData();
-    formData.set('refreshToken', tokens.refreshToken.token ?? '');
-    formData.set('refreshExpiration', tokens.refreshToken.expiration ?? new Date().toDateString());
-    formData.set('refreshUri', tokens.refreshToken.uri ?? '');
+    formData.set('refreshToken', tokenData.token ?? '');
+    formData.set('refreshExpiration', tokenData.expiration ?? new Date().toDateString());
+    formData.set('refreshUri', tokenData.uri ?? '');
     formData.set('workspaceName', registrationContext.name ?? 'No Name Available');
     formData.set('workspaceOrigin', registrationContext.origin ?? 'No Origin Available');
 

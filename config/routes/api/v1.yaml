@@ -45,3 +45,17 @@ api.v1.workspace.getByUuid:
   methods: GET
   requirements:
     uuid: '[a-fA-F0-9\-]+'
+
+api.v1.workspace.update:
+  path: /workspace/uuid/{uuid}
+  controller: App\Controller\Notes\NotesController::updateWorkspaceByUuid
+  methods: PUT
+  requirements:
+    uuid: '[a-fA-F0-9\-]+'
+
+api.v1.workspace.delete:
+  path: /workspace/uuid/{uuid}
+  controller: App\Controller\Users\AccountController::workspaceDelete
+  methods: DELETE
+  requirements:
+    uuid: '[a-fA-F0-9\-]+'

@@ -103,7 +103,6 @@ class AccountController extends BaseController
             return new JsonResponse($data, 400);
         }
 
-        $entityManager = $this->getDoctrine()->getManager();
         $user = new UserAccount();
 
         $user->email = $email;
@@ -113,6 +112,7 @@ class AccountController extends BaseController
         $user->createdDate = new DateTime();
 
         try {
+            $entityManager = $this->getDoctrine()->getManager();
             $entityManager->persist($user);
             $entityManager->flush();
             $entityManager->clear();
@@ -171,7 +171,6 @@ class AccountController extends BaseController
             return new JsonResponse($data, 400);
         }
 
-        $entityManager = $this->getDoctrine()->getManager();
 
         $authenticatedUser->email = $email;
         $authenticatedUser->setPassword($this->passwordEncoder->encodePassword($authenticatedUser, $password));
@@ -179,6 +178,7 @@ class AccountController extends BaseController
         $authenticatedUser->lastName = $lastName;
 
         try {
+            $entityManager = $this->getDoctrine()->getManager();
             $entityManager->persist($authenticatedUser);
             $entityManager->flush();
             $entityManager->clear();
@@ -201,7 +201,6 @@ class AccountController extends BaseController
 
     public function workspaceRegistration(Request $request, LoggerInterface $logger): Response
     {
-        $entityManager = $this->getDoctrine()->getManager();
         $workspace = new Workspace();
 
         $workspace->setCreationDate(new DateTime());
@@ -214,6 +213,7 @@ class AccountController extends BaseController
         $this->getUser()->addWorkspace($workspace);
 
         try {
+            $entityManager = $this->getDoctrine()->getManager();
             $entityManager->persist($workspace);
             $entityManager->flush();
             $entityManager->clear();
@@ -222,11 +222,5 @@ class AccountController extends BaseController
         }
 
         return new JsonResponse(['state' => 'success']);
-    }
-
-    public function workspaceDelete(string $uuid, WorkspaceRepository $repository): Response
-    {
-        $didDelete = $repository->delete($uuid, $this->getUser());
-        return new JsonResponse(null, ($didDelete ? 200 : 404));
     }
 }

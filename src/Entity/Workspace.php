@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\WorkspaceRepository;
+use DateTimeInterface;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 
@@ -71,12 +72,12 @@ class Workspace
         return $this->id;
     }
 
-    public function getCreationDate(): ?\DateTimeInterface
+    public function getCreationDate(): ?DateTimeInterface
     {
         return $this->creationDate;
     }
 
-    public function setCreationDate(\DateTimeInterface $creationDate): self
+    public function setCreationDate(DateTimeInterface $creationDate): self
     {
         $this->creationDate = $creationDate;
 
@@ -131,12 +132,12 @@ class Workspace
         return $this;
     }
 
-    public function getTokenExpiration(): ?\DateTimeInterface
+    public function getTokenExpiration(): ?DateTimeInterface
     {
         return $this->tokenExpiration;
     }
 
-    public function setTokenExpiration(\DateTimeInterface $tokenExpiration): self
+    public function setTokenExpiration(DateTimeInterface $tokenExpiration): self
     {
         $this->tokenExpiration = $tokenExpiration;
 

@@ -110,15 +110,17 @@
                     <tr class="workspace-record">
                         <td>{{ workspace.name }}</td>
                         <td><a href="{{ workspace.origin }}" target="_blank">{{ workspace.origin }}</a></td>
-                        <td><time>{{ workspace.creation|date('Y-m-d H:i:s') }}</time></td>
-                        <td><time>{{ workspace.expiration|date('Y-m-d H:i:s') }}</time></td>
+                        <td><time class="time-creation">{{ workspace.creation|date('Y-m-d H:i:s') }}</time></td>
+                        <td><time class="time-expiration">{{ workspace.expiration|date('Y-m-d H:i:s') }}</time></td>
                         <td>
-                            <button type="button" class="btn refresh-token" data-uri="{{ workspace.refreshUri }}">
+                            <button type="button" class="btn refresh-token"
+                                data-uri="{{ path('api.v1.workspace.update', {'uuid': workspace.uuid}) }}"
+                                data-refresh-uri="{{ workspace.refreshUri }}">
                                 {{ 'Refresh'|trans }} <i class="fas fa-sync"></i>
                             </button>
                         </td>
                         <td>
-                            <button type="button" class="btn delete" data-uri="{{ path('account.workspace.delete', {'uuid': workspace.uuid}) }}">
+                            <button type="button" class="btn delete" data-uri="{{ path('api.v1.workspace.delete', {'uuid': workspace.uuid}) }}">
                                 {{ 'Delete'|trans }}
                             </button>
                         </td>

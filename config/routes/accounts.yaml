@@ -20,10 +20,3 @@ account.profile:
 account.workspace.registrationSuccess:
   path: /registration-success
   controller: App\Controller\Users\AccountController::workspaceRegistration
-
-account.workspace.delete:
-  path: /workspace/{uuid}
-  controller: App\Controller\Users\AccountController::workspaceDelete
-  methods: DELETE
-  requirements:
-    uuid: '[a-fA-F0-9\-]+'

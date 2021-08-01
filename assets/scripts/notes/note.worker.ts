@@ -131,7 +131,7 @@ function getWorkspaceByUuid(uuid: string): Promise<WorkspacePackage> {
 }
 
 function getAccessToken() {
-  axios.get(`${activeWorkspace.tokenUri}?grant_type=refreshToken`).then((response) => {
+  axios.get(`${activeWorkspace.tokenUri}?grant_type=accessToken`).then((response) => {
     const tokenPayload: TokenSourcePayload = response.data;
     console.debug(tokenPayload);
   });

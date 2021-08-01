@@ -4,9 +4,9 @@ namespace App\Controller\Notes;
 
 use App\Entity\UserAccount;
 use App\Entity\Workspace;
-use App\Repository\MarkdownNoteRepository;
+use App\Repository\WorkspaceRepository;
 use Exception;
-use shmolf\NotedHydrator\NoteHydrator;
+use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -31,26 +31,42 @@ class WorkspaceController extends AbstractController
         ]);
     }
 
-    public function upsertNote(string $uuid, MarkdownNoteRepository $repo, Request $request): JsonResponse
+    public function updateWorkspaceByUuid(string $uuid, Request $request, LoggerInterface $logger): JsonResponse
     {
-        $hydrator = new NoteHydrator();
-        $noteJsonString = $request->getContent();
-        $note = $hydrator->getHydratedNote($noteJsonString);
-        if ($note === null) {
-            throw new Exception("Could not hydrate note with given JSON:\n{$noteJsonString}");
+        $newToken = $request->request->get('token');
+        $expiration = $request->request->get('expiration');
+
+        if (trim($expiration ?? '') === '') return new JsonResponse(['Missing Expiration'], Response::HTTP_BAD_REQUEST);
+        if (trim($newToken ?? '') === '') return new JsonResponse(['Missing Token'], Response::HTTP_BAD_REQUEST);
+
+        /** @var UserAccount */
+        $user = $this->getUser();
+        $workSpaces = $user->getWorkspaces()->toArray();
+        /** @var Workspace|false */
+        $workSpace = current(array_filter($workSpaces, fn(Workspace $workspace) => $workspace->getUuid() === $uuid));
+
+        if ($workSpace === false) return new JsonResponse(null, Response::HTTP_NOT_FOUND);
+
+        $workSpace->setToken($newToken);
+        $workSpace->setTokenExpiration($expiration);
+
+        try {
+            $entityManager = $this->getDoctrine()->getManager();
+            $entityManager->persist($workSpace);
+            $entityManager->flush();
+            $entityManager->clear();
+        } catch (Exception $e) {
+            $logger->error($e->getMessage(), $e->getTrace());
         }
 
-        $noteEntity = $repo->upsert($uuid, $note, $this->getUser());
-
-        return $this->json($noteEntity, 200, [], [
+        return $this->json($workSpace, 200, [], [
             'groups' => ['main'],
         ]);
     }
 
-    public function deleteNoteByUuid(string $uuid, MarkdownNoteRepository $repo): JsonResponse
+    public function workspaceDelete(string $uuid, WorkspaceRepository $repository): Response
     {
-        $didDelete = $repo->delete($uuid, $this->getUser());
-
+        $didDelete = $repository->delete($uuid, $this->getUser());
         return new JsonResponse(null, ($didDelete ? 200 : 404));
     }
 }

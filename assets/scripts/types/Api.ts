@@ -12,6 +12,7 @@ export interface AjaxErrorRepsonse {
 }
 
 export interface TokenSourcePayload {
-  accessToken: { token: string, expiration: string, uri: string },
-  refreshToken: { token: string, expiration: string, uri: string },
+  token: string,
+  expiration: string,
+  uri: string,
 }
