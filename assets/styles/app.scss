@@ -38,9 +38,20 @@ nav {
     overflow: hidden;
     text-overflow: ellipsis;
 
+    .logo-image {
+      width: 32px;
+      height: 32px;
+      display: inline-block;
+      background-image: url('/public/noted-logo-static.gif');
+    }
+
     &:active,
     &:hover {
       background: rgba(0, 0, 0, 0.5);
+
+      .logo-image {
+        background-image: url('/public/noted-logo-animated.gif');
+      }
     }
   }
 

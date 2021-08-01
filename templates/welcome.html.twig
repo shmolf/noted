@@ -37,7 +37,7 @@
 {% block body %}
     {% if is_granted('ROLE_USER') %}
         {{ _self.settingsPopup(pageThemes, highlightJsThemes) }}
-        {{ _self.notePage() }}
+        {{ _self.notePage(workspaces) }}
     {% else %}
         {{ _self.welcomePage() }}
     {% endif %}
@@ -116,9 +116,23 @@
     </select>
 {% endmacro %}
 
-{% macro notePage() %}
+{% macro notePage(workspaces) %}
     <aside id="note-navigation">
         <div id="toolbox">
+            {% if workspaces|length == 1 %}
+                {% set workspace = workspaces|first %}
+                <span id="active-workspace" class="active-workspace" value="{{ workspace.getUuid() }}">
+                    {{ workspace.getName() }}
+                </span>
+            {% elseif workspaces|length > 1 %}
+                <select id="active-workspace" class="active-workspace">
+                {% for index, workspace in workspaces %}
+                    <option {{ loop.first ? 'selected' : '' }} value="{{ workspace.getUuid() }}">
+                        {{ workspace.getName() }}
+                    </option>
+                {% endfor %}
+                </select>
+            {% endif %}
             <button type="button" id="new-note" class="btn">New Note</button>
         </div>
         <div id="note-items">

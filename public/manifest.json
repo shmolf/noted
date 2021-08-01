@@ -4,9 +4,9 @@
   "description": "Stores GFM Flavored Markdown Notes",
   "icons": [
     {
-      "src": "/xinu.png",
-      "sizes": "300x300",
-      "type": "image/png"
+      "src": "/noted-logo-animated.gif",
+      "sizes": "32x32",
+      "type": "image/gif"
     }
   ],
   "app": {

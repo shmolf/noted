@@ -2,13 +2,14 @@
 
 namespace App\Controller;
 
+use App\Repository\WorkspaceRepository;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 
 class WelcomeController extends AbstractController
 {
-    public function __invoke(Request $request): Response
+    public function __invoke(Request $request, WorkspaceRepository $workspaceRepository): Response
     {
         $selectedPageTheme = $request->cookies->get('page-theme') ?? 'auto';
         $pageThemes = $this->getPageThemes();
@@ -17,11 +18,13 @@ class WelcomeController extends AbstractController
         $selectedHljsTheme = $request->cookies->get('hljs-theme') ?? 'default';
         $highlightJsThemes = $this->getHighlightJsThemes();
         $highlightJsThemes[$selectedHljsTheme]['isSelected'] = true;
+        // dd($workspaceRepository->findBy(['user' => $this->getUser()]));
 
         return $this->render('welcome.html.twig', [
             'pageTheme' => $request->cookies->get('page-theme') ?? 'auto',
             'pageThemes' => $pageThemes,
             'highlightJsThemes' => $highlightJsThemes,
+            'workspaces' => $workspaceRepository->findBy(['user' => $this->getUser()]),
         ]);
     }
 

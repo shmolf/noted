@@ -1,19 +1,19 @@
 import {
-  workerStates, clientActions, NotePackage, Note,
+  workerStates, clientActions, NotePackage, Note, WorkspacePackage,
 } from 'SCRIPTS/notes/worker-client-api';
 import axios from 'axios';
 import { MapStringTo } from 'SCRIPTS/types/Generic';
 
 // eslint-disable-next-line no-restricted-globals
 const worker:Worker = self as any;
+let activeWorkspace: WorkspacePackage;
+let accessToken: string;
 
 (() => {
   worker.onmessage = (e) => {
     const msg = JSON.parse(e.data);
 
-    if ('action' in msg) {
-      handleAction(msg);
-    }
+    if ('action' in msg) handleAction(msg);
   };
 
   worker.postMessage(workerStates.READY.f());
@@ -46,6 +46,10 @@ function handleAction(msg: MapStringTo<any>) {
         break;
       case clientActions.EXPORT_NOTES.k:
         ExportNotes();
+        break;
+      case clientActions.GET_WKSP_BYUUID.k:
+        const { data: uuid } = msg;
+        GetWorkspace(uuid);
         break;
       default:
     }
@@ -116,6 +120,20 @@ function delFromApiByUuid(uuid: string): Promise<any> {
   });
 }
 
+function getWorkspaceByUuid(uuid: string): Promise<WorkspacePackage> {
+  return new Promise((resolve, reject) => {
+    axios.get(`/🔌/v1/workspace/uuid/${uuid}`)
+      .then((response) => resolve(response.data))
+      .catch((error) => reject(error));
+  });
+}
+
+function getAccessToken() {
+  axios.get(activeWorkspace.tokenUri)
+}
+
+////////////////// Wrapper Functions
+
 function NewNote() {
   sendNewNoteRequest()
     .then((r) => r).catch((e) => console.warn(e))
@@ -148,9 +166,15 @@ function GetNoteList() {
     .catch((error) => console.warn(`Inbound request to fetch a record failed.\n${error}`));
 }
 
-/**
- *
- */
 function ExportNotes() {
   exportNotes().then((response) => worker.postMessage(workerStates.EXPORT_DATA.f(response)));
+}
+
+function GetWorkspace(uuid: string) {
+  getWorkspaceByUuid(uuid)
+    .then((workspace) => {
+      worker.postMessage(workerStates.WORKSPACE_DATA.f(workspace));
+      activeWorkspace = workspace;
+    })
+    .catch((error) => console.warn(error));
 }

@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Repository\WorkspaceRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass=WorkspaceRepository::class)
@@ -19,16 +20,19 @@ class Workspace
 
     /**
      * @ORM\Column(type="datetime")
+     * @Groups("main")
      */
     private $creationDate;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups("main")
      */
     private $name;
 
     /**
      * @ORM\Column(type="string", length=510, nullable=true)
+     * @Groups("main")
      */
     private $token;
 
@@ -40,21 +44,25 @@ class Workspace
 
     /**
      * @ORM\Column(type="string", length=2000)
+     * @Groups("main")
      */
     private $tokenUri;
 
     /**
      * @ORM\Column(type="datetime")
+     * @Groups("main")
      */
     private $tokenExpiration;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups("main")
      */
     private $origin;
 
     /**
      * @ORM\Column(type="guid", unique=true)
+     * @Groups("main")
      */
     private $uuid;
 

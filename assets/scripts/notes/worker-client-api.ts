@@ -1,3 +1,4 @@
+import { DateTime } from 'SCRIPTS/types/Api';
 import { MapStringTo } from 'SCRIPTS/types/Generic';
 
 export interface Note extends MapStringTo<any> {
@@ -54,6 +55,10 @@ export const clientActions = Object.freeze({
     k: 'exportNotes',
     f: (): string => packAction(clientActions.EXPORT_NOTES.k),
   },
+  GET_WKSP_BYUUID: {
+    k: 'getWorkspaceByUuid',
+    f: (uuid: string): string => packAction(clientActions.GET_WKSP_BYUUID.k, uuid),
+  }
 });
 
 export const workerStates = Object.freeze({
@@ -92,6 +97,10 @@ export const workerStates = Object.freeze({
   EXPORT_DATA: {
     k: 'export-data',
     f: (notes: NotePackage[]): string => packState(workerStates.EXPORT_DATA.k, notes),
+  },
+  WORKSPACE_DATA: {
+    k: 'worspace-data',
+    f: (workspace: WorkspacePackage): string => packState(workerStates.WORKSPACE_DATA.k, workspace),
   },
 });
 
@@ -169,4 +178,16 @@ export class NotePackage {
   private getProperty<K extends keyof this>(propertyName: K): this[K]|undefined {
     return this[propertyName] ?? undefined;
   }
+}
+
+export interface WorkspacePackage {
+  uuid: string,
+  origin: string,
+  name: string,
+  token: string,
+  tokenUri: string,
+  tokenExpiration: DateTime,
+  /* These properties are commented out, since they'll not really necessary, but are available
+  createdDate: string,
+  */
 }

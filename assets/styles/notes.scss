@@ -161,6 +161,18 @@ main {
         margin-bottom: 5px;
       }
     }
+
+    #toolbox input.select-dropdown,
+    span#active-workspace {
+      font-weight: bold;
+      background-color: var(--note-color-3);
+    }
+
+    span#active-workspace {
+      display: block;
+      text-align: center;
+      line-height: 32px;
+    }
   }
 
   #noted {

@@ -20,7 +20,7 @@ Encore
       SCRIPTS: path.resolve(__dirname, './assets/scripts/'),
       STYLES: path.resolve(__dirname, './assets/styles/'),
       NODE: path.resolve(__dirname, './node_modules/'),
-      Images: path.resolve(__dirname, './assets/images/')
+      IMAGES: path.resolve(__dirname, './assets/images/')
     })
 
     .copyFiles({

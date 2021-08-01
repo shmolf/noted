@@ -38,3 +38,10 @@ api.v1.note.export:
   path: /note/export
   controller: App\Controller\Notes\NotesController::getNotesForUser
   methods: GET
+
+api.v1.workspace.getByUuid:
+  path: /workspace/uuid/{uuid}
+  controller: App\Controller\Notes\NotesController::getWorkspaceByUuid
+  methods: GET
+  requirements:
+    uuid: '[a-fA-F0-9\-]+'

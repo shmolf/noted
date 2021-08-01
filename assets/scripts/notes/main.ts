@@ -3,10 +3,10 @@ import M from 'materialize-css';
 import 'STYLES/notes.scss';
 
 import { MapStringTo } from 'SCRIPTS/types/Generic';
-import { workerStates, clientActions, NotePackage } from 'SCRIPTS/notes/worker-client-api';
+import { workerStates, clientActions, NotePackage, WorkspacePackage } from 'SCRIPTS/notes/worker-client-api';
 import { initMarkdownIt, renderMarkdown } from 'SCRIPTS/notes/markdown-output';
 import {
-  initNoteNav, renderNoteList, getNavItem, setNavItemSaveState, setNavItemTitle,
+  initNoteNav, renderNoteList, getNavItem, setNavItemSaveState, setNavItemTitle, clearNoteList,
 } from 'SCRIPTS/notes/note-nav';
 import FileDownload from 'js-file-download';
 // eslint-disable-next-line import/no-webpack-loader-syntax
@@ -64,6 +64,8 @@ const noteDelayMax = 10 * 1000;
 /** @type {string|null} */
 const cmTheme = localStorage.getItem(CM_THEME_COOKIE);
 
+let activeWorkspace: WorkspacePackage;
+
 $(() => {
   loadSw();
   initJqueryVariables();
@@ -100,6 +102,12 @@ $(() => {
 function startInitialPageSpinners() {
   showSpinner($noteNavMenu.get(0));
   showSpinner($notedContainer.get(0));
+}
+
+function requestWorkspace() {
+  clearNoteList();
+  const uuid: string = String($('#active-workspace').attr('value'));
+  worker?.postMessage(clientActions.GET_WKSP_BYUUID.f(uuid));
 }
 
 function eventListeners() {
@@ -259,9 +267,6 @@ function setCodeMirrorTheme(theme: string) {
 function loadSw() {
   if (window.Worker) {
     worker = new Worker();
-    worker.postMessage(JSON.stringify({
-      some: 'data',
-    }));
     worker.onmessage = (e) => onWorkerMessage(e);
   }
 }
@@ -343,7 +348,8 @@ function onWorkerMessage(event: MessageEvent) {
   if ('state' in msg && worker !== null) {
     switch (msg.state) {
       case workerStates.READY.k:
-        worker?.postMessage(clientActions.GET_LIST.f());
+        requestWorkspace();
+        // worker?.postMessage(clientActions.GET_LIST.f());
         break;
       case workerStates.NOTE_DATA.k: {
         const noteData = msg.data as NotePackage;
@@ -404,6 +410,12 @@ function onWorkerMessage(event: MessageEvent) {
       case workerStates.EXPORT_DATA.k: {
         const { data: notes } = msg;
         FileDownload(JSON.stringify(notes, null, 2), `export-notes-${(new Date()).toDateString()}.json`);
+        break;
+      }
+      case workerStates.WORKSPACE_DATA.k: {
+        const workspace: WorkspacePackage = msg.data;
+        console.debug(workspace);
+        activeWorkspace = workspace;
         break;
       }
       default:
