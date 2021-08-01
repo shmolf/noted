@@ -11,6 +11,8 @@ services:
     volumes:
       - ${APP_PATH}:${DOCUMENT_ROOT}
       - ./docker/nginx/config/default.conf:/etc/nginx/conf.d/default.conf
+      - ./docker/nginx/config/self-sign-cert.crt:/etc/ssl/certs/self-sign-cert.crt
+      - ./docker/nginx/config/self-gen.key:/etc/ssl/certs/self-gen.key
     networks:
       - noted-net
     depends_on:

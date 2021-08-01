@@ -107,15 +107,14 @@
                 </tr>
             {% else %}
                 {% for workspace in workspaces %}
-                    <tr class="workspace-record">
+                    <tr class="workspace-record" data-uri="{{ path('api.v1.workspace.getByUuid', {'uuid': workspace.uuid}) }}">
                         <td>{{ workspace.name }}</td>
                         <td><a href="{{ workspace.origin }}" target="_blank">{{ workspace.origin }}</a></td>
                         <td><time class="time-creation">{{ workspace.creation|date('Y-m-d H:i:s') }}</time></td>
                         <td><time class="time-expiration">{{ workspace.expiration|date('Y-m-d H:i:s') }}</time></td>
                         <td>
                             <button type="button" class="btn refresh"
-                                data-uri="{{ path('api.v1.workspace.update', {'uuid': workspace.uuid}) }}"
-                                data-refresh-uri="{{ workspace.refreshUri }}">
+                                data-uri="{{ path('api.v1.workspace.update', {'uuid': workspace.uuid}) }}">
                                 {{ 'Refresh'|trans }} <i class="fas fa-sync"></i>
                             </button>
                         </td>

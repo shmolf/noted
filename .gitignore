@@ -81,4 +81,6 @@ yarn-error.log
 
 ###> docker ###
 docker.env.local
+docker/nginx/config/self-gen.key
+docker/nginx/config/self-sign-cert.crt
 ###< docker ###

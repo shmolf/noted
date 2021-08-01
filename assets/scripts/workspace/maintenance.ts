@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { WorkspacePackage } from 'SCRIPTS/notes/worker-client-api';
 import { TokenSourcePayload } from 'SCRIPTS/types/Api';
 
 window.addEventListener('DOMContentLoaded', () => {
@@ -13,27 +14,29 @@ window.addEventListener('DOMContentLoaded', () => {
 
 function handleWorkspaceAction(elem: HTMLButtonElement, action: string) {
   const row = elem.closest('tr');
-  const workspaceUri = elem.dataset.uri ?? null;
+  const actionUri = elem.dataset.uri ?? null;
   disableRowButtons(row);
   // This design assumes each button provides a URI. If this changes, just move the check w/in each CASE
-  if (workspaceUri === null) throw new Error('Missing Workspace URI');
+  if (actionUri === null) throw new Error('Missing Workspace URI');
 
   switch (action) {
     case 'refresh': {
-      const tokenRefreshUri = elem.dataset.refreshUri ?? null;
-      if (tokenRefreshUri === null) throw new Error('Missing Refresh URI');
+      const workspaceUri = row?.dataset.uri ?? null;
+      if (workspaceUri === null) throw new Error('Missing Workspace URI');
 
-      refreshToken(tokenRefreshUri).then((data: TokenSourcePayload) => {
-        updateWorkspace(workspaceUri, data).then((response) => {
-          console.debug(response);
-          const expirationCell = row?.querySelector('.time-expiration') as HTMLTimeElement;
-          expirationCell.innerText = data.expiration;
+      getWorkspace(workspaceUri).then((workspace: WorkspacePackage) => {
+        refreshToken(workspace.tokenUri, workspace.token).then((data: TokenSourcePayload) => {
+          updateWorkspace(actionUri, data).then((response) => {
+            console.debug(response);
+            const expirationCell = row?.querySelector('.time-expiration') as HTMLTimeElement;
+            expirationCell.innerText = data.expiration;
+          });
         });
       });
       break;
     }
     case 'delete':
-      delWorkspace(workspaceUri).then(() => removeRow(row));
+      delWorkspace(actionUri).then(() => removeRow(row));
       break;
     default:
   }
@@ -47,6 +50,14 @@ function removeRow(row: HTMLTableRowElement|null) {
   row?.parentElement?.removeChild(row);
 }
 
+function getWorkspace(uri: string): Promise<any> {
+  return new Promise((resolve, reject) => {
+    axios.get(uri)
+      .then((response) => resolve(response.data))
+      .catch((error) => reject(error));
+  });
+}
+
 function delWorkspace(uri: string): Promise<any> {
   return new Promise((resolve, reject) => {
     axios.delete(uri)
@@ -55,9 +66,13 @@ function delWorkspace(uri: string): Promise<any> {
   });
 }
 
-function refreshToken(uri: string): Promise<any> {
+function refreshToken(uri: string, token: string): Promise<any> {
   return new Promise((resolve, reject) => {
-    axios.put(`${uri}?grant_type=refreshToken`)
+    axios.get(`${uri}?grant_type=refreshToken`, {
+      headers: {
+        'X-TOKEN-REFRESH': token,
+      },
+    })
       .then((response) => resolve(response.data))
       .catch((error) => reject(error));
   });
