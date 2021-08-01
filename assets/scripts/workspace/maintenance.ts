@@ -13,10 +13,11 @@ window.addEventListener('DOMContentLoaded', () => {
 function handleWorkspaceAction(elem: HTMLButtonElement, action: string) {
   const row = elem.closest('tr');
   const workspaceUri = elem.dataset.uri ?? null;
+  disableRowButtons(row);
   // This design assumes each button provides a URI. If this changes, just move the check w/in each CASE
   if (workspaceUri === null) return;
 
-  switch(action) {
+  switch (action) {
     case 'refresh': {
       refreshWorkspace(workspaceUri).then(() => removeRow(row));
       break;
@@ -30,7 +31,7 @@ function handleWorkspaceAction(elem: HTMLButtonElement, action: string) {
 }
 
 function disableRowButtons(row: HTMLTableRowElement|null) {
-  row?.querySelectorAll('button').forEach((button) => button.disabled = true);
+  row?.querySelectorAll('button').forEach((button) => { button.disabled = true; });
 }
 
 function removeRow(row: HTMLTableRowElement|null) {

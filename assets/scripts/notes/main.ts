@@ -3,10 +3,20 @@ import M from 'materialize-css';
 import 'STYLES/notes.scss';
 
 import { MapStringTo } from 'SCRIPTS/types/Generic';
-import { workerStates, clientActions, NotePackage, WorkspacePackage } from 'SCRIPTS/notes/worker-client-api';
+import {
+  workerStates,
+  clientActions,
+  NotePackage,
+  WorkspacePackage,
+} from 'SCRIPTS/notes/worker-client-api';
 import { initMarkdownIt, renderMarkdown } from 'SCRIPTS/notes/markdown-output';
 import {
-  initNoteNav, renderNoteList, getNavItem, setNavItemSaveState, setNavItemTitle, clearNoteList,
+  initNoteNav,
+  renderNoteList,
+  getNavItem,
+  setNavItemSaveState,
+  setNavItemTitle,
+  clearNoteList,
 } from 'SCRIPTS/notes/note-nav';
 import FileDownload from 'js-file-download';
 // eslint-disable-next-line import/no-webpack-loader-syntax
@@ -106,7 +116,7 @@ function startInitialPageSpinners() {
 
 function requestWorkspace() {
   clearNoteList();
-  const uuid: string = String($('#active-workspace').attr('value'));
+  const uuid = String($('#active-workspace').attr('value'));
   worker?.postMessage(clientActions.GET_WKSP_BYUUID.f(uuid));
 }
 

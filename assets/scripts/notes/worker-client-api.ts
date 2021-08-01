@@ -26,6 +26,18 @@ export interface NotePackageExport extends MapStringTo<any> {
     lastModified?: Date;
 }
 
+export interface WorkspacePackage {
+  uuid: string,
+  origin: string,
+  name: string,
+  token: string,
+  tokenUri: string,
+  tokenExpiration: DateTime,
+  /* These properties are commented out, since they'll not really necessary, but are available
+  createdDate: string,
+  */
+}
+
 export const clientActions = Object.freeze({
   GET_LIST: {
     k: 'getNoteList',
@@ -58,7 +70,7 @@ export const clientActions = Object.freeze({
   GET_WKSP_BYUUID: {
     k: 'getWorkspaceByUuid',
     f: (uuid: string): string => packAction(clientActions.GET_WKSP_BYUUID.k, uuid),
-  }
+  },
 });
 
 export const workerStates = Object.freeze({
@@ -178,16 +190,4 @@ export class NotePackage {
   private getProperty<K extends keyof this>(propertyName: K): this[K]|undefined {
     return this[propertyName] ?? undefined;
   }
-}
-
-export interface WorkspacePackage {
-  uuid: string,
-  origin: string,
-  name: string,
-  token: string,
-  tokenUri: string,
-  tokenExpiration: DateTime,
-  /* These properties are commented out, since they'll not really necessary, but are available
-  createdDate: string,
-  */
 }

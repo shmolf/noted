@@ -10,3 +10,8 @@ export interface AjaxErrorRepsonse {
     title: string,
     errors: string[],
 }
+
+export interface TokenSourcePayload {
+  accessToken: { token: string, expiration: string, uri: string },
+  refreshToken: { token: string, expiration: string, uri: string },
+}

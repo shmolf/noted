@@ -1,2 +1,2 @@
-import './maintenance';
-import './register';
+import './maintenance.ts';
+import './register.ts';

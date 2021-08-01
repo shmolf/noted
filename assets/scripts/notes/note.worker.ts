@@ -3,6 +3,7 @@ import {
 } from 'SCRIPTS/notes/worker-client-api';
 import axios from 'axios';
 import { MapStringTo } from 'SCRIPTS/types/Generic';
+import { TokenSourcePayload } from 'SCRIPTS/types/Api';
 
 // eslint-disable-next-line no-restricted-globals
 const worker:Worker = self as any;
@@ -47,10 +48,11 @@ function handleAction(msg: MapStringTo<any>) {
       case clientActions.EXPORT_NOTES.k:
         ExportNotes();
         break;
-      case clientActions.GET_WKSP_BYUUID.k:
+      case clientActions.GET_WKSP_BYUUID.k: {
         const { data: uuid } = msg;
         GetWorkspace(uuid);
         break;
+      }
       default:
     }
   }
@@ -129,10 +131,13 @@ function getWorkspaceByUuid(uuid: string): Promise<WorkspacePackage> {
 }
 
 function getAccessToken() {
-  axios.get(activeWorkspace.tokenUri)
+  axios.get(`${activeWorkspace.tokenUri}?grant_type=refreshToken`).then((response) => {
+    const tokenPayload: TokenSourcePayload = response.data;
+    console.debug(tokenPayload);
+  });
 }
 
-////////////////// Wrapper Functions
+/// Wrapper Functions
 
 function NewNote() {
   sendNewNoteRequest()

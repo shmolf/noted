@@ -2,16 +2,12 @@ import 'STYLES/workspace/register.scss';
 import { MapStringTo } from 'SCRIPTS/types/Generic';
 import axios from 'axios';
 import { removeSpinner, showSpinner } from 'SCRIPTS/lib/loading-spinner';
-
-interface TokenSourcePayload {
-  accessToken: { token: string, expiration: string, uri: string },
-  refreshToken: { token: string, expiration: string, uri: string },
-};
+import { TokenSourcePayload } from 'SCRIPTS/types/Api';
 
 interface RegistrationData {
   origin: string|null,
   name: string|null,
-};
+}
 
 let oauthWindow: Window|null;
 let openChannelIntervalId: ReturnType<typeof setTimeout>|null;
@@ -27,7 +23,7 @@ window.addEventListener('DOMContentLoaded', () => {
 // https://developer.mozilla.org/en-US/docs/Web/API/Document/visibilitychange_event
 // https://developer.mozilla.org/en-US/docs/Web/API/Window/pagehide_event
 // https://developer.mozilla.org/en-US/docs/Web/API/Page_Visibility_API
-window.addEventListener('beforeunload', (event) => {
+window.addEventListener('beforeunload', () => {
   if ((oauthWindow ?? null) !== null) {
     killChildWindow(oauthWindow);
   }
@@ -56,7 +52,7 @@ function formSubmit(event: Event) {
 
   // Page isn't always available immediately, and the child window can't communicate upwards, w/o a pipe.
   openChannelIntervalId = setInterval(() => {
-    if (openChannelIntervalId ?? false !== false) openChannel(oauthWindow!)
+    if ((openChannelIntervalId ?? false) !== false) openChannel(oauthWindow!);
   }, 2000);
   oauthWindow?.addEventListener('message', (e: MessageEvent) => processWindowMessage(e));
 }
@@ -80,7 +76,7 @@ function clearWorkspaceInputs() {
 }
 
 function processWindowMessage(event: MessageEvent) {
-  console.log(event.data)
+  console.log(event.data);
   const data = JSON.parse(event.data);
   const load = data?.load ?? null;
   const action = data?.action ?? null;
@@ -108,7 +104,7 @@ function openChannel(page: Window) {
   channel.port1.onmessage = processPipeMessage;
 
   // Transfer port2 to the other page
-  page.postMessage(JSON.stringify({ state: 'pipe-ready'}), registrationContext.origin!, [channel.port2]);
+  page.postMessage(JSON.stringify({ state: 'pipe-ready' }), registrationContext.origin!, [channel.port2]);
 }
 
 /**
@@ -128,7 +124,7 @@ function processPipeMessage(event: MessageEvent) {
 
   Object.keys(load).forEach((packageLoad) => {
     switch (packageLoad) {
-      case 'tokens':
+      case 'tokens': {
         showSpinner(registrationForm);
         const tokenData: TokenSourcePayload = load[packageLoad];
 
@@ -140,6 +136,7 @@ function processPipeMessage(event: MessageEvent) {
           window.location.reload();
         }).catch((error) => console.debug(error));
         break;
+      }
       default:
     }
   });
@@ -162,7 +159,8 @@ function processPipeMessage(event: MessageEvent) {
       break;
     case 'closing':
       killChildWindow(oauthWindow);
-      toggleWorkspaceInputs(true)
+      toggleWorkspaceInputs(true);
+      break;
     default:
   }
 }
