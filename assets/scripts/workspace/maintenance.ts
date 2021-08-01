@@ -16,12 +16,12 @@ function handleWorkspaceAction(elem: HTMLButtonElement, action: string) {
   const workspaceUri = elem.dataset.uri ?? null;
   disableRowButtons(row);
   // This design assumes each button provides a URI. If this changes, just move the check w/in each CASE
-  if (workspaceUri === null) return;
+  if (workspaceUri === null) throw new Error('Missing Workspace URI');
 
   switch (action) {
     case 'refresh': {
-      const tokenRefreshUri = elem.dataset.refreshuri ?? null;
-      if (tokenRefreshUri === null) return;
+      const tokenRefreshUri = elem.dataset.refreshUri ?? null;
+      if (tokenRefreshUri === null) throw new Error('Missing Refresh URI');
 
       refreshToken(tokenRefreshUri).then((data: TokenSourcePayload) => {
         updateWorkspace(workspaceUri, data).then((response) => {
