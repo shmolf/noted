@@ -27,9 +27,9 @@ function handleWorkspaceAction(elem: HTMLButtonElement, action: string) {
       getWorkspace(workspaceUri).then((workspace: WorkspacePackage) => {
         refreshToken(workspace.tokenUri, workspace.token).then((data: TokenSourcePayload) => {
           updateWorkspace(actionUri, data).then((response) => {
-            console.debug(response);
             const expirationCell = row?.querySelector('.time-expiration') as HTMLTimeElement;
             expirationCell.innerText = data.expiration;
+            enableRowButtons(row);
           });
         });
       });
@@ -44,6 +44,10 @@ function handleWorkspaceAction(elem: HTMLButtonElement, action: string) {
 
 function disableRowButtons(row: HTMLTableRowElement|null) {
   row?.querySelectorAll('button').forEach((button) => { button.disabled = true; });
+}
+
+function enableRowButtons(row: HTMLTableRowElement|null) {
+  row?.querySelectorAll('button').forEach((button) => { button.disabled = false; });
 }
 
 function removeRow(row: HTMLTableRowElement|null) {
@@ -80,9 +84,13 @@ function refreshToken(uri: string, token: string): Promise<any> {
 
 function updateWorkspace(uri: string, tokenData: TokenSourcePayload): Promise<any> {
   return new Promise((resolve, reject) => {
-    axios.put(uri, {
-      token: tokenData.token,
-      expiration: tokenData.expiration,
+    axios({
+      url: uri,
+      method: 'put',
+      data: {
+        token: tokenData.token,
+        expiration: tokenData.expiration,
+      },
     })
       .then((response) => resolve(response.data))
       .catch((error) => reject(error));

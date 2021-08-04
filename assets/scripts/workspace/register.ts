@@ -172,7 +172,6 @@ function killChildWindow(child: Window|null) {
 
 function requestNewWorkspace(tokenData: TokenSourcePayload): Promise<any> {
   return new Promise((resolve, reject) => {
-    console.log(tokenData);
     const formData = new FormData();
     formData.set('refreshToken', tokenData.token ?? '');
     formData.set('refreshExpiration', tokenData.expiration ?? new Date().toDateString());

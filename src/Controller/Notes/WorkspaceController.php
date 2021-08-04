@@ -5,6 +5,7 @@ namespace App\Controller\Notes;
 use App\Entity\UserAccount;
 use App\Entity\Workspace;
 use App\Repository\WorkspaceRepository;
+use DateTime;
 use Exception;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -35,6 +36,9 @@ class WorkspaceController extends AbstractController
     {
         $newToken = $request->request->get('token');
         $expiration = $request->request->get('expiration');
+        $data = json_decode($request->getContent(), true);
+        $newToken = $data['token'] ?? null;
+        $expiration = $data['expiration'] ?? null;
 
         if (trim($expiration ?? '') === '') return new JsonResponse(['Missing Expiration'], Response::HTTP_BAD_REQUEST);
         if (trim($newToken ?? '') === '') return new JsonResponse(['Missing Token'], Response::HTTP_BAD_REQUEST);
@@ -48,7 +52,7 @@ class WorkspaceController extends AbstractController
         if ($workSpace === false) return new JsonResponse(null, Response::HTTP_NOT_FOUND);
 
         $workSpace->setToken($newToken);
-        $workSpace->setTokenExpiration($expiration);
+        $workSpace->setTokenExpiration(new DateTime($expiration));
 
         try {
             $entityManager = $this->getDoctrine()->getManager();

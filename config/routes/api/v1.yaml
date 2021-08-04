@@ -41,14 +41,14 @@ api.v1.note.export:
 
 api.v1.workspace.getByUuid:
   path: /workspace/uuid/{uuid}
-  controller: App\Controller\Notes\NotesController::getWorkspaceByUuid
+  controller: App\Controller\Notes\WorkspaceController::getWorkspaceByUuid
   methods: GET
   requirements:
     uuid: '[a-fA-F0-9\-]+'
 
 api.v1.workspace.update:
   path: /workspace/uuid/{uuid}
-  controller: App\Controller\Notes\NotesController::updateWorkspaceByUuid
+  controller: App\Controller\Notes\WorkspaceController::updateWorkspaceByUuid
   methods: PUT
   requirements:
     uuid: '[a-fA-F0-9\-]+'

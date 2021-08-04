@@ -23,11 +23,11 @@ Encore
       IMAGES: path.resolve(__dirname, './assets/images/')
     })
 
-    .copyFiles({
-      from: './assets/images',
-      to: 'images/[path][name].[hash:8].[ext]',
-      pattern: /\.(png|jpg|jpeg)$/
-    })
+    // .copyFiles({
+    //   from: './assets/images',
+    //   to: 'images/[path][name].[hash:8].[ext]',
+    //   pattern: /\.(png|jpg|jpeg)$/
+    // })
 
     /*
      * ENTRY CONFIG
