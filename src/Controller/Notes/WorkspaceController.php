@@ -34,8 +34,6 @@ class WorkspaceController extends AbstractController
 
     public function updateWorkspaceByUuid(string $uuid, Request $request, LoggerInterface $logger): JsonResponse
     {
-        $newToken = $request->request->get('token');
-        $expiration = $request->request->get('expiration');
         $data = json_decode($request->getContent(), true);
         $newToken = $data['token'] ?? null;
         $expiration = $data['expiration'] ?? null;
@@ -61,6 +59,7 @@ class WorkspaceController extends AbstractController
             $entityManager->clear();
         } catch (Exception $e) {
             $logger->error($e->getMessage(), $e->getTrace());
+            return new JsonResponse(['Could not save the Workspace'], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
         return $this->json($workSpace, 200, [], [
