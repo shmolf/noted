@@ -8,7 +8,7 @@ import { TokenSourcePayload } from 'SCRIPTS/types/Api';
 // eslint-disable-next-line no-restricted-globals
 const worker:Worker = self as any;
 let activeWorkspace: WorkspacePackage;
-let accessToken: string;
+let accessToken: TokenSourcePayload;
 
 (() => {
   worker.onmessage = (e) => {
@@ -60,7 +60,14 @@ function handleAction(msg: MapStringTo<any>) {
 
 function getList(): Promise<any[]> {
   return new Promise((resolve, reject) => {
-    axios.get('/🔌/v1/note/list')
+    axios.get(
+      `${getWorkspaceOrigin()}/🔌/v1/note/list`,
+      {
+        headers: {
+          'X-TOKEN-ACCESS': accessToken.token,
+        },
+      },
+    )
       .then((response) => resolve(response.data))
       .catch((error) => reject(error));
   });
@@ -68,7 +75,7 @@ function getList(): Promise<any[]> {
 
 function exportNotes(): Promise<any[]> {
   return new Promise((resolve, reject) => {
-    axios.get('/🔌/v1/note/export')
+    axios.get(`${getWorkspaceOrigin()}/🔌/v1/note/export`)
       .then((response) => resolve(response.data))
       .catch((error) => reject(error));
   });
@@ -76,7 +83,7 @@ function exportNotes(): Promise<any[]> {
 
 function sendNewNoteRequest(): Promise<any> {
   return new Promise((resolve, reject) => {
-    axios.post('/🔌/v1/note/new')
+    axios.post(`${getWorkspaceOrigin()}/🔌/v1/note/new`)
       .then((response) => resolve(response.data))
       .catch((error) => reject(error));
   });
@@ -93,7 +100,7 @@ function sendUpsert(note: NotePackage): Promise<any> {
       isDeleted,
     } = note.toObj();
 
-    axios.put(`/🔌/v1/note/uuid/${uuid}`, {
+    axios.put(`${getWorkspaceOrigin()}/🔌/v1/note/uuid/${uuid}`, {
       uuid,
       title,
       content,
@@ -108,7 +115,7 @@ function sendUpsert(note: NotePackage): Promise<any> {
 
 function getFromApiByUuid(uuid: string): Promise<Note> {
   return new Promise((resolve, reject) => {
-    axios.get(`/🔌/v1/note/uuid/${uuid}`)
+    axios.get(`${getWorkspaceOrigin()}/🔌/v1/note/uuid/${uuid}`)
       .then((response) => resolve(response.data))
       .catch((error) => reject(error));
   });
@@ -116,7 +123,7 @@ function getFromApiByUuid(uuid: string): Promise<Note> {
 
 function delFromApiByUuid(uuid: string): Promise<any> {
   return new Promise((resolve, reject) => {
-    axios.delete(`/🔌/v1/note/uuid/${uuid}`)
+    axios.delete(`${getWorkspaceOrigin()}/🔌/v1/note/uuid/${uuid}`)
       .then((response) => resolve(response.data))
       .catch((error) => reject(error));
   });
@@ -124,17 +131,24 @@ function delFromApiByUuid(uuid: string): Promise<any> {
 
 function getWorkspaceByUuid(uuid: string): Promise<WorkspacePackage> {
   return new Promise((resolve, reject) => {
-    axios.get(`/🔌/v1/workspace/uuid/${uuid}`)
+    axios.get(`${getWorkspaceOrigin()}/🔌/v1/workspace/uuid/${uuid}`)
       .then((response) => resolve(response.data))
       .catch((error) => reject(error));
   });
 }
 
-function getAccessToken() {
-  axios.get(`${activeWorkspace.tokenUri}?grant_type=accessToken`).then((response) => {
-    const tokenPayload: TokenSourcePayload = response.data;
-    console.debug(tokenPayload);
+function getAccessToken(): Promise<TokenSourcePayload> {
+  return new Promise((resolve, reject) => {
+    axios.get(`${activeWorkspace.tokenUri}?grant_type=accessToken`).then((response) => {
+      const tokenPayload: TokenSourcePayload = response.data;
+      console.debug(tokenPayload);
+      resolve(tokenPayload);
+    }).catch((error) => reject(error));
   });
+}
+
+function getWorkspaceOrigin(): string {
+  return activeWorkspace.origin;
 }
 
 /// Wrapper Functions
@@ -180,6 +194,9 @@ function GetWorkspace(uuid: string) {
     .then((workspace) => {
       worker.postMessage(workerStates.WORKSPACE_DATA.f(workspace));
       activeWorkspace = workspace;
+      getAccessToken().then((tokenPayload) => {
+        accessToken = tokenPayload;
+      });
     })
     .catch((error) => console.warn(error));
 }
