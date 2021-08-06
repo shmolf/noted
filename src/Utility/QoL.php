@@ -11,7 +11,7 @@ class QoL
      * @param T $val
      * @return array<array-key, T>
      */
-    static public function arrPush(array $arr, $val): array
+    public static function arrPush(array $arr, $val): array
     {
         $arr[] = $val;
         return $arr;

@@ -38,8 +38,13 @@ class WorkspaceController extends AbstractController
         $newToken = $data['token'] ?? null;
         $expiration = $data['expiration'] ?? null;
 
-        if (trim($expiration ?? '') === '') return new JsonResponse(['Missing Expiration'], Response::HTTP_BAD_REQUEST);
-        if (trim($newToken ?? '') === '') return new JsonResponse(['Missing Token'], Response::HTTP_BAD_REQUEST);
+        if (trim($expiration ?? '') === '') {
+            return new JsonResponse(['Missing Expiration'], Response::HTTP_BAD_REQUEST);
+        }
+
+        if (trim($newToken ?? '') === '') {
+            return new JsonResponse(['Missing Token'], Response::HTTP_BAD_REQUEST);
+        }
 
         /** @var UserAccount */
         $user = $this->getUser();
@@ -47,7 +52,9 @@ class WorkspaceController extends AbstractController
         /** @var Workspace|false */
         $workSpace = current(array_filter($workSpaces, fn(Workspace $workspace) => $workspace->getUuid() === $uuid));
 
-        if ($workSpace === false) return new JsonResponse(null, Response::HTTP_NOT_FOUND);
+        if ($workSpace === false) {
+            return new JsonResponse(null, Response::HTTP_NOT_FOUND);
+        }
 
         $workSpace->setToken($newToken);
         $workSpace->setTokenExpiration(new DateTime($expiration));
