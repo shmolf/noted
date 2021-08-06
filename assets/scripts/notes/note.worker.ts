@@ -75,7 +75,14 @@ function getList(): Promise<any[]> {
 
 function exportNotes(): Promise<any[]> {
   return new Promise((resolve, reject) => {
-    axios.get(`${getWorkspaceOrigin()}/🔌/v1/note/export`)
+    axios.get(
+      `${getWorkspaceOrigin()}/🔌/v1/note/export`,
+      {
+        headers: {
+          'X-TOKEN-ACCESS': accessToken?.token,
+        },
+      },
+    )
       .then((response) => resolve(response.data))
       .catch((error) => reject(error));
   });
@@ -83,7 +90,15 @@ function exportNotes(): Promise<any[]> {
 
 function sendNewNoteRequest(): Promise<any> {
   return new Promise((resolve, reject) => {
-    axios.post(`${getWorkspaceOrigin()}/🔌/v1/note/new`)
+    axios.post(
+      `${getWorkspaceOrigin()}/🔌/v1/note/new`,
+      {},
+      {
+        headers: {
+          'X-TOKEN-ACCESS': accessToken?.token,
+        },
+      },
+    )
       .then((response) => resolve(response.data))
       .catch((error) => reject(error));
   });
@@ -100,14 +115,22 @@ function sendUpsert(note: NotePackage): Promise<any> {
       isDeleted,
     } = note.toObj();
 
-    axios.put(`${getWorkspaceOrigin()}/🔌/v1/note/uuid/${uuid}`, {
-      uuid,
-      title,
-      content,
-      tags,
-      inTrashcan,
-      isDeleted,
-    })
+    axios.put(
+      `${getWorkspaceOrigin()}/🔌/v1/note/uuid/${uuid}`,
+      {
+        uuid,
+        title,
+        content,
+        tags,
+        inTrashcan,
+        isDeleted,
+      },
+      {
+        headers: {
+          'X-TOKEN-ACCESS': accessToken?.token,
+        },
+      },
+    )
       .then((response) => resolve(response.data))
       .catch((error) => reject(error));
   });
