@@ -3,12 +3,14 @@
 {% block stylesheets %}
     {{ parent() }}
     {{ encore_entry_link_tags('user-edit') }}
+    {{ encore_entry_link_tags('workspace-management') }}
 {% endblock %}
 
 
 {% block javascripts %}
     {{ parent() }}
     {{ encore_entry_script_tags('user-edit') }}
+    {{ encore_entry_script_tags('workspace-management') }}
 {% endblock %}
 
 {% block pageContext %}- Account{% endblock %}
@@ -22,7 +24,8 @@
                 <input type="email" id="email" name="email" class="active" required autofocus
                     value="{{ user.email }}"
                     placeholder="example@host.com"
-                    title="example@host.com" />
+                    title="example@host.com"
+                    autocomplete="username" />
             </div>
             <div class="col s12 m6">
                 <label for="password">Password:</label>
@@ -30,7 +33,8 @@
                     minlength="8"
                     placeholder="Abc123 🎈"
                     pattern="(?=.*\p{Ll}+)(?=.*\p{Lu}+)(?=.*(?:\p{P}|\p{S})+)(?=.*\p{Nd}+).{8,}"
-                    title="8 character, including Uppercase, Lowercase, Numbers, and Symbols" />
+                    title="8 character, including Uppercase, Lowercase, Numbers, and Symbols"
+                    autocomplete="new-password" />
             </div>
         </div>
         <div class="row">
@@ -43,6 +47,110 @@
                 <input type="text" id="last-name" name="last-name" value="{{ user.lastName }}" />
             </div>
         </div>
-        <button id="create-btn" type="submit" class="btn right">Save</button>
+        <div class="row">
+            <button id="create-btn" type="submit" class="btn right">Save</button>
+        </div>
     </form>
+    <hr>
+    <hr>
+    <div class="row">
+        <div class="instructions">
+            <p>
+                I've created a separate host for storing the notes. Please create an account at
+                <a href="https://storage.note-d.app" target="_blank">https://storage.note-d.app</a>.
+                The username can be different or the same. Doesn't matter.
+                <br />
+                Next, please add that workspace below using:
+            </p>
+            <ul>
+                <li>Workspace Name: <code>Whatever you name you like</code></li>
+                <li>Registration URL: <code>https://storage.note-d.app/㊙/register</code></li>
+            </ul>
+        </div>
+        <form id="registration-form" data-successUri="{{ path('account.workspace.registrationSuccess') }}">
+            <div class="row">
+                <div class="input-field col s12 m4">
+                    {% set txtAppName = 'Workspace Name'|trans %}
+                    <label for="name">{{ txtAppName }}</label>
+                    <input type="text" id="workspace-name" name="name" class="active validate" required autofocus
+                        title="{{ txtAppName }}"
+                        pattern="^\s*\w+.*$" />
+                    <span class="helper-text" data-error="{{ 'Invalid'|trans }} {{ txtAppName }}" data-success="👍"></span>
+                </div>
+                <div class="input-field col s12 m4">
+                    {% set txtDateName = 'Registration URL'|trans %}
+                    <label for="registration-uri">{{ txtDateName }}</label>
+                    <input type="url" id="registration-uri" class="active validate"
+                        placeholder="https://localhost/🔌/registration"
+                        title="{{ txtDateName }}"
+                        pattern="https?://.*" />
+                    <span class="helper-text" data-error="{{ 'Invalid'|trans }} {{ txtDateName }}" data-success="👍"></span>
+                </div>
+                {# <div class="input-field col s12 m4">
+                    {% set txtDateName = 'Application Token'|trans %}
+                    <label for="app-token">{{ txtDateName }}</label>
+                    <input type="text" id="app-token" name="app-token" class="active validate"
+                        placeholder="abcd1234EFGH"
+                        title="{{ txtDateName }}"
+                        pattern="[\w]+" />
+                    <span class="helper-text" data-error="{{ 'Invalid'|trans }} {{ txtDateName }}" data-success="👍"></span>
+                </div> #}
+            </div>
+            <div class="row">
+                <button id="generate-btn" type="submit" class="btn right">{{ 'Register'|trans }}</button>
+            </div>
+        </form>
+        <table class="striped highlight centered">
+            <thead>
+                <tr>
+                    <th>{{ 'Name'|trans }}</th>
+                    <th>{{ 'Host'|trans }}</th>
+                    <th>{{ 'Created'|trans }}</th>
+                    <th>{{ 'Expires'|trans }}</th>
+                    <th>Update Refresh Token</th>
+                    <th>Delete Workspace</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% if workspaces is empty %}
+                <tr class="token-record">
+                    <td colspan="6">
+                        {{ 'You have not registered any workspaces yet.'|trans }}
+                    </td>
+                </tr>
+            {% else %}
+                {% for workspace in workspaces %}
+                    <tr class="workspace-record" data-uri="{{ path('api.v1.workspace.getByUuid', {'uuid': workspace.uuid}) }}">
+                        <td>{{ workspace.name }}</td>
+                        <td><a href="{{ workspace.origin }}" target="_blank">{{ workspace.origin }}</a></td>
+                        <td><time class="time-creation">{{ workspace.creation|date('Y-m-d H:i:s') }}</time></td>
+                        <td><time class="time-expiration">{{ workspace.expiration|date('Y-m-d H:i:s') }}</time></td>
+                        <td>
+                            <button type="button" class="btn refresh"
+                                data-uri="{{ path('api.v1.workspace.update', {'uuid': workspace.uuid}) }}">
+                                {{ 'Refresh'|trans }} <i class="fas fa-sync"></i>
+                            </button>
+                        </td>
+                        <td>
+                            <button type="button" class="btn delete" data-uri="{{ path('api.v1.workspace.delete', {'uuid': workspace.uuid}) }}">
+                                {{ 'Delete'|trans }}
+                            </button>
+                        </td>
+                    </tr>
+                {% endfor %}
+            {% endif %}
+            </tbody>
+        </table>
+        {# {{ _self.registerModal() }} #}
+    </div>
 {% endblock %}
+
+{# {% macro registerModal() %}
+    <div id="registration-modal" class="modal modal-fixed-footer">
+        <div id="registration-iframe-wrap">
+            <template id="registration-frame-template">
+                <iframe referrerpolicy="origin" sandbox="allow-scripts allow-forms"></iframe>
+            </template>
+        </div>
+    </div>
+{% endmacro %} #}

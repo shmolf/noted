@@ -37,7 +37,7 @@
 {% block body %}
     {% if is_granted('ROLE_USER') %}
         {{ _self.settingsPopup(pageThemes, highlightJsThemes) }}
-        {{ _self.notePage() }}
+        {{ _self.notePage(workspaces) }}
     {% else %}
         {{ _self.welcomePage() }}
     {% endif %}
@@ -116,9 +116,23 @@
     </select>
 {% endmacro %}
 
-{% macro notePage() %}
+{% macro notePage(workspaces) %}
     <aside id="note-navigation">
         <div id="toolbox">
+            {# {% if workspaces|length == 1 %}
+                {% set workspace = workspaces|first %}
+                <span id="active-workspace" class="active-workspace" value="{{ workspace.getUuid() }}">
+                    {{ workspace.getName() }}
+                </span>
+            {% elseif workspaces|length > 1 %} #}
+                <select id="active-workspace" class="active-workspace">
+                {% for index, workspace in workspaces %}
+                    <option {{ loop.first ? 'selected' : '' }} value="{{ workspace.getUuid() }}">
+                        {{ workspace.getName() }}
+                    </option>
+                {% endfor %}
+                </select>
+            {# {% endif %} #}
             <button type="button" id="new-note" class="btn">New Note</button>
         </div>
         <div id="note-items">
@@ -153,6 +167,11 @@
     <p>
         This project is an expedition to provide a markdown application that works well on desktop and mobile devices,
         while also providing the security of self-hosting the data using OAuth to validate credentials.
+    </p>
+    <p>
+        This whole project is still in Beta. So long as I'm the only dev, it'll likely be in Beta for a while.
+        But hopefully that doesn't deter you from using the application. Just be sure to export a backup of your notes
+        occasionally.
     </p>
     <ul class="fun-list">
         <li>

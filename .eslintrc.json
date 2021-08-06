@@ -21,7 +21,8 @@
         "prefer-destructuring": ["warn", {"object": true, "array": false}],
         "max-len": [2, 120, 4],
         "import/no-extraneous-dependencies": 0,
-        "no-param-reassign": ["warn"]
+        "no-param-reassign": "off",
+        "@typescript-eslint/no-non-null-assertion": "off"
     },
     "ignorePatterns": [
         "webpack.config.js",

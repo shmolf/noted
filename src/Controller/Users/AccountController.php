@@ -4,8 +4,13 @@ namespace App\Controller\Users;
 
 use App\Controller\BaseController;
 use App\Entity\UserAccount;
+use App\Entity\Workspace;
+use App\Repository\WorkspaceRepository;
+use App\Utility\QoL;
 use DateTime;
 use Exception;
+use Psr\Log\LoggerInterface;
+use Ramsey\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -35,7 +40,23 @@ class AccountController extends BaseController
     {
         $this->denyAccessUnlessGranted('ROLE_USER');
 
-        return $this->render('account/index.html.twig', ['user' => $this->getUser()]);
+        $workSpaces = array_reduce(
+            $this->getUser()->getWorkspaces()->toArray(),
+            fn(array $workSpaces, Workspace $workSpace) => QoL::arrPush($workSpaces, [
+                'name' => $workSpace->getName(),
+                'expiration' => $workSpace->getTokenExpiration(),
+                'origin' => $workSpace->getOrigin(),
+                'creation' => $workSpace->getCreationDate(),
+                'uuid' => $workSpace->getUuid(),
+                'refreshUri' => $workSpace->getTokenUri(),
+            ]),
+            []
+        );
+
+        return $this->render('account/index.html.twig', [
+            'user' => $this->getUser(),
+            'workspaces' => $workSpaces,
+        ]);
     }
 
     public function accountApi(): JsonResponse
@@ -82,7 +103,6 @@ class AccountController extends BaseController
             return new JsonResponse($data, 400);
         }
 
-        $entityManager = $this->getDoctrine()->getManager();
         $user = new UserAccount();
 
         $user->email = $email;
@@ -92,6 +112,7 @@ class AccountController extends BaseController
         $user->createdDate = new DateTime();
 
         try {
+            $entityManager = $this->getDoctrine()->getManager();
             $entityManager->persist($user);
             $entityManager->flush();
             $entityManager->clear();
@@ -110,7 +131,6 @@ class AccountController extends BaseController
         }
 
         return $this->redirectToRoute('login');
-        return new RedirectResponse($this->router->generate('login'));
     }
 
     public function edit(Request $request): Response
@@ -151,7 +171,6 @@ class AccountController extends BaseController
             return new JsonResponse($data, 400);
         }
 
-        $entityManager = $this->getDoctrine()->getManager();
 
         $authenticatedUser->email = $email;
         $authenticatedUser->setPassword($this->passwordEncoder->encodePassword($authenticatedUser, $password));
@@ -159,6 +178,7 @@ class AccountController extends BaseController
         $authenticatedUser->lastName = $lastName;
 
         try {
+            $entityManager = $this->getDoctrine()->getManager();
             $entityManager->persist($authenticatedUser);
             $entityManager->flush();
             $entityManager->clear();
@@ -177,5 +197,30 @@ class AccountController extends BaseController
 
         return $this->redirectToRoute('login');
         return new RedirectResponse($this->router->generate('login'));
+    }
+
+    public function workspaceRegistration(Request $request, LoggerInterface $logger): Response
+    {
+        $workspace = new Workspace();
+
+        $workspace->setCreationDate(new DateTime());
+        $workspace->setName($request->request->get('workspaceName', 'No Name Provided'));
+        $workspace->setToken($request->request->get('refreshToken', ''));
+        $workspace->setTokenExpiration(new DateTime($request->request->get('refreshExpiration', 'now')));
+        $workspace->setOrigin($request->request->get('workspaceOrigin', ''));
+        $workspace->setTokenUri($request->request->get('refreshUri', ''));
+        $workspace->setUuid(Uuid::uuid4()->toString());
+        $this->getUser()->addWorkspace($workspace);
+
+        try {
+            $entityManager = $this->getDoctrine()->getManager();
+            $entityManager->persist($workspace);
+            $entityManager->flush();
+            $entityManager->clear();
+        } catch (Exception $e) {
+            $logger->error($e->getMessage(), $e->getTrace());
+        }
+
+        return new JsonResponse(['state' => 'success']);
     }
 }

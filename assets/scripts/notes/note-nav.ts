@@ -64,8 +64,12 @@ function autoCloseNav() {
   $('#note-navigation').removeClass('expanded');
 }
 
-export function renderNoteList(notes: NoteListItem[]) {
+export function clearNoteList() {
   $noteListNav.find('.note-item:not(#note-load-template)').off('click').detach();
+}
+
+export function renderNoteList(notes: NoteListItem[]) {
+  clearNoteList();
 
   notes.forEach((note) => {
     const lastModified = new Date(`${note.lastModified.date} ${note.lastModified.timezone}`);

@@ -20,14 +20,14 @@ Encore
       SCRIPTS: path.resolve(__dirname, './assets/scripts/'),
       STYLES: path.resolve(__dirname, './assets/styles/'),
       NODE: path.resolve(__dirname, './node_modules/'),
-      Images: path.resolve(__dirname, './assets/images/')
+      IMAGES: path.resolve(__dirname, './assets/images/')
     })
 
-    .copyFiles({
-      from: './assets/images',
-      to: 'images/[path][name].[hash:8].[ext]',
-      pattern: /\.(png|jpg|jpeg)$/
-    })
+    // .copyFiles({
+    //   from: './assets/images',
+    //   to: 'images/[path][name].[hash:8].[ext]',
+    //   pattern: /\.(png|jpg|jpeg)$/
+    // })
 
     /*
      * ENTRY CONFIG
@@ -46,6 +46,7 @@ Encore
     .addEntry('user-login', './assets/scripts/users/login.ts')
     .addEntry('user-edit', './assets/scripts/users/edit.ts')
     .addEntry('forgot-request', './assets/scripts/password/forgot-request.ts')
+    .addEntry('workspace-management', './assets/scripts/workspace/management.ts')
 
     // When enabled, Webpack "splits" your files into smaller pieces for greater optimization.
     .splitEntryChunks()

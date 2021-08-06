@@ -38,3 +38,24 @@ api.v1.note.export:
   path: /note/export
   controller: App\Controller\Notes\NotesController::getNotesForUser
   methods: GET
+
+api.v1.workspace.getByUuid:
+  path: /workspace/uuid/{uuid}
+  controller: App\Controller\Notes\WorkspaceController::getWorkspaceByUuid
+  methods: GET
+  requirements:
+    uuid: '[a-fA-F0-9\-]+'
+
+api.v1.workspace.update:
+  path: /workspace/uuid/{uuid}
+  controller: App\Controller\Notes\WorkspaceController::updateWorkspaceByUuid
+  methods: PUT
+  requirements:
+    uuid: '[a-fA-F0-9\-]+'
+
+api.v1.workspace.delete:
+  path: /workspace/uuid/{uuid}
+  controller: App\Controller\Notes\WorkspaceController::workspaceDelete
+  methods: DELETE
+  requirements:
+    uuid: '[a-fA-F0-9\-]+'

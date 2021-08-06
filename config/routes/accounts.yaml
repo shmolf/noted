@@ -16,3 +16,7 @@ account.edit.save:
 account.profile:
   path: /
   controller: App\Controller\Users\AccountController::index
+
+account.workspace.registrationSuccess:
+  path: /registration-success
+  controller: App\Controller\Users\AccountController::workspaceRegistration

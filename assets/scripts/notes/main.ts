@@ -3,10 +3,20 @@ import M from 'materialize-css';
 import 'STYLES/notes.scss';
 
 import { MapStringTo } from 'SCRIPTS/types/Generic';
-import { workerStates, clientActions, NotePackage } from 'SCRIPTS/notes/worker-client-api';
+import {
+  workerStates,
+  clientActions,
+  NotePackage,
+  WorkspacePackage,
+} from 'SCRIPTS/notes/worker-client-api';
 import { initMarkdownIt, renderMarkdown } from 'SCRIPTS/notes/markdown-output';
 import {
-  initNoteNav, renderNoteList, getNavItem, setNavItemSaveState, setNavItemTitle,
+  initNoteNav,
+  renderNoteList,
+  getNavItem,
+  setNavItemSaveState,
+  setNavItemTitle,
+  clearNoteList,
 } from 'SCRIPTS/notes/note-nav';
 import FileDownload from 'js-file-download';
 // eslint-disable-next-line import/no-webpack-loader-syntax
@@ -16,7 +26,6 @@ import Cookies from 'SCRIPTS/lib/cookie';
 // @ts-ignore
 import CodeMirror from 'codemirror';
 
-// Library for the input side
 import { removeSpinner, showSpinner } from 'SCRIPTS/lib/loading-spinner';
 // eslint-disable-next-line import/extensions
 import CM from './code-mirror-assets';
@@ -48,6 +57,7 @@ let $highlightJsTheme: JQuery;
 let $inputOutput: JQuery;
 let $noteNavMenu: JQuery;
 let $notedContainer: JQuery;
+let $activeWorkspace: JQuery;
 
 let codeMirrorEditor: CodeMirror.Editor;
 // let codeMirrorEditor: EditorView;
@@ -101,6 +111,12 @@ $(() => {
 function startInitialPageSpinners() {
   showSpinner($noteNavMenu.get(0));
   showSpinner($notedContainer.get(0));
+}
+
+function requestWorkspace() {
+  clearNoteList();
+  const uuid = String($activeWorkspace.val());
+  worker?.postMessage(clientActions.GET_WKSP_BYUUID.f(uuid));
 }
 
 function eventListeners() {
@@ -164,6 +180,8 @@ function eventListeners() {
     getNavItem(eventUuid).attr('disabled', 'disabled');
     worker?.postMessage(clientActions.DEL_BY_UUID.f(eventUuid));
   });
+
+  $activeWorkspace.on('change', () => requestWorkspace());
 }
 
 function initJqueryVariables() {
@@ -176,6 +194,7 @@ function initJqueryVariables() {
   $newNoteBtn = $('#new-note');
   $noteNavMenu = $('#note-navigation');
   $notedContainer = $('#noted');
+  $activeWorkspace = $('#active-workspace');
 }
 
 /**
@@ -260,9 +279,6 @@ function setCodeMirrorTheme(theme: string) {
 function loadSw() {
   if (window.Worker) {
     worker = new Worker();
-    worker.postMessage(JSON.stringify({
-      some: 'data',
-    }));
     worker.onmessage = (e) => onWorkerMessage(e);
   }
 }
@@ -336,15 +352,24 @@ function packageNote(content: string, noteTitle: string|null): NotePackage {
   });
 }
 
-/**
- * @param event
- */
+function disableWorkspaceOption(uuid: string) {
+  $activeWorkspace.find(`option[value=${uuid}]`).attr('disabled', 'disabled');
+}
+
+function getFirstEnabledWorkspace(): string {
+  return String($activeWorkspace.find('option:not(:disabled)').first().attr('value'));
+}
+
+function setWorkspaceMenuByUuid(uuid: string) {
+  $activeWorkspace.val(uuid);
+}
+
 function onWorkerMessage(event: MessageEvent) {
   const msg = JSON.parse(event.data);
   if ('state' in msg && worker !== null) {
     switch (msg.state) {
       case workerStates.READY.k:
-        worker?.postMessage(clientActions.GET_LIST.f());
+        requestWorkspace();
         break;
       case workerStates.NOTE_DATA.k: {
         const noteData = msg.data as NotePackage;
@@ -405,6 +430,20 @@ function onWorkerMessage(event: MessageEvent) {
       case workerStates.EXPORT_DATA.k: {
         const { data: notes } = msg;
         FileDownload(JSON.stringify(notes, null, 2), `export-notes-${(new Date()).toDateString()}.json`);
+        break;
+      }
+      case workerStates.WORKSPACE_DATA.k: {
+        // Need to decide who's responsible for refreshing the refresh token. Prolly the worker.
+        // They'd also need to update the workspace.
+        const workspace: WorkspacePackage = msg.data;
+        worker?.postMessage(clientActions.GET_LIST.f());
+        break;
+      }
+      case workerStates.WORKSPACE_INVALID.k: {
+        const uuid: string = msg.data;
+        disableWorkspaceOption(uuid);
+        setWorkspaceMenuByUuid(getFirstEnabledWorkspace());
+        requestWorkspace();
         break;
       }
       default:

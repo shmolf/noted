@@ -38,9 +38,20 @@ nav {
     overflow: hidden;
     text-overflow: ellipsis;
 
+    .logo-image {
+      width: 32px;
+      height: 32px;
+      display: inline-block;
+      background-image: url('/public/noted-logo-static.gif');
+    }
+
     &:active,
     &:hover {
       background: rgba(0, 0, 0, 0.5);
+
+      .logo-image {
+        background-image: url('/public/noted-logo-animated.gif');
+      }
     }
   }
 
@@ -129,15 +140,6 @@ input {
   top: min(50%, 20px);
   z-index: 2;
   font-size: 11px;
-  -webkit-transform: translateZ(0);
-  -moz-transform: translateZ(0);
-  -ms-transform: translateZ(0);
-  -o-transform: translateZ(0);
-  transform: translateZ(0);
-  -webkit-animation-delay: -0.16s;
-  -moz-animation-delay: -0.16s;
-  -o-animation-delay: -0.16s;
-  animation-delay: -0.16s;
 
   &,
   &::before,
@@ -170,6 +172,20 @@ input {
     left: 1.5em;
   }
 
+  /* stylelint-disable no-duplicate-selectors */
+  & {
+    -webkit-transform: translateZ(0);
+    -moz-transform: translateZ(0);
+    -ms-transform: translateZ(0);
+    -o-transform: translateZ(0);
+    transform: translateZ(0);
+    -webkit-animation-delay: -0.16s;
+    -moz-animation-delay: -0.16s;
+    -o-animation-delay: -0.16s;
+    animation-delay: -0.16s;
+  }
+  /* stylelint-enable no-duplicate-selectors */
+
   @keyframes load1 {
     0%,
     80%,
@@ -189,4 +205,9 @@ a[target="_blank"]::after {
   content: " \f35d";
   font-family: "Font Awesome 5 Free";
   font-weight: 900;
+}
+
+table thead {
+  background: #00000078;
+  color: white;
 }

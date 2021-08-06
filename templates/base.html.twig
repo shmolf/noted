@@ -3,11 +3,11 @@
 <head>
     <meta charset='UTF-8'>
     <meta name= 'viewport' content = 'width = device-width'>
-        <meta name="mobile-web-app-capable" content="yes">
-        <meta name="apple-mobile-web-app-capable" content="yes">
-        <link rel="manifest" href="{{ public_base_path }}/manifest.json">
-        <link rel="shortcut icon" href="{{ public_base_path }}/xinu.png" type="image/png">
-        <link rel="icon" type="image/png" href="{{ public_base_path }}/xinu.png" />
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <link rel="manifest" href="{{ asset(public_base_path ~ '/manifest.json') }}">
+    <link rel="shortcut icon" type="image/gif" href="{{ asset(public_base_path ~ '/noted-logo-static.gif') }}" />
+    <link rel="icon" type="image/gif" href="{{ asset(public_base_path ~ '/noted-logo-static.gif') }}" />
     <title>{% block title %}Note'd{% endblock %}</title>
     {% block stylesheets %}
         {{ encore_entry_link_tags('app') }}
@@ -17,7 +17,11 @@
     <nav>
         <div class="nav-wrapper">
             <a href="/" class="brand-logo">
-                Note'd {% block pageContext %}{% endblock %}
+                <span class="logo-image"></span>
+                <span class="hidden">{# This hidden image is loaded here, so when the logo is hovered, it's preloaded #}
+                    <img class="logo-image" src="{{ asset(public_base_path ~ '/noted-logo-animated.gif') }}" />
+                </span>
+                <span>Note'd {% block pageContext %}{% endblock %}</span>
             </a>
             <ul id="nav-mobile" class="right">
             {% block navitems %}{% endblock %}
