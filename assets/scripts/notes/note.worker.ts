@@ -7,8 +7,8 @@ import { TokenSourcePayload } from 'SCRIPTS/types/Api';
 
 // eslint-disable-next-line no-restricted-globals
 const worker:Worker = self as any;
-let activeWorkspace: WorkspacePackage;
-let accessToken: TokenSourcePayload;
+let activeWorkspace: WorkspacePackage|null = null;
+let accessToken: TokenSourcePayload|null = null;
 
 (() => {
   worker.onmessage = (e) => {
@@ -64,7 +64,7 @@ function getList(): Promise<any[]> {
       `${getWorkspaceOrigin()}/🔌/v1/note/list`,
       {
         headers: {
-          'X-TOKEN-ACCESS': accessToken.token,
+          'X-TOKEN-ACCESS': accessToken?.token,
         },
       },
     )
@@ -129,25 +129,37 @@ function delFromApiByUuid(uuid: string): Promise<any> {
   });
 }
 
+/**
+ * This'll request the Workspace meta data associated with the currently selected workspace, sourced from Note-d.app
+ */
 function getWorkspaceByUuid(uuid: string): Promise<WorkspacePackage> {
   return new Promise((resolve, reject) => {
-    axios.get(`${getWorkspaceOrigin()}/🔌/v1/workspace/uuid/${uuid}`)
+    axios.get(`/🔌/v1/workspace/uuid/${uuid}`)
       .then((response) => resolve(response.data))
       .catch((error) => reject(error));
   });
 }
 
 function getAccessToken(): Promise<TokenSourcePayload> {
+  if (activeWorkspace === null) throw Error('Workspace is not yet loaded');
+
   return new Promise((resolve, reject) => {
-    axios.get(`${activeWorkspace.tokenUri}?grant_type=accessToken`).then((response) => {
+    axios.get(
+      `${activeWorkspace!.tokenUri}?grant_type=accessToken`,
+      {
+        headers: {
+          'X-TOKEN-REFRESH': activeWorkspace?.token,
+        },
+      },
+    ).then((response) => {
       const tokenPayload: TokenSourcePayload = response.data;
-      console.debug(tokenPayload);
       resolve(tokenPayload);
     }).catch((error) => reject(error));
   });
 }
 
 function getWorkspaceOrigin(): string {
+  if (activeWorkspace === null) throw Error('Workspace is not yet loaded. Cannot get origin.');
   return activeWorkspace.origin;
 }
 
@@ -190,13 +202,19 @@ function ExportNotes() {
 }
 
 function GetWorkspace(uuid: string) {
+  activeWorkspace = null;
+  accessToken = null;
+
   getWorkspaceByUuid(uuid)
     .then((workspace) => {
-      worker.postMessage(workerStates.WORKSPACE_DATA.f(workspace));
       activeWorkspace = workspace;
       getAccessToken().then((tokenPayload) => {
         accessToken = tokenPayload;
+        worker.postMessage(workerStates.WORKSPACE_DATA.f(workspace));
       });
     })
-    .catch((error) => console.warn(error));
+    .catch((error) => {
+      workerStates.WORKSPACE_INVALID.f(uuid);
+      console.warn(error);
+    });
 }

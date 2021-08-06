@@ -114,7 +114,7 @@ function startInitialPageSpinners() {
 
 function requestWorkspace() {
   clearNoteList();
-  const uuid = String($('#active-workspace').attr('value'));
+  const uuid = String($('#active-workspace').val());
   worker?.postMessage(clientActions.GET_WKSP_BYUUID.f(uuid));
 }
 
@@ -348,16 +348,24 @@ function packageNote(content: string, noteTitle: string|null): NotePackage {
   });
 }
 
-/**
- * @param event
- */
+function disableWorkspaceOption(uuid: string) {
+  $('#active-workspace').find(`option[value=${uuid}]`).attr('disabled', 'disabled');
+}
+
+function getFirstEnabledWorkspace(): string {
+  return String($('#active-workspace').find('option:not(:disabled)').first().attr('value'));
+}
+
+function setWorkspaceMenuByUuid(uuid: string) {
+  $('#active-workspace').val(uuid);
+}
+
 function onWorkerMessage(event: MessageEvent) {
   const msg = JSON.parse(event.data);
   if ('state' in msg && worker !== null) {
     switch (msg.state) {
       case workerStates.READY.k:
         requestWorkspace();
-        // worker?.postMessage(clientActions.GET_LIST.f());
         break;
       case workerStates.NOTE_DATA.k: {
         const noteData = msg.data as NotePackage;
@@ -421,8 +429,17 @@ function onWorkerMessage(event: MessageEvent) {
         break;
       }
       case workerStates.WORKSPACE_DATA.k: {
+        // Need to decide who's responsible for refreshing the refresh token. Prolly the worker.
+        // They'd also need to update the workspace.
         const workspace: WorkspacePackage = msg.data;
-        console.debug(workspace);
+        worker?.postMessage(clientActions.GET_LIST.f());
+        break;
+      }
+      case workerStates.WORKSPACE_INVALID.k: {
+        const uuid: string = msg.data;
+        disableWorkspaceOption(uuid);
+        setWorkspaceMenuByUuid(getFirstEnabledWorkspace());
+        requestWorkspace();
         break;
       }
       default:

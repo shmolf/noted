@@ -114,6 +114,10 @@ export const workerStates = Object.freeze({
     k: 'worspace-data',
     f: (workspace: WorkspacePackage): string => packState(workerStates.WORKSPACE_DATA.k, workspace),
   },
+  WORKSPACE_INVALID: {
+    k: 'worspace-invalid',
+    f: (uuid: string): string => packState(workerStates.WORKSPACE_INVALID.k, uuid),
+  },
 });
 
 /**
