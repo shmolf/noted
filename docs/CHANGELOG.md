@@ -1,3 +1,35 @@
+## [2.1.0](https://github.com/shmolf/noted/compare/v2.0.0...v2.1.0) (2021-08-06)
+
+
+### Features
+
+* **access token:** add access token support for note-list fetching ([e438ca6](https://github.com/shmolf/noted/commit/e438ca6503fd2de44670a15697b48fa0fb5f8001))
+* **workspace:** add support for workspace addition and deletion ([3d40314](https://github.com/shmolf/noted/commit/3d40314827f5a68827345ef0ea9941d772e89d7c))
+* **welcome:** added note about app being in Beta ([2641bde](https://github.com/shmolf/noted/commit/2641bdeab2cf9cf1e92af4548d05b788f01271fd))
+* **workspace:** can fetch note list from workspace ([42bc690](https://github.com/shmolf/noted/commit/42bc690f8eba60b3252924cd7db32e1f1232abf5))
+* **cors|refresh:** getting bloody close to being able to refresh the token ([1247e14](https://github.com/shmolf/noted/commit/1247e14a6e3bf4193ecfc9871f44ea98f2e3f210))
+* **workspace:** iframe work with registration ([cf8f6e7](https://github.com/shmolf/noted/commit/cf8f6e7e7710b82a6c829e5bc364c9c837a54833))
+* **workspace:** support refreshing the refresh token ([958ddd0](https://github.com/shmolf/noted/commit/958ddd0b6875cf87a7d4bad055ddc0a036e47b6b))
+* **workspace:** trying to enable token refresh ([6633c3b](https://github.com/shmolf/noted/commit/6633c3b624db14cffbb0a8bcd9cd711cacb9d98b))
+* **workspace|refresh:** update workspace record with new token data ([19c1f14](https://github.com/shmolf/noted/commit/19c1f14a660c5de532b4f0cae8558042526e948d))
+* **workspace:** user selection ([1475113](https://github.com/shmolf/noted/commit/1475113c9f81106ec869252765d4cc43307fabb7))
+
+
+### Bug Fixes
+
+* **note:** bugs related to new workspace feature ([57b9404](https://github.com/shmolf/noted/commit/57b94040a92dffad0b7360718349a4e59f68917a))
+* **lint:** code style issues ([2de2733](https://github.com/shmolf/noted/commit/2de27330715e2b212b59175abe62a129f304c3a9))
+* **workspace|oauth login:** finally got working, but with a new window rather than iframe ([d35adef](https://github.com/shmolf/noted/commit/d35adef5f1fc4cebf36963e6d9081858eca1fe71))
+* fix button class & remove unused variable ([5c89e59](https://github.com/shmolf/noted/commit/5c89e59f76b7d7cc6047eeb11f8683226ae8f744))
+* **workspace:** fix controller namespace ref for Delete ([203e249](https://github.com/shmolf/noted/commit/203e2490fcb1df65aa768878047c01d324da387e))
+* **oauth:** fix data attr reference and add error output ([4f9082f](https://github.com/shmolf/noted/commit/4f9082fd78ec298b2799c4b58e26633fc39276be))
+* **little things:** fix homepage code line height ([a3d661e](https://github.com/shmolf/noted/commit/a3d661e1a8d039786dfaf5e0900ef0f8a8b235dd))
+* fix how requests are built & add some workspace instructions ([033d6b0](https://github.com/shmolf/noted/commit/033d6b05797d3e3c3388793ed4a2ba36361b1775))
+* **welcome:** pre overflow on mobile ([087c1f2](https://github.com/shmolf/noted/commit/087c1f270dc94cc1f6eeb66cf6b37aa2da8edd45))
+* **workspace:** remove extra code & add error response ([c5cab9f](https://github.com/shmolf/noted/commit/c5cab9f8d1a184294cf99a8ae7ebcc89506ee930))
+* **lint:** stylelint errors ([d02d205](https://github.com/shmolf/noted/commit/d02d205a934e230b013b59141c19265ed568b0c4))
+* **workspace:** update delete controller ref for route ([ff2d390](https://github.com/shmolf/noted/commit/ff2d3906d27d4f8b15f31f777db3df4b6a891422))
+
 ## [2.0.0](https://github.com/shmolf/noted/compare/v1.1.1...v2.0.0) (2021-07-08)
 
 
