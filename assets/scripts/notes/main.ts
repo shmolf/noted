@@ -57,6 +57,7 @@ let $highlightJsTheme: JQuery;
 let $inputOutput: JQuery;
 let $noteNavMenu: JQuery;
 let $notedContainer: JQuery;
+let $activeWorkspace: JQuery;
 
 let codeMirrorEditor: CodeMirror.Editor;
 // let codeMirrorEditor: EditorView;
@@ -114,7 +115,7 @@ function startInitialPageSpinners() {
 
 function requestWorkspace() {
   clearNoteList();
-  const uuid = String($('#active-workspace').val());
+  const uuid = String($activeWorkspace.val());
   worker?.postMessage(clientActions.GET_WKSP_BYUUID.f(uuid));
 }
 
@@ -179,6 +180,8 @@ function eventListeners() {
     getNavItem(eventUuid).attr('disabled', 'disabled');
     worker?.postMessage(clientActions.DEL_BY_UUID.f(eventUuid));
   });
+
+  $activeWorkspace.on('change', () => requestWorkspace());
 }
 
 function initJqueryVariables() {
@@ -191,6 +194,7 @@ function initJqueryVariables() {
   $newNoteBtn = $('#new-note');
   $noteNavMenu = $('#note-navigation');
   $notedContainer = $('#noted');
+  $activeWorkspace = $('#active-workspace');
 }
 
 /**
@@ -349,15 +353,15 @@ function packageNote(content: string, noteTitle: string|null): NotePackage {
 }
 
 function disableWorkspaceOption(uuid: string) {
-  $('#active-workspace').find(`option[value=${uuid}]`).attr('disabled', 'disabled');
+  $activeWorkspace.find(`option[value=${uuid}]`).attr('disabled', 'disabled');
 }
 
 function getFirstEnabledWorkspace(): string {
-  return String($('#active-workspace').find('option:not(:disabled)').first().attr('value'));
+  return String($activeWorkspace.find('option:not(:disabled)').first().attr('value'));
 }
 
 function setWorkspaceMenuByUuid(uuid: string) {
-  $('#active-workspace').val(uuid);
+  $activeWorkspace.val(uuid);
 }
 
 function onWorkerMessage(event: MessageEvent) {
