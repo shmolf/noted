@@ -172,6 +172,7 @@ input {
     left: 1.5em;
   }
 
+  /* stylelint-disable no-duplicate-selectors */
   & {
     -webkit-transform: translateZ(0);
     -moz-transform: translateZ(0);
@@ -183,6 +184,7 @@ input {
     -o-animation-delay: -0.16s;
     animation-delay: -0.16s;
   }
+  /* stylelint-enable no-duplicate-selectors */
 
   @keyframes load1 {
     0%,

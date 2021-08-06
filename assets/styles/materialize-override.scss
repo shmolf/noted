@@ -13,10 +13,6 @@ textarea.materialize-textarea {
 }
 /* stylelint-enable no-descending-specificity */
 
-table.striped > tbody > tr:nth-child(odd) a {
-  color: darkblue;
-}
-
 table.striped > tbody {
   & > tr:nth-child(even) {
     background-color: rgba(242, 242, 242, 0.2);
@@ -26,4 +22,8 @@ table.striped > tbody {
   a {
     color: var(--color-2);
   }
+}
+
+table.striped > tbody > tr:nth-child(odd) a {
+  color: darkblue;
 }
