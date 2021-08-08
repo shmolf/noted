@@ -173,13 +173,53 @@
         But hopefully that doesn't deter you from using the application. Just be sure to export a backup of your notes
         occasionally.
     </p>
+    <p>
+        One of the interesting things I like about this application, is that the password supports a wide variety of
+        characters. Spaces, tabs (if you can manage it), emojis, and of course, foreign languages.
+        <br />
+        But be kind to yourself. Not all mobile-device keyboards expect this level of flexibility.
+    </p>
+    <hr>
+    <p class="question">
+       How does it work?
+    </p>
+    <p class="response">
+       This site (note-d.app) is primarily meant to serve the Frontend for writing the notes.
+       This includes the HTML, CSS, JS, and of course, the means to manage your user profile.
+    </p>
+    <p class="question">
+       Where are my notes stored?
+    </p>
+    <p class="response">
+        For now, you'll need to create another user profile on a seprate site, within the domain of this one.
+        That site being <a href="https://storage.note-d.app" target="_blank">https://storage.note-d.app</a>.
+        That host is responsible for storing the notes, unless you decide to "spin up" your own storage host.
+    </p>
+    <p class="question">
+       How does this site get the notes from <code>storage.note-d.app</code>?
+    </p>
+    <p class="response">
+        From your user profile, you'll registre new workspaces. Each workspace would be a host, where you've
+        authenticated with a user login.
+        Similar to how you may go to a blog, and they ask if you'd like to login from a Google or Twitter account.
+        This site will then store the tokens for you, so you can safely create/modify/delete your notes.
+    </p>
+    <p class="question">
+       Why would someone "spin up" their own storage host?
+    </p>
+    <p class="response">
+        Even with all the best security precautions, some people may prefer to have their data stored close to home.
+        Hosting your own storage server from behind a firewall, means that so long as your browser is behind the same
+        firewall, your browser can access the storage host, without this site (note-d.app) ever needing direct access.
+    </p>
+    <hr>
     <ul class="fun-list">
         <li>
             <a href="https://github.com/shmolf/noted" target="_blank" title="Opens in a new window">This site's repo</a>
         </li>
         <li>
             <a href="https://github.com/shmolf/noted-storage-symfony" target="_blank" title="Opens in a new window">
-                Repo to self-host your own note storage
+                Repo to self-host your own note storage.
             </a>
         </li>
     </ul>
