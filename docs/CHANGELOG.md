@@ -1,3 +1,10 @@
+## [2.2.0](https://github.com/shmolf/noted/compare/v2.1.0...v2.2.0) (2021-08-08)
+
+
+### Features
+
+* **welcome:** answered some unasked questions ([57016bf](https://github.com/shmolf/noted/commit/57016bf18349cb72014cc7d2666fd7ae5f70105e))
+
 ## [2.1.0](https://github.com/shmolf/noted/compare/v2.0.0...v2.1.0) (2021-08-06)
 
 
