@@ -4,6 +4,8 @@ Contributions are **welcome** and will be fully **credited**.
 
 We accept contributions via Pull Requests on [Github](https://github.com/shmolf/noted).
 
+## Hooks
+This project uses Husky for hooks. Please run `npx husky install` after cloning this repo.
 
 ## Pull Requests
 
