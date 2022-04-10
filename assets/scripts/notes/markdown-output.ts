@@ -29,7 +29,7 @@ export function initMarkdownIt() {
       enabled: true,
     });
 
-  md.renderer.rules.emoji = (token, idx) => twemoji.parse(token[idx].content);
+  // md.renderer.rules.emoji = (token, idx) => twemoji.parse(token[idx].content);
 }
 
 /**

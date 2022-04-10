@@ -27,7 +27,7 @@ $(() => {
   $editRoleChips = $editUserModal.find('.chips');
   $form = $('#edit-form');
 
-  M.Modal.init($editUserModal.get(0), {
+  M.Modal.init($editUserModal.get(0) as HTMLElement, {
     onCloseStart: () => clearEditForm(),
     onOpenEnd: () => $form.scrollTop(0),
   });
@@ -66,7 +66,7 @@ function clearEditForm() {
   $form.find('#last-name').val('');
   $form.find('#email').val('');
 
-  clearChips(M.Chips.getInstance($editRoleChips.get(0)));
+  clearChips(M.Chips.getInstance($editRoleChips.get(0) as HTMLElement));
 }
 
 /**
@@ -77,7 +77,7 @@ function populateForm(data: UserFormData) {
   $form.find('#last-name').val(data.lastName);
   $form.find('#email').val(data.email);
 
-  const chipsInstance = M.Chips.getInstance($editRoleChips.get(0));
+  const chipsInstance = M.Chips.getInstance($editRoleChips.get(0) as HTMLElement);
   data.roles.forEach((role) => {
     chipsInstance.addChip({ tag: role });
   });
@@ -89,7 +89,7 @@ function populateForm(data: UserFormData) {
  *
  */
 function saveUser() {
-  const chipsInstance = M.Chips.getInstance($editRoleChips.get(0));
+  const chipsInstance = M.Chips.getInstance($editRoleChips.get(0) as HTMLElement);
   const roles = chipsInstance.chipsData.map((chip) => chip.tag.trim());
   const url = decodeURI(String($form.attr('action')));
   const data = {
@@ -105,7 +105,7 @@ function saveUser() {
     type: 'PATCH',
     contentType: 'application/merge-patch+json',
   }).done((response) => {
-    M.Modal.getInstance($editUserModal.get(0)).close();
+    M.Modal.getInstance($editUserModal.get(0) as HTMLElement).close();
 
     const userData = (response as UserData);
     // eslint-disable-next-line no-console

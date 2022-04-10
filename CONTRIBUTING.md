@@ -4,6 +4,19 @@ Contributions are **welcome** and will be fully **credited**.
 
 We accept contributions via Pull Requests on [Github](https://github.com/shmolf/noted).
 
+## Set Up
+There seems to be a bug with PHP 8+, MySQL, and Doctrine. So you may get:
+```
+There is no active transaction
+```
+
+I needed to run the migration command several times before getting the green light
+```shell
+bin/console doctrine:migrations:migrate
+```
+
+- More context [found here](https://github.com/doctrine/migrations/issues/1202#issuecomment-945089795)
+
 ## Hooks
 This project uses Husky for hooks. Please run `npx husky install` after cloning this repo.
 
