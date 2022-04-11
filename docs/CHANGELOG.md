@@ -1,3 +1,27 @@
+## [3.0.0](https://github.com/shmolf/noted/compare/v2.2.0...v3.0.0) (2022-04-11)
+
+
+### ⚠ BREAKING CHANGES
+
+* **upgrade:** CHANGES!
+
+This does several things
+- upgrades to symfony 5
+- updates all yarn packages
+- fixes several linting/compiling errors
+* **symfony:** CHANGES
+Note: this is not working yet. Cannot build webpack.
+
+### Features
+
+* **symfony:** upgrade symfony and yarn packages ([a0901aa](https://github.com/shmolf/noted/commit/a0901aa5054ad5c6679b4aaef8f5761bfd44ab7a))
+* **upgrade:** upgrade to Symfony 5 ([c4c4db0](https://github.com/shmolf/noted/commit/c4c4db019239a2da6b22484ef0333324e3d39997))
+
+
+### Bug Fixes
+
+* **linting:** remove file extension `.ts` ([1c04562](https://github.com/shmolf/noted/commit/1c0456279cfdaac9b0ff25d95070eb717f095474))
+
 ## [2.2.0](https://github.com/shmolf/noted/compare/v2.1.0...v2.2.0) (2021-08-08)
 
 
