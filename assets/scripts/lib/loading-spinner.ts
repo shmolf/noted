@@ -5,12 +5,12 @@ window.addEventListener('DOMContentLoaded', () => {
   spinnerTemplate = template?.content?.firstElementChild?.cloneNode(true) as HTMLElement;
 });
 
-export function showSpinner(parent: HTMLElement|null): void {
+export function showSpinner(parent: HTMLElement|null|undefined): void {
   parent?.appendChild(spinnerTemplate.cloneNode());
   parent?.classList.add('loading-spinner-parent');
 }
 
-export function removeSpinner(parent: HTMLElement|null): void {
+export function removeSpinner(parent: HTMLElement|null|undefined): void {
   parent?.querySelectorAll(':scope > .loading-spinner').forEach((element: HTMLElement) => element.remove());
   parent?.classList.remove('loading-spinner-parent');
 }

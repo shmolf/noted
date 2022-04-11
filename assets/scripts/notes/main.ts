@@ -126,7 +126,7 @@ function eventListeners() {
   $newNoteBtn.on('click', newNote);
 
   $('.show-cookie-pref').on('click', () => {
-    M.Modal.getInstance($settingsModal.get(0))?.close();
+    M.Modal.getInstance($settingsModal.get(0) as HTMLElement)?.close();
   });
 
   $('.export-notes').on('click', () => worker?.postMessage(clientActions.EXPORT_NOTES.f()));
@@ -144,7 +144,7 @@ function eventListeners() {
     const newCheckedText = e.currentTarget.checked ? 'x' : ' ';
 
     const $mdInpChecklist = $codeMirrorLines.find('.cm-meta:contains("[ ]"), .cm-property:contains("[x]")');
-    const $cmCheckbox = $($mdInpChecklist.get(checkboxIndex));
+    const $cmCheckbox = $($mdInpChecklist.get(checkboxIndex) as HTMLElement);
 
     const cmLine = $codeMirrorLines.index($cmCheckbox.parents('.CodeMirror-line').first());
     let cmCol = $cmCheckbox.closest('.CodeMirror-line').text().indexOf('[');

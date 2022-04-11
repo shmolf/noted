@@ -119,7 +119,7 @@ export function setNavItemTitle(uuid: string, title: string) {
   if ($navListItem.length === 0) {
     $navListItem = createNewNoteNavItem(uuid, title, [], null, null);
   } else {
-    const tooltipInstance = M.Tooltip.getInstance($navListItem.get(0));
+    const tooltipInstance = M.Tooltip.getInstance($navListItem.get(0) as HTMLElement);
     tooltipInstance.destroy();
     $navListItem.attr('data-tooltip', title);
     M.Tooltip.init($navListItem);

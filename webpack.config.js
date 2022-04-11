@@ -1,5 +1,4 @@
-// @ts-nocheck
-var Encore = require('@symfony/webpack-encore');
+const Encore = require('@symfony/webpack-encore');
 var path = require('path');
 
 // Manually configure the runtime environment if not already configured yet by the "encore" command.
@@ -23,30 +22,17 @@ Encore
       IMAGES: path.resolve(__dirname, './assets/images/')
     })
 
-    // .copyFiles({
-    //   from: './assets/images',
-    //   to: 'images/[path][name].[hash:8].[ext]',
-    //   pattern: /\.(png|jpg|jpeg)$/
-    // })
-
-    /*
-     * ENTRY CONFIG
-     *
-     * Add 1 entry for each "page" of your app
-     * (including one that's included on every page - e.g. "app")
-     *
-     * Each entry will result in one JavaScript file (e.g. app.js)
-     * and one CSS file (e.g. app.css) if your JavaScript imports CSS.
-     */
-    .addEntry('app', './assets/scripts/app.ts')
-    .addEntry('welcome', './assets/scripts/welcome.ts')
-    .addEntry('notes', './assets/scripts/notes/main.ts')
-    .addEntry('user-admin', './assets/scripts/users/admin.ts')
-    .addEntry('user-create', './assets/scripts/users/create.ts')
-    .addEntry('user-login', './assets/scripts/users/login.ts')
-    .addEntry('user-edit', './assets/scripts/users/edit.ts')
-    .addEntry('forgot-request', './assets/scripts/password/forgot-request.ts')
-    .addEntry('workspace-management', './assets/scripts/workspace/management.ts')
+    .addEntries({
+      'app': './assets/scripts/app.ts',
+      'welcome': './assets/scripts/welcome.ts',
+      'notes': './assets/scripts/notes/main.ts',
+      'user-admin': './assets/scripts/users/admin.ts',
+      'user-create': './assets/scripts/users/create.ts',
+      'user-login': './assets/scripts/users/login.ts',
+      'user-edit': './assets/scripts/users/edit.ts',
+      'forgot-request': './assets/scripts/password/forgot-request.ts',
+      'workspace-management': './assets/scripts/workspace/management.ts',
+    })
 
     // When enabled, Webpack "splits" your files into smaller pieces for greater optimization.
     .splitEntryChunks()
@@ -68,9 +54,13 @@ Encore
      */
     .cleanupOutputBeforeBuild()
     .enableBuildNotifications()
-    .enableSourceMaps(true)//!Encore.isProduction())
+    .enableSourceMaps(!Encore.isProduction())
     // enables hashed filenames (e.g. app.abc123.css)
-    .enableVersioning(true) // Encore.isProduction()
+    .enableVersioning(true)
+
+    .configureBabel((config) => {
+        config.plugins.push('@babel/plugin-proposal-class-properties');
+    })
 
     // enables @babel/preset-env polyfills
     .configureBabelPresetEnv((config) => {
@@ -81,6 +71,22 @@ Encore
     // enables Sass/SCSS support
     .enableSassLoader()
 
+    // uncomment if you use TypeScript
+    .enableTypeScriptLoader()
+
+    // uncomment if you use React
+    //.enableReactPreset()
+
+    // uncomment to get integrity="..." attributes on your script & link tags
+    // requires WebpackEncoreBundle 1.4 or higher
+    //.enableIntegrityHashes(Encore.isProduction())
+
+    .configureWatchOptions(function(watchOptions) {
+      // enable polling and check for changes every 250ms
+      // polling is useful when running Encore inside a Virtual Machine
+      watchOptions.poll = 500;
+    })
+
     // inline base64 URLs for the given limits, direct URLs for the rest
     .configureImageRule({
       type: 'asset',
@@ -90,34 +96,25 @@ Encore
       type: 'asset',
       maxSize: 4096
     })
+    .cleanupOutputBeforeBuild()
 
     .addLoader({ test: /\.md$/, loader: 'raw-loader' })
-
-    // uncomment if you use TypeScript
-    .enableTypeScriptLoader()
-
-    // uncomment to get integrity="..." attributes on your script & link tags
-    // requires WebpackEncoreBundle 1.4 or higher
-    //.enableIntegrityHashes(Encore.isProduction())
-
-    // uncomment if you're having problems with a jQuery plugin
-    //.autoProvidejQuery()
-
-    .configureWatchOptions(function(watchOptions) {
-      // enable polling and check for changes every 250ms
-      // polling is useful when running Encore inside a Virtual Machine
-      watchOptions.poll = 500;
-    })
 ;
 
 const config = Encore.getWebpackConfig();
-// config.resolve.extensions.unshift('.mjs');
-// The addition below, is so that some repos that use `.mjs` extensions, don't break.
+
 config.module.rules.push({
   test: /\.(mjs|jsx)$/,
   resolve: {
     fullySpecified: false,
-  }
+  },
+  // Below is recommended by https://github.com/grrr-amsterdam/cookie-consent/issues/13#issuecomment-821882783
+  // use: {
+  //   loader: 'babel-loader',
+  //   options: {
+  //     presets: ['@babel/preset-env'],
+  //   },
+  // },
 });
 
 config.module.rules.push(
@@ -126,27 +123,5 @@ config.module.rules.push(
     use: { loader: "worker-loader" },
   }
 );
-// config.module.rules.push({
-//   test: /\.worker\.ts$/i,
-//   use: [
-//     'ts-loader',
-//     {
-//       loader: "babel-loader",
-//       options: {
-//         presets: ["@babel/preset-env"],
-//       },
-//     },
-//     {
-//       loader: "worker-loader",
-//       options: {
-//         // publicPath: './',
-//         filename: "[name].[contenthash].js",
-//       },
-//     },
-//   ],
-// });
-
-// let's clean the output folder, before repopulating
-config.output.clean= true;
 
 module.exports = config;

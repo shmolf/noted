@@ -21,6 +21,16 @@
         "prefer-destructuring": ["warn", {"object": true, "array": false}],
         "max-len": [2, 120, 4],
         "import/no-extraneous-dependencies": 0,
+        "import/extensions": [
+           "error",
+           "ignorePackages",
+           {
+             "js": "never",
+             "jsx": "never",
+             "ts": "never",
+             "tsx": "never"
+           }
+        ],
         "no-param-reassign": "off",
         "@typescript-eslint/no-non-null-assertion": "off"
     },

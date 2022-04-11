@@ -84,3 +84,5 @@ docker.env.local
 docker/nginx/config/self-gen.key
 docker/nginx/config/self-sign-cert.crt
 ###< docker ###
+self-gen.key
+self-sign-cert.crt

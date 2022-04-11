@@ -5,32 +5,30 @@ namespace App\Controller\Users;
 use App\Controller\BaseController;
 use App\Entity\UserAccount;
 use App\Entity\Workspace;
-use App\Repository\WorkspaceRepository;
 use App\Utility\QoL;
 use DateTime;
 use Exception;
 use Psr\Log\LoggerInterface;
 use Ramsey\Uuid\Uuid;
+use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\RouterInterface;
-use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 /**
  * @method UserAccount|null getUser()
  */
 class AccountController extends BaseController
 {
-
     private RouterInterface $router;
 
-    private UserPasswordEncoderInterface $passwordEncoder;
+    private UserPasswordHasherInterface $passwordEncoder;
 
     public function __construct(
         RouterInterface $router,
-        UserPasswordEncoderInterface $passwordEncoder
+        UserPasswordHasherInterface $passwordEncoder
     ) {
         $this->router = $router;
         $this->passwordEncoder = $passwordEncoder;
@@ -106,7 +104,7 @@ class AccountController extends BaseController
         $user = new UserAccount();
 
         $user->email = $email;
-        $user->setPassword($this->passwordEncoder->encodePassword($user, $password));
+        $user->setPassword($this->passwordEncoder->hashPassword($user, $password));
         $user->firstName = $firstName;
         $user->lastName = $lastName;
         $user->createdDate = new DateTime();
@@ -173,7 +171,7 @@ class AccountController extends BaseController
 
 
         $authenticatedUser->email = $email;
-        $authenticatedUser->setPassword($this->passwordEncoder->encodePassword($authenticatedUser, $password));
+        $authenticatedUser->setPassword($this->passwordEncoder->hashPassword($authenticatedUser, $password));
         $authenticatedUser->firstName = $firstName;
         $authenticatedUser->lastName = $lastName;
 
