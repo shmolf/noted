@@ -5,13 +5,13 @@ namespace App\DataFixtures;
 use App\Entity\UserAccount;
 use DateTime;
 use Doctrine\Persistence\ObjectManager;
-use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class UserFixture extends BaseFixture
 {
-    private UserPasswordEncoderInterface $passwordEncoder;
+    private UserPasswordHasherInterface $passwordEncoder;
 
-    public function __construct(UserPasswordEncoderInterface $passwordEncoder)
+    public function __construct(UserPasswordHasherInterface $passwordEncoder)
     {
         $this->passwordEncoder = $passwordEncoder;
     }
@@ -20,7 +20,7 @@ class UserFixture extends BaseFixture
         $this->createMany(10, 'main_users', function (int $i) {
             $user = new UserAccount();
             $user->email = sprintf('fake%d@null.com', $i);
-            $user->setPassword($this->passwordEncoder->encodePassword($user, 'pickle rick'));
+            $user->setPassword($this->passwordEncoder->hashPassword($user, 'pickle rick'));
             $user->firstName = $this->faker->firstName;
             $user->lastName = $this->faker->lastName;
             $user->createdDate = new DateTime();
@@ -32,7 +32,7 @@ class UserFixture extends BaseFixture
             $user->email = sprintf('admin%d@null.com', $i);
             $user->firstName = $this->faker->firstName;
             $user->setRoles(['ROLE_ADMIN']);
-            $user->setPassword($this->passwordEncoder->encodePassword(
+            $user->setPassword($this->passwordEncoder->hashPassword(
                 $user,
                 'pickle rick'
             ));

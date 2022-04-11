@@ -7,13 +7,14 @@ use DateTimeInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass=UserAccountRepository::class)
  */
-class UserAccount implements UserInterface
+class UserAccount implements UserInterface, PasswordAuthenticatedUserInterface
 {
     /**
      * @ORM\Id
@@ -92,6 +93,11 @@ class UserAccount implements UserInterface
      * @see UserInterface
      */
     public function getUsername(): string
+    {
+        return (string) $this->email;
+    }
+
+    public function getUserIdentifier(): string
     {
         return (string) $this->email;
     }
