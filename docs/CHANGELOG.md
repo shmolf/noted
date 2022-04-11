@@ -1,3 +1,10 @@
+## [3.1.0](https://github.com/shmolf/noted/compare/v3.0.0...v3.1.0) (2022-04-11)
+
+
+### Features
+
+* **login:** use symfony login throttling ([4d18cdd](https://github.com/shmolf/noted/commit/4d18cdd285218f739e8de61afa7fa68b59ffe4a7))
+
 ## [3.0.0](https://github.com/shmolf/noted/compare/v2.2.0...v3.0.0) (2022-04-11)
 
 
