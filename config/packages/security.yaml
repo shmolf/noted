@@ -1,10 +1,6 @@
 security:
     enable_authenticator_manager: true
 
-    encoders:
-        App\Entity\UserAccount:
-            algorithm: auto
-
     # https://symfony.com/doc/current/security.html#where-do-users-come-from-user-providers
     # https://symfony.com/doc/current/security.html#registering-the-user-hashing-passwords
     password_hashers:

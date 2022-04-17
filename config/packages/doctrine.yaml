@@ -2,7 +2,6 @@ doctrine:
     dbal:
         url: '%env(resolve:DATABASE_URL)%'
         driver:               pdo_mysql
-        memory:               true
         # the DBAL wrapperClass option
         charset:              UTF8MB4
         logging:              '%kernel.debug%'
