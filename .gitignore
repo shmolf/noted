@@ -86,3 +86,8 @@ docker/nginx/config/self-sign-cert.crt
 ###< docker ###
 self-gen.key
 self-sign-cert.crt
+
+###> symfony/phpunit-bridge ###
+.phpunit.result.cache
+/phpunit.xml
+###< symfony/phpunit-bridge ###
