@@ -10,7 +10,7 @@
     {{ encore_entry_script_tags('user-login') }}
 {% endblock %}
 
-{% block pageContext %}- Login{% endblock %}
+{% block pageContext %}- {{ 'Login'|trans([], 'header-nav') }}{% endblock %}
 
 {% block body %}
     {% if error %}
