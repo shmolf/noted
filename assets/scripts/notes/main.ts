@@ -22,18 +22,18 @@ import FileDownload from 'js-file-download';
 // eslint-disable-next-line import/no-webpack-loader-syntax
 import Worker from 'worker-loader!./note.worker';
 import Cookies from 'SCRIPTS/lib/cookie';
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-import CodeMirror from 'codemirror';
 
 import { removeSpinner, showSpinner } from 'SCRIPTS/lib/loading-spinner';
-// eslint-disable-next-line import/extensions
-import CM from './code-mirror-assets';
 // import { EditorView, init as initEdit, posToOffset, offsetToPos, createChangeListener } from './code-mirror-assets';
 // import { ViewUpdate } from '@codemirror/view';
 import sample from './sample.md';
-
-// ---- Now, begins the application logic ----
+import {
+  registerOnChange,
+  initCodeMirror,
+  setCodeMirrorTheme,
+  setValue,
+  replaceRange,
+} from './Editor5';
 
 interface NoteQueue {
   /**
@@ -59,13 +59,7 @@ let $noteNavMenu: JQuery;
 let $notedContainer: JQuery;
 let $activeWorkspace: JQuery;
 
-let codeMirrorEditor: CodeMirror.Editor;
-// let codeMirrorEditor: EditorView;
-
 let worker: Worker|null = window.Worker ? new Worker() : null;
-
-// Since CodeMirror.setValue() triggers a change event, we'll want to prevent change events when manually setting value
-let manuallySettingValue = false;
 
 const modifiedNotes: MapStringTo<NoteQueue> = {};
 
@@ -86,23 +80,20 @@ $(() => {
   }
 
   initMaterialize();
-  initCodeMirror();
+  registerOnChange((value: string) => queueNoteSave(value));
+  initCodeMirror($editor);
   initMarkdownIt();
   initNoteNav();
 
   if (cmTheme !== null) {
     setCodeMirrorTheme(cmTheme);
+    localStorage.setItem(CM_THEME_COOKIE, cmTheme);
     $codeMirrorTheme.val(cmTheme);
     $codeMirrorTheme.find(`[value="${cmTheme}"`).attr('selected', 'selected');
   }
 
   renderMarkdown(sample);
-  manuallySettingValue = true;
-  codeMirrorEditor.setValue(sample);
-  // codeMirrorEditor.dispatch({
-  //     changes: { from: 0, to: codeMirrorEditor.state.doc.length, insert: sample}
-  // });
-  manuallySettingValue = false;
+  setValue(sample);
 
   eventListeners();
   removeSpinner($notedContainer.get(0));
@@ -147,19 +138,9 @@ function eventListeners() {
     const $cmCheckbox = $($mdInpChecklist.get(checkboxIndex) as HTMLElement);
 
     const cmLine = $codeMirrorLines.index($cmCheckbox.parents('.CodeMirror-line').first());
-    let cmCol = $cmCheckbox.closest('.CodeMirror-line').text().indexOf('[');
+    const cmCol = $cmCheckbox.closest('.CodeMirror-line').text().indexOf('[');
 
-    codeMirrorEditor.replaceRange(
-      newCheckedText,
-      {
-        line: cmLine,
-        ch: cmCol += 1,
-      },
-      {
-        line: cmLine,
-        ch: cmCol += 1,
-      },
-    );
+    replaceRange(cmLine, cmCol + 1, cmLine, cmCol + 1, newCheckedText);
   });
 
   $(document).on('click', '.note-item', (event) => {
@@ -197,34 +178,6 @@ function initJqueryVariables() {
   $activeWorkspace = $('#active-workspace');
 }
 
-/**
- * Initialized the CodeMirror library
- */
-function initCodeMirror() {
-  /** @see https://codemirror.net/doc/manual.html#config */
-  const cmOptions = {
-    mode: {
-      name: 'gfm',
-      tokenTypeOverrides: {
-        emoji: 'emoji',
-      },
-    },
-    lineNumbers: true,
-    viewportMargin: 500,
-    lineWrapping: true,
-    theme: 'default',
-    tabindex: 0,
-  };
-
-  codeMirrorEditor = CM.fromTextArea($editor.get(0), cmOptions);
-
-  codeMirrorEditor.on('change', (editor) => {
-    if (manuallySettingValue) return;
-
-    queueNoteSave(editor.getValue());
-  });
-}
-
 function initMaterialize() {
   M.Modal.init($settingsModal, {
     // onCloseStart: () => clearModal(),
@@ -248,6 +201,7 @@ function updatePageTheme() {
 function updateCodeMirrorTheme() {
   const theme = String($codeMirrorTheme.val());
   setCodeMirrorTheme(theme);
+  localStorage.setItem(CM_THEME_COOKIE, theme);
 }
 
 function updateHighlightJsTheme() {
@@ -263,17 +217,8 @@ function newNote() {
   showSpinner($notedContainer.get(0));
   removeSpinner($noteNavMenu.get(0));
   worker?.postMessage(clientActions.NEW_NOTE.f());
-  manuallySettingValue = true;
-  codeMirrorEditor.setValue('');
-  manuallySettingValue = false;
+  setValue('');
   renderMarkdown('');
-}
-
-function setCodeMirrorTheme(theme: string) {
-  localStorage.setItem(CM_THEME_COOKIE, theme);
-
-  codeMirrorEditor.setOption('theme', theme);
-  codeMirrorEditor.refresh();
 }
 
 function loadSw() {
@@ -376,9 +321,7 @@ function onWorkerMessage(event: MessageEvent) {
         const content = noteData.content ?? '';
 
         $editor.data('uuid', noteData.uuid);
-        manuallySettingValue = true;
-        codeMirrorEditor.setValue(content);
-        manuallySettingValue = false;
+        setValue(content);
         $editor.scrollTop(0);
         renderMarkdown(content);
         removeSpinner($notedContainer.get(0));
