@@ -40,17 +40,28 @@ services:
     links:
       - database
 
-  node:
-    container_name: noted-node
-    build:
-      context: ./docker/node
-      dockerfile: Dockerfile
-    image: shmolf/node:latest
+# https://nickjanetakis.com/blog/docker-tip-82-using-yaml-anchors-and-x-properties-in-docker-compose
+  x-node: &node-default
+    image: node:lts-alpine3.15
     volumes:
       - ${APP_PATH}:${DOCUMENT_ROOT}
     working_dir: ${DOCUMENT_ROOT}
     environment:
       - NODE_ENV=${NODE_ENV}
+    entrypoint:
+      - yarn
+    command:
+      - dev
+
+  node:
+    <<: *node-default
+    container_name: noted-node
+
+  node-watch:
+    <<: *node-default
+    container_name: noted-node-watch
+    command:
+      - watch
 
   database:
     container_name: noted-database

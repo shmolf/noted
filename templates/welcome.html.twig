@@ -117,7 +117,18 @@
 {% endmacro %}
 
 {% macro notePage(workspaces) %}
-    <aside id="note-navigation">
+    <aside id="note-navigation" {{ workspaces|length == 0 ? 'data-no-workspaces="true"' }}>
+        {% if workspaces|length == 0 %}
+        <div id="no-workspaces">
+            <p>
+                Please
+                <a href="/account/" class="bold">
+                    create a workspace
+                </a>
+                first.
+            </p>
+        </div>
+        {% else %}
         <div id="toolbox">
             {# {% if workspaces|length == 1 %}
                 {% set workspace = workspaces|first %}
@@ -143,6 +154,7 @@
             {# <li id="copy-note" class="menu-item" data-action="copy">Copy</li> #}
         </ul>
         <div id="note-menu-out-click"></div>
+        {% endif %}
     </aside>
     <div id="noted">
         <div id="mobile-menu">
