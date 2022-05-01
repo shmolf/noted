@@ -10,7 +10,7 @@ import mdItEmoji from 'markdown-it-emoji';
 // @ts-ignore
 import mdItCheckbox from 'markdown-it-task-lists';
 import twemoji from 'twemoji';
-import { loadFront } from 'yaml-front-matter';
+import frontMatter from 'front-matter';
 import hljs from 'highlight.js';
 import { MapStringTo } from 'SCRIPTS/types/Generic';
 
@@ -60,7 +60,7 @@ function parseFrontMatter(markdown: string) {
   let parsedFrontMatter;
 
   try {
-    parsedFrontMatter = loadFront(markdown);
+    parsedFrontMatter = frontMatter<{[key: string]: any}>(markdown);
   } catch (e) {
     console.warn(e);
     return { content: markdown, data: {} };
@@ -68,7 +68,7 @@ function parseFrontMatter(markdown: string) {
 
   const pagePlaceholder = /\{\{ page\.([^}}]+) \}\}/g;
   // eslint-disable-next-line prefer-const
-  let { __content: content, ...data } = parsedFrontMatter;
+  let { body: content, attributes: data } = parsedFrontMatter;
 
   const matches = Array.from(markdown.matchAll(pagePlaceholder))
     .map((match: RegExpMatchArray) => match[1])
