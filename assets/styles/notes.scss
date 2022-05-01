@@ -175,6 +175,11 @@ main {
     }
   }
 
+  #no-workspaces {
+    background-color: var(--darker);
+    padding-left: 10px;
+  }
+
   #noted {
     display: flex;
     flex-direction: column;

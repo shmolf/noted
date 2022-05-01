@@ -28,7 +28,6 @@ import { removeSpinner, showSpinner } from 'SCRIPTS/lib/loading-spinner';
 // import { ViewUpdate } from '@codemirror/view';
 import sample from './sample.md';
 import * as CM5 from './Editor5';
-import * as CM6 from './Editor6';
 
 interface NoteQueue {
   /**
@@ -77,7 +76,6 @@ $(() => {
   initMaterialize();
   CM5.registerOnChange((value: string) => queueNoteSave(value));
   CM5.initCodeMirror($editor);
-  CM6.initEditor($editor.get(0) as HTMLElement);
   initMarkdownIt();
   initNoteNav();
 
@@ -95,8 +93,14 @@ $(() => {
   removeSpinner($notedContainer.get(0));
 });
 
+function workspacesExist(): boolean {
+  return $noteNavMenu.data('no-workspaces') !== true;
+}
+
 function startInitialPageSpinners() {
-  showSpinner($noteNavMenu.get(0));
+  if (workspacesExist()) {
+    showSpinner($noteNavMenu.get(0));
+  }
   showSpinner($notedContainer.get(0));
 }
 
@@ -297,8 +301,8 @@ function disableWorkspaceOption(uuid: string) {
   $activeWorkspace.find(`option[value=${uuid}]`).attr('disabled', 'disabled');
 }
 
-function getFirstEnabledWorkspace(): string {
-  return String($activeWorkspace.find('option:not(:disabled)').first().attr('value'));
+function getFirstEnabledWorkspace(): string|null {
+  return $activeWorkspace.find('option:not(:disabled)').first().attr('value') ?? null;
 }
 
 function setWorkspaceMenuByUuid(uuid: string) {
@@ -381,7 +385,9 @@ function onWorkerMessage(event: MessageEvent) {
       case workerStates.WORKSPACE_INVALID.k: {
         const uuid: string = msg.data;
         disableWorkspaceOption(uuid);
-        setWorkspaceMenuByUuid(getFirstEnabledWorkspace());
+        const firstWorkspaceUuid = getFirstEnabledWorkspace();
+        if (firstWorkspaceUuid === null) return;
+        setWorkspaceMenuByUuid(firstWorkspaceUuid);
         requestWorkspace();
         break;
       }
