@@ -27,13 +27,8 @@ import { removeSpinner, showSpinner } from 'SCRIPTS/lib/loading-spinner';
 // import { EditorView, init as initEdit, posToOffset, offsetToPos, createChangeListener } from './code-mirror-assets';
 // import { ViewUpdate } from '@codemirror/view';
 import sample from './sample.md';
-import {
-  registerOnChange,
-  initCodeMirror,
-  setCodeMirrorTheme,
-  setValue,
-  replaceRange,
-} from './Editor5';
+import * as CM5 from './Editor5';
+import * as CM6 from './Editor6';
 
 interface NoteQueue {
   /**
@@ -80,20 +75,21 @@ $(() => {
   }
 
   initMaterialize();
-  registerOnChange((value: string) => queueNoteSave(value));
-  initCodeMirror($editor);
+  CM5.registerOnChange((value: string) => queueNoteSave(value));
+  CM5.initCodeMirror($editor);
+  CM6.initEditor($editor.get(0) as HTMLElement);
   initMarkdownIt();
   initNoteNav();
 
   if (cmTheme !== null) {
-    setCodeMirrorTheme(cmTheme);
+    CM5.setCodeMirrorTheme(cmTheme);
     localStorage.setItem(CM_THEME_COOKIE, cmTheme);
     $codeMirrorTheme.val(cmTheme);
     $codeMirrorTheme.find(`[value="${cmTheme}"`).attr('selected', 'selected');
   }
 
   renderMarkdown(sample);
-  setValue(sample);
+  CM5.setValue(sample);
 
   eventListeners();
   removeSpinner($notedContainer.get(0));
@@ -140,7 +136,7 @@ function eventListeners() {
     const cmLine = $codeMirrorLines.index($cmCheckbox.parents('.CodeMirror-line').first());
     const cmCol = $cmCheckbox.closest('.CodeMirror-line').text().indexOf('[');
 
-    replaceRange(cmLine, cmCol + 1, cmLine, cmCol + 1, newCheckedText);
+    CM5.replaceRange(cmLine, cmCol + 1, cmLine, cmCol + 1, newCheckedText);
   });
 
   $(document).on('click', '.note-item', (event) => {
@@ -200,7 +196,7 @@ function updatePageTheme() {
 
 function updateCodeMirrorTheme() {
   const theme = String($codeMirrorTheme.val());
-  setCodeMirrorTheme(theme);
+  CM5.setCodeMirrorTheme(theme);
   localStorage.setItem(CM_THEME_COOKIE, theme);
 }
 
@@ -217,7 +213,7 @@ function newNote() {
   showSpinner($notedContainer.get(0));
   removeSpinner($noteNavMenu.get(0));
   worker?.postMessage(clientActions.NEW_NOTE.f());
-  setValue('');
+  CM5.setValue('');
   renderMarkdown('');
 }
 
@@ -321,7 +317,7 @@ function onWorkerMessage(event: MessageEvent) {
         const content = noteData.content ?? '';
 
         $editor.data('uuid', noteData.uuid);
-        setValue(content);
+        CM5.setValue(content);
         $editor.scrollTop(0);
         renderMarkdown(content);
         removeSpinner($notedContainer.get(0));
