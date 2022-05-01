@@ -1,3 +1,11 @@
+## [3.2.0](https://github.com/shmolf/noted/compare/v3.1.0...v3.2.0) (2022-05-01)
+
+
+### Features
+
+* **workspaces:** add note/link when workspaces don't exist ([e65ce65](https://github.com/shmolf/noted/commit/e65ce655ad88e17c27265eb84691533eb849500a))
+* **codemirror:** basic setup with 6 ([d4fc1ce](https://github.com/shmolf/noted/commit/d4fc1ce18542500e11260752f4d736e2a67ce389))
+
 ## [3.1.0](https://github.com/shmolf/noted/compare/v3.0.0...v3.1.0) (2022-04-11)
 
 
