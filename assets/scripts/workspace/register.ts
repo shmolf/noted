@@ -76,7 +76,6 @@ function clearWorkspaceInputs() {
 }
 
 function processWindowMessage(event: MessageEvent) {
-  console.log(event.data);
   const data = JSON.parse(event.data);
   const load = data?.load ?? null;
   const action = data?.action ?? null;

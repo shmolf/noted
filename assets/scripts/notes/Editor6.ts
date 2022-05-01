@@ -1,3 +1,5 @@
+/* eslint-disable */
+
 import {
   keymap,
   highlightSpecialChars,
@@ -8,6 +10,7 @@ import {
   crosshairCursor,
   lineNumbers,
   highlightActiveLineGutter,
+  EditorView,
 } from '@codemirror/view';
 import { Extension, EditorState } from '@codemirror/state';
 import {
@@ -27,7 +30,6 @@ import {
   closeBracketsKeymap,
 } from '@codemirror/autocomplete';
 import { lintKeymap } from '@codemirror/lint';
-import { EditorView } from '@codemirror/view';
 import { javascript } from "@codemirror/lang-javascript";
 
 /// This is an extension value that just pulls together a number of
