@@ -28,6 +28,7 @@ import { removeSpinner, showSpinner } from 'SCRIPTS/lib/loading-spinner';
 // import { ViewUpdate } from '@codemirror/view';
 import sample from './sample.md';
 import * as CM5 from './Editor5';
+// import * as CM6 from './Editor6';
 
 interface NoteQueue {
   /**
@@ -76,6 +77,7 @@ $(() => {
   initMaterialize();
   CM5.registerOnChange((value: string) => queueNoteSave(value));
   CM5.initCodeMirror($editor);
+  // CM6.initEditor($editor.get(0) as HTMLElement);
   initMarkdownIt();
   initNoteNav();
 

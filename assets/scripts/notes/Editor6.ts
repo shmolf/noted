@@ -29,7 +29,6 @@ import {
 import { lintKeymap } from '@codemirror/lint';
 import { EditorView } from '@codemirror/view';
 import { javascript } from "@codemirror/lang-javascript";
-import { EditorState } from '@codemirror/state';
 
 /// This is an extension value that just pulls together a number of
 /// extensions that you might want in a basic editor. It is meant as a
