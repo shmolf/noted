@@ -1,4 +1,5 @@
 const Encore = require('@symfony/webpack-encore');
+const ESLintPlugin = require('eslint-webpack-plugin');
 var path = require('path');
 
 // Manually configure the runtime environment if not already configured yet by the "encore" command.
@@ -19,7 +20,7 @@ Encore
       SCRIPTS: path.resolve(__dirname, './assets/scripts/'),
       STYLES: path.resolve(__dirname, './assets/styles/'),
       NODE: path.resolve(__dirname, './node_modules/'),
-      IMAGES: path.resolve(__dirname, './assets/images/')
+      IMAGES: path.resolve(__dirname, './assets/images/'),
     })
 
     .addEntries({
@@ -99,6 +100,7 @@ Encore
     .cleanupOutputBeforeBuild()
 
     .addLoader({ test: /\.md$/, loader: 'raw-loader' })
+    .addPlugin(new ESLintPlugin({}))
 ;
 
 const config = Encore.getWebpackConfig();

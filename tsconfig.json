@@ -16,9 +16,9 @@
             "STYLES/*": ["./assets/styles/*"],
             "Images/*": ["./assets/images/*"],
             "NODE/*": ["./node_modules/*"]
+            // , "*": ["*", "./node_modules/*"]
         }
     },
-    // "include": ["src/**/*.ts"],
     "exclude": [
         "public/build/**/*",
         "packages-cache"
