@@ -1,5 +1,6 @@
 /* eslint-disable */
 
+import { CodeMirrorEditor } from 'SCRIPTS/types/CodeMirrorEditor';
 import {
   keymap,
   highlightSpecialChars,
@@ -11,8 +12,10 @@ import {
   lineNumbers,
   highlightActiveLineGutter,
   EditorView,
+  ViewUpdate,
+  ViewPlugin,
 } from '@codemirror/view';
-import { Extension, EditorState } from '@codemirror/state';
+import { Extension, EditorState, Text } from '@codemirror/state';
 import {
   defaultHighlightStyle,
   syntaxHighlighting,
@@ -99,17 +102,76 @@ const basicSetup: Extension = [
   ]),
 ];
 
-let cm6Editor: EditorView;
+let cmEditor: EditorView;
 
-export function initEditor(anchor: HTMLElement): void {
-  cm6Editor = new EditorView({
+function initCodeMirror(doc: string, parent: HTMLElement): void {
+  cmEditor = new EditorView({
     state: EditorState.create({
-      extensions: [basicSetup, javascript()],
+      doc: Text.of([doc]),
+      extensions: [
+        basicSetup,
+        javascript({ jsx: true, typescript: true }),
+        changeResponse(() => {})
+      ],
     }),
-    parent: anchor,
+    parent,
+  });
+  console.log({
+    doc,
+    cmEditor,
+    parent,
   });
 }
 
-export function filler(): number {
-  return 42;
+function registerOnChange(onChange: (value: string|undefined) => void): void {
+  // Needs Logic
+  // cm6Editor.on('update', (update: ViewUpdate) => {
+  //   console.log(update.state.doc.toString());
+  // });
+}
+
+function setCodeMirrorTheme(theme: string) {
+  // Needs Logic
+}
+
+function setValue(value: string) {
+  // Needs Logic
+}
+
+function setManualFlag(flag: boolean) {
+  // Needs Logic
+}
+
+function replaceRange(startLine: number, startCh: number, endLine: number, endCh: number, text: string) {
+  // Needs Logic
+}
+
+
+const methods: CodeMirrorEditor = {
+  registerOnChange,
+  initCodeMirror,
+  setCodeMirrorTheme,
+  setValue,
+  setManualFlag,
+  replaceRange,
+};
+
+export default methods;
+
+function changeResponse(callback: (value: string|undefined) => void) {
+  const plugin = ViewPlugin.fromClass(class {
+    constructor(private view: EditorView) {}
+
+    update(update: ViewUpdate) {
+      if (update.docChanged) {
+        console.log({
+          update,
+        });
+      }
+    }
+
+    destroy() {}
+  });
+
+  return [plugin];
 }

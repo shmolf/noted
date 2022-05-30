@@ -19,7 +19,7 @@ import {
   clearNoteList,
 } from 'SCRIPTS/notes/note-nav';
 import FileDownload from 'js-file-download';
-// eslint-disable-next-line import/no-webpack-loader-syntax
+// eslint-disable-next-line import/no-webpack-loader-syntax, import/no-unresolved
 import Worker from 'worker-loader!./note.worker';
 import Cookies from 'SCRIPTS/lib/cookie';
 
@@ -27,8 +27,8 @@ import { removeSpinner, showSpinner } from 'SCRIPTS/lib/loading-spinner';
 // import { EditorView, init as initEdit, posToOffset, offsetToPos, createChangeListener } from './code-mirror-assets';
 // import { ViewUpdate } from '@codemirror/view';
 import sample from './sample.md';
-import * as CM5 from './Editor5';
-// import * as CM6 from './Editor6';
+import CM5 from './Editor5';
+import CM6 from './Editor6';
 
 interface NoteQueue {
   /**
@@ -64,6 +64,9 @@ const noteDelayMax = 10 * 1000;
 /** @type {string|null} */
 const cmTheme = localStorage.getItem(CM_THEME_COOKIE);
 
+// const CM = CM5;
+const CM = CM6;
+
 $(() => {
   loadSw();
   initJqueryVariables();
@@ -75,21 +78,21 @@ $(() => {
   }
 
   initMaterialize();
-  CM5.registerOnChange((value: string) => queueNoteSave(value));
-  CM5.initCodeMirror($editor);
-  // CM6.initEditor($editor.get(0) as HTMLElement);
+  CM.registerOnChange((value: string) => queueNoteSave(value));
+  CM.initCodeMirror(sample, $editor.get(0) as HTMLElement);
+  // CM6.initCodeMirror($editor.get(0) as HTMLElement);
   initMarkdownIt();
   initNoteNav();
 
   if (cmTheme !== null) {
-    CM5.setCodeMirrorTheme(cmTheme);
+    CM.setCodeMirrorTheme(cmTheme);
     localStorage.setItem(CM_THEME_COOKIE, cmTheme);
     $codeMirrorTheme.val(cmTheme);
     $codeMirrorTheme.find(`[value="${cmTheme}"`).attr('selected', 'selected');
   }
 
   renderMarkdown(sample);
-  CM5.setValue(sample);
+  // CM.setValue(sample);
 
   eventListeners();
   removeSpinner($notedContainer.get(0));
@@ -142,7 +145,7 @@ function eventListeners() {
     const cmLine = $codeMirrorLines.index($cmCheckbox.parents('.CodeMirror-line').first());
     const cmCol = $cmCheckbox.closest('.CodeMirror-line').text().indexOf('[');
 
-    CM5.replaceRange(cmLine, cmCol + 1, cmLine, cmCol + 1, newCheckedText);
+    CM.replaceRange(cmLine, cmCol + 1, cmLine, cmCol + 1, newCheckedText);
   });
 
   $(document).on('click', '.note-item', (event) => {
@@ -202,7 +205,7 @@ function updatePageTheme() {
 
 function updateCodeMirrorTheme() {
   const theme = String($codeMirrorTheme.val());
-  CM5.setCodeMirrorTheme(theme);
+  CM.setCodeMirrorTheme(theme);
   localStorage.setItem(CM_THEME_COOKIE, theme);
 }
 
@@ -219,7 +222,7 @@ function newNote() {
   showSpinner($notedContainer.get(0));
   removeSpinner($noteNavMenu.get(0));
   worker?.postMessage(clientActions.NEW_NOTE.f());
-  CM5.setValue('');
+  CM.setValue('');
   renderMarkdown('');
 }
 
@@ -323,7 +326,7 @@ function onWorkerMessage(event: MessageEvent) {
         const content = noteData.content ?? '';
 
         $editor.data('uuid', noteData.uuid);
-        CM5.setValue(content);
+        CM.setValue(content);
         $editor.scrollTop(0);
         renderMarkdown(content);
         removeSpinner($notedContainer.get(0));
@@ -381,6 +384,7 @@ function onWorkerMessage(event: MessageEvent) {
         // Need to decide who's responsible for refreshing the refresh token. Prolly the worker.
         // They'd also need to update the workspace.
         const workspace: WorkspacePackage = msg.data;
+        console.debug(workspace);
         worker?.postMessage(clientActions.GET_LIST.f());
         break;
       }
