@@ -1,3 +1,16 @@
+## [3.3.0](https://github.com/shmolf/noted/compare/v3.2.0...v3.3.0) (2022-06-04)
+
+
+### Features
+
+* **cm6:** incomplete, iterative progress ([578f596](https://github.com/shmolf/noted/commit/578f5961e54de4ba6291a6edda8f1727bea63bca))
+
+
+### Bug Fixes
+
+* **eslint:** eslint resolution error ([e03ffdf](https://github.com/shmolf/noted/commit/e03ffdf4efd147da5b08801ebc0b069a6daeb398))
+* **cm:** revert to CM5 for now ([08e7e6b](https://github.com/shmolf/noted/commit/08e7e6b6cfc55eee10c4c22862ffc90803532444))
+
 ## [3.2.0](https://github.com/shmolf/noted/compare/v3.1.0...v3.2.0) (2022-05-01)
 
 
