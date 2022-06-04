@@ -1,3 +1,5 @@
+/* eslint-disable no-console */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   workerStates, clientActions, NotePackage, Note, WorkspacePackage,
 } from 'SCRIPTS/notes/worker-client-api';

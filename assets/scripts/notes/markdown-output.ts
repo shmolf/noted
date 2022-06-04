@@ -9,7 +9,7 @@ import mdItEmoji from 'markdown-it-emoji';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import mdItCheckbox from 'markdown-it-task-lists';
-import twemoji from 'twemoji';
+// import twemoji from 'twemoji';
 import frontMatter from 'front-matter';
 import hljs from 'highlight.js';
 import { MapStringTo } from 'SCRIPTS/types/Generic';
@@ -20,7 +20,7 @@ let $mdView: JQuery;
 /**
  * Initialized the Markdown-It library
  */
-export function initMarkdownIt() {
+export function initMarkdownIt(): void {
   $mdView = $('#markdown-output');
   md = mdIt()
     .use(markdownItApexCharts)

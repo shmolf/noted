@@ -25,6 +25,7 @@
         "@types/twemoji": "^12.1.1",
         "@types/yaml-front-matter": "^4.1.0",
         "axios": "^0.21.1",
+        "buffer": "^6.0.3",
         "codemirror": "^5.60.0",
         "core-js": "^3.9.0",
         "cuki": "^2.0.0",
@@ -36,7 +37,6 @@
         "highlight.js": "^10.7.2",
         "jquery": "^3.5.1",
         "js-file-download": "^0.4.12",
-        "js-yaml": "https://github.com/shmolf/js-yaml#buffer",
         "lezer-markdown": "lezer-parser/markdown",
         "markdown-it": "^13.0.0",
         "markdown-it-apexcharts": "^0.2.6",
@@ -68,8 +68,8 @@
         "eslint": "^7.21.0",
         "eslint-config-airbnb-base": "^14.2.0",
         "eslint-import-resolver-alias": "^1.1.2",
-        "eslint-import-resolver-webpack": "^0.13.2",
         "eslint-plugin-import": "^2.26.0",
+        "eslint-webpack-plugin": "^3.1.1",
         "husky": "^7.0.0",
         "jshint": "^2.12.0",
         "semantic-release": "^17.4.4",
@@ -91,7 +91,8 @@
         "lint-js": "yarn eslint && jshint $JSDIR",
         "lint-js-quiet": "yarn eslint-quiet && yarn jshint",
         "lint-js-fix": "eslint -c ./.eslintrc.js ./assets/scripts --fix",
-        "lint-all": "yarn run lint-scss && yarn run lint-js"
+        "lint-all": "yarn run lint-scss && yarn run lint-js",
+        "prepare": "husky install"
     },
     "browserslist": [
         "defaults"

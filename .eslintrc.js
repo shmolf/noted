@@ -40,6 +40,16 @@ module.exports = {
     'public/**/*',
   ],
   settings: {
-    'import/resolver': 'webpack',
+    'import/resolver': {
+      alias: {
+        map: [
+          ['SCRIPTS', './assets/scripts/'],
+          ['STYLES', './assets/styles/'],
+          ['NODE', './node_modules/'],
+          ['IMAGES', './assets/images/'],
+        ],
+        extensions: ['.ts'],
+      },
+    },
   },
 };

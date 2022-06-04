@@ -6,8 +6,8 @@ interface NoteListItem {
   tags: string[],
   uuid: string,
   inTrashcan: string,
-  createdDate: DateTime,
-  lastModified: DateTime,
+  createdDate: DateTime|string,
+  lastModified: DateTime|string,
 }
 
 export interface saveStates {
@@ -21,7 +21,7 @@ let $noteListTemplate: JQuery;
 let $menu: JQuery;
 let $outClick: JQuery;
 
-export function initNoteNav() {
+export function initNoteNav(): void {
   $noteListNav = $('#note-items');
   $noteListTemplate = $('#note-item-template');
   $menu = $('#note-menu');
@@ -64,16 +64,21 @@ function autoCloseNav() {
   $('#note-navigation').removeClass('expanded');
 }
 
-export function clearNoteList() {
+export function clearNoteList(): void {
   $noteListNav.find('.note-item:not(#note-load-template)').off('click').detach();
 }
 
-export function renderNoteList(notes: NoteListItem[]) {
+export function renderNoteList(notes: NoteListItem[]): void {
   clearNoteList();
 
   notes.forEach((note) => {
-    const lastModified = new Date(`${note.lastModified.date} ${note.lastModified.timezone}`);
-    const createdDate = new Date(`${note.createdDate.date} ${note.createdDate.timezone}`);
+    const lastModified = typeof note.lastModified === 'string'
+      ? new Date(note.lastModified)
+      : new Date(note.lastModified.date);
+
+    const createdDate = typeof note.createdDate === 'string'
+      ? new Date(note.createdDate)
+      : new Date(note.createdDate.date);
 
     const $noteBtn = createNewNoteNavItem(note.uuid, note.title, note.tags, lastModified, createdDate);
     $noteListNav.append($noteBtn);
@@ -113,7 +118,7 @@ export function createNewNoteNavItem(
   return $noteBtn;
 }
 
-export function setNavItemTitle(uuid: string, title: string) {
+export function setNavItemTitle(uuid: string, title: string): void {
   let $navListItem = getNavItem(uuid);
 
   if ($navListItem.length === 0) {
@@ -130,7 +135,7 @@ export function setNavItemTitle(uuid: string, title: string) {
   $noteListNav.prepend($navListItem);
 }
 
-export function setNavItemSaveState(uuid: string, state: keyof saveStates) {
+export function setNavItemSaveState(uuid: string, state: keyof saveStates): void {
   const stateClasses: saveStates = {
     save: 'saved',
     inProgress: 'not-saved',
