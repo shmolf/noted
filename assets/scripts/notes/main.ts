@@ -64,8 +64,8 @@ const noteDelayMax = 10 * 1000;
 /** @type {string|null} */
 const cmTheme = localStorage.getItem(CM_THEME_COOKIE);
 
-// const CM = CM5;
-const CM = CM6;
+const CM = CM5;
+// const CM = CM6;
 
 $(() => {
   loadSw();
