@@ -1,3 +1,17 @@
+## [3.4.0](https://github.com/shmolf/noted/compare/v3.3.0...v3.4.0) (2022-07-05)
+
+
+### Features
+
+* **banner:** new banner message ([c5c6748](https://github.com/shmolf/noted/commit/c5c6748a470b5d431cc63f16fd7b69fcd95adc7f))
+
+
+### Bug Fixes
+
+* **symfony:** bumping runtime, as suggested ([dbb2c1d](https://github.com/shmolf/noted/commit/dbb2c1df5b694990f00d843e68d3e83a16f4d4af))
+* move composer field to `config` hash ([d49228c](https://github.com/shmolf/noted/commit/d49228c910dfee76e2a021c056b2056192326c94))
+* **composer:** the suggested composer cmd didn't work. Did this manually ([25c82c4](https://github.com/shmolf/noted/commit/25c82c49abab8921bcaa38c24532f4d36ce3240e))
+
 ## [3.3.0](https://github.com/shmolf/noted/compare/v3.2.0...v3.3.0) (2022-06-04)
 
 
