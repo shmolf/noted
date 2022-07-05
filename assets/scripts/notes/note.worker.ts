@@ -249,10 +249,9 @@ function GetWorkspace(uuid: string) {
       getAccessToken().then((tokenPayload) => {
         accessToken = tokenPayload;
         worker.postMessage(workerStates.WORKSPACE_DATA.f(workspace));
+      }).catch((error) => {
+        console.warn(error);
+        worker.postMessage(workerStates.WORKSPACE_INVALID.f(uuid));
       });
-    })
-    .catch((error) => {
-      workerStates.WORKSPACE_INVALID.f(uuid);
-      console.warn(error);
     });
 }

@@ -57,14 +57,14 @@
         <div class="instructions">
             <p>
                 I've created a separate host for storing the notes. Please create an account at
-                <a href="https://storage.note-d.app" target="_blank">https://storage.note-d.app</a>.
+                <a href="https://book.note-d.app" target="_blank">https://book.note-d.app</a>.
                 The username can be different or the same. Doesn't matter.
                 <br />
                 Next, please add that workspace below using:
             </p>
             <ul>
                 <li>Workspace Name: <code>Whatever you name you like</code></li>
-                <li>Registration URL: <code>https://storage.note-d.app/㊙/register</code></li>
+                <li>Registration URL: <code>https://book.note-d.app/㊙/register</code></li>
             </ul>
         </div>
         <form id="registration-form" data-successUri="{{ path('account.workspace.registrationSuccess') }}">
@@ -81,7 +81,7 @@
                     {% set txtDateName = 'Registration URL'|trans %}
                     <label for="registration-uri">{{ txtDateName }}</label>
                     <input type="url" id="registration-uri" class="active validate"
-                        placeholder="https://localhost/🔌/registration"
+                        placeholder="https://localhost/㊙/registration"
                         title="{{ txtDateName }}"
                         pattern="https?://.*" />
                     <span class="helper-text" data-error="{{ 'Invalid'|trans }} {{ txtDateName }}" data-success="👍"></span>
@@ -95,10 +95,11 @@
                         pattern="[\w]+" />
                     <span class="helper-text" data-error="{{ 'Invalid'|trans }} {{ txtDateName }}" data-success="👍"></span>
                 </div> #}
+                <div class="input-field col s12 m4">
+                    <button id="generate-btn" type="submit" class="btn right">{{ 'Register'|trans }}</button>
+                </div>
             </div>
-            <div class="row">
-                <button id="generate-btn" type="submit" class="btn right">{{ 'Register'|trans }}</button>
-            </div>
+            <input id="host" type="hidden" value="{{ app.request.getSchemeAndHttpHost() }}" />
         </form>
         <table class="striped highlight centered">
             <thead>
