@@ -7,12 +7,13 @@ import { TokenSourcePayload } from 'SCRIPTS/types/Api';
 interface RegistrationData {
   origin: string|null,
   name: string|null,
+  host: string|null,
 }
 
 let oauthWindow: Window|null;
 let openChannelIntervalId: ReturnType<typeof setTimeout>|null;
 let registrationForm: HTMLFormElement;
-const registrationContext: RegistrationData = { origin: null, name: null };
+const registrationContext: RegistrationData = { origin: null, name: null, host: null };
 
 window.addEventListener('DOMContentLoaded', () => {
   registrationForm = document.getElementById('registration-form') as HTMLFormElement;
@@ -33,10 +34,9 @@ function formSubmit(event: Event) {
   event.preventDefault();
   const inputUri = document.getElementById('registration-uri') as HTMLInputElement;
   const inputWorkspaceName = document.getElementById('workspace-name') as HTMLInputElement;
+  const thisHost = document.getElementById('host') as HTMLInputElement;
   // const inputToken = document.getElementById('app-token') as HTMLInputElement;
-  const url = inputUri.value;
-  registrationContext.origin = (new URL(url)).origin;
-  registrationContext.name = inputWorkspaceName.value;
+  const url = `${inputUri.value}?callsite=${thisHost.value}`;
 
   if (oauthWindow ?? null === false) {
     killChildWindow(oauthWindow);
@@ -45,6 +45,10 @@ function formSubmit(event: Event) {
   if (String(url).trim() === '') {
     return;
   }
+
+  registrationContext.origin = (new URL(url)).origin;
+  registrationContext.name = inputWorkspaceName.value;
+  registrationContext.host = thisHost.value;
 
   toggleWorkspaceInputs(false);
 
@@ -63,11 +67,9 @@ function formSubmit(event: Event) {
 function toggleWorkspaceInputs(isEnabled: boolean) {
   const inputName = document.getElementById('workspace-name') as HTMLInputElement;
   const inputUri = document.getElementById('registration-uri') as HTMLInputElement;
-  // const inputToken = document.getElementById('app-token') as HTMLInputElement;
 
   inputName.disabled = !isEnabled;
   inputUri.disabled = !isEnabled;
-  // inputToken.disabled = !isEnabled;
 }
 
 function clearWorkspaceInputs() {
@@ -101,7 +103,6 @@ function openChannel(page: Window) {
   const channel = new MessageChannel();
   // Listen for messages on port1, coming from the other page
   channel.port1.onmessage = processPipeMessage;
-
   // Transfer port2 to the other page
   page.postMessage(JSON.stringify({ state: 'pipe-ready' }), registrationContext.origin!, [channel.port2]);
 }
@@ -130,6 +131,7 @@ function processPipeMessage(event: MessageEvent) {
         requestNewWorkspace(tokenData).then(() => {
           registrationContext.name = null;
           registrationContext.origin = null;
+          registrationContext.host = null;
           clearWorkspaceInputs();
           removeSpinner(registrationForm);
           window.location.reload();

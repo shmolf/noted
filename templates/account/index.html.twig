@@ -81,7 +81,7 @@
                     {% set txtDateName = 'Registration URL'|trans %}
                     <label for="registration-uri">{{ txtDateName }}</label>
                     <input type="url" id="registration-uri" class="active validate"
-                        placeholder="https://localhost/🔌/registration"
+                        placeholder="https://localhost/㊙/registration"
                         title="{{ txtDateName }}"
                         pattern="https?://.*" />
                     <span class="helper-text" data-error="{{ 'Invalid'|trans }} {{ txtDateName }}" data-success="👍"></span>
@@ -95,10 +95,11 @@
                         pattern="[\w]+" />
                     <span class="helper-text" data-error="{{ 'Invalid'|trans }} {{ txtDateName }}" data-success="👍"></span>
                 </div> #}
+                <div class="input-field col s12 m4">
+                    <button id="generate-btn" type="submit" class="btn right">{{ 'Register'|trans }}</button>
+                </div>
             </div>
-            <div class="row">
-                <button id="generate-btn" type="submit" class="btn right">{{ 'Register'|trans }}</button>
-            </div>
+            <input id="host" type="hidden" value="{{ app.request.getSchemeAndHttpHost() }}" />
         </form>
         <table class="striped highlight centered">
             <thead>
