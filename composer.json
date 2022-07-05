@@ -68,6 +68,9 @@
         "sort-packages": true,
         "platform": {
             "php": "7.4.3"
+        },
+        "allow-plugins": {
+          "symfony/flex": true
         }
     },
     "autoload": {
@@ -105,9 +108,6 @@
     },
     "conflict": {
         "symfony/symfony": "*"
-    },
-    "allow-plugins": {
-      "symfony/flex": true
     },
     "extra": {
         "symfony": {
