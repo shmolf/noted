@@ -106,6 +106,9 @@
     "conflict": {
         "symfony/symfony": "*"
     },
+    "allow-plugins": {
+      "symfony/flex": true
+    },
     "extra": {
         "symfony": {
             "allow-contrib": false,
