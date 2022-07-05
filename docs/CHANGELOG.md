@@ -1,3 +1,15 @@
+## [3.5.0](https://github.com/shmolf/noted/compare/v3.4.0...v3.5.0) (2022-07-05)
+
+
+### Features
+
+* support private note-d hosting ([45ddd66](https://github.com/shmolf/noted/commit/45ddd66b14b39eae9cc2f777171c7d8a9e9b30c2))
+
+
+### Bug Fixes
+
+* **storage:** remove refs to old subdomain ([b51b8ac](https://github.com/shmolf/noted/commit/b51b8ac9f4df07024880c7abb8d8625090b9e6c0))
+
 ## [3.4.0](https://github.com/shmolf/noted/compare/v3.3.0...v3.4.0) (2022-07-05)
 
 
