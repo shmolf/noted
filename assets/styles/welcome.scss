@@ -24,11 +24,6 @@ h2 {
   padding: 0;
   margin: 0 0 3rem;
 
-  li {
-    padding-left: 1rem;
-    text-indent: -0.7rem;
-  }
-
   li::before {
     font-family: "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji";
   }
@@ -50,10 +45,18 @@ h2 {
   }
 }
 
-.question {
-  font-style: italic;
-}
+.question-wrapper {
+  border: solid 1px var(--color-2);
+  border-radius: 0.5rem;
+  width: min(100%, 70rem);
+  margin: 1rem auto;
+  padding: 0.5rem;
 
-.response {
-  font-weight: bold;
+  li {
+    list-style: cambodian;
+  }
+
+  .question {
+    font-weight: bold;
+  }
 }

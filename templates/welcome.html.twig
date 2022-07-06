@@ -2,57 +2,100 @@
 <h2>
     <pre class="stylish-code">&lt;inserts amazing graphics here&gt;</pre>
 </h2>
+
 <hr>
-<p>
-    This project is an expedition to provide a markdown application that works well on desktop and mobile devices,
-    while also providing the security of self-hosting the data using OAuth to validate credentials.
-</p>
-<p>
-    This whole project is still in Beta. So long as I'm the only dev, it'll likely be in Beta for a while.
-    But hopefully that doesn't deter you from using the application. Just be sure to export a backup of your notes
-    occasionally.
-</p>
-<p>
-    One of the interesting things I like about this application, is that the password supports a wide variety of
-    characters. Spaces, tabs (if you can manage it), emojis, and of course, foreign languages.
-    <br />
-    But be kind to yourself. Not all mobile-device keyboards expect this level of flexibility.
-</p>
+
+<div>
+    <p>
+        This project is an expedition to provide a markdown application that works well on desktop and mobile devices,
+        while also providing the security of self-hosting the data using OAuth to validate credentials.
+    </p>
+    <p>
+        This whole project is still in Beta. So long as I'm the only dev, it'll likely be in Beta for a while.
+        But hopefully that doesn't deter you from using the application. Just be sure to export a backup of your notes
+        occasionally.
+    </p>
+    <p>
+        One of the interesting things I like about this application, is that the password supports a wide variety of
+        characters. Spaces, tabs (if you can manage it), emojis, and of course, foreign languages.
+        <br />
+        But be kind to yourself. Not all mobile-device keyboards expect this level of flexibility.
+    </p>
+    <p>
+        Another goal of this project, is to allow oneself, to control their data, while not loosing the convience
+        of remote/cloud access. The applications (Note'd & Storage) are meant to be independent, so that you can spin
+        up your own hosts. One of each, or mayhaps just a storage host.
+    </p>
+    <p>
+        Either way, you can rely on my hosting, or you can set up your own, w/o any loss of functionality.
+    </p>
+
 <hr>
-<p class="question">
-    How does it work?
-</p>
-<p class="response">
-    This site (note-d.app) is primarily meant to serve the Frontend for writing the notes.
-    This includes the HTML, CSS, JS, and of course, the means to manage your user profile.
-</p>
-<p class="question">
-    Where are my notes stored?
-</p>
-<p class="response">
-    For now, you'll need to create another user profile on a seprate site, within the domain of this one.
-    That site being <a href="https://book.note-d.app" target="_blank">https://book.note-d.app</a>.
-    That host is responsible for storing the notes, unless you decide to "spin up" your own storage host.
-</p>
-<p class="question">
-    How does this site get the notes from <code>book.note-d.app</code>?
-</p>
-<p class="response">
-    From your user profile, you'll registre new workspaces. Each workspace would be a host, where you've
-    authenticated with a user login.
-    Similar to how you may go to a blog, and they ask if you'd like to login from a Google or Twitter account.
-    This site will then store the tokens for you, so you can safely create/modify/delete your notes.
-</p>
-<p class="question">
-    Why would someone "spin up" their own storage host?
-</p>
-<p class="response">
-    Even with all the best security precautions, some people may prefer to have their data stored close to home.
-    Hosting your own storage server from behind a firewall, means that so long as your browser is behind the same
-    firewall, your browser can access the storage host, without this site (note-d.app) ever needing direct access.
-</p>
+
+<h4 class="center-align">Questions that no one asked</h4>
+<div>
+    <div class="question-wrapper">
+        <p class="question">
+            How does it work?
+        </p>
+        <p class="response">
+            This site (note-d.app) is primarily meant to serve the Frontend for writing the notes.
+            This includes the HTML, CSS, JS, and of course, the means to manage your user profile.
+            The browser will directly request notes from the selected Workspace, using AJAX calls.
+        </p>
+    </div>
+    <div class="question-wrapper">
+        <p class="question">
+            Where are my notes stored?
+        </p>
+        <p class="response">
+            If you want to store your notes through this site, you'll need to create another user profile on a
+            seprate site that is a subdomain of this one.
+            That site being <a href="https://book.note-d.app" target="_blank">https://book.note-d.app</a>.
+            That host is responsible for storing the notes, unless you decide to
+            <a target="_blank" href="https://github.com/shmolf/noted-storage-symfony">"spin up" your own storage host</a>.
+            <ul class="browser-default">
+                <li>That repo has a <code>docker-compose.yml</code> you can use to start a Docker container.</li>
+            </ul>
+        </p>
+    </div>
+    <div class="question-wrapper">
+        <p class="question">
+            How does this site get the notes from <code>book.note-d.app</code>?
+        </p>
+        <p class="response">
+            From your user profile, you'll register new workspaces. Each workspace would be a separate host
+            (or duplicate, if that's your thing).
+            This site (note-d.app) will store the tokens for you, so you can safely create/modify/delete your notes.
+            This application does not directly access the storage site.
+            Your browser is responsible for making the AJAX calls for creating/modifying notes.
+        </p>
+    </div>
+    <div class="question-wrapper">
+        <p class="question">
+            Why would someone "spin up" their own storage host?
+        </p>
+        <p class="response">
+            Even with all the best security precautions, some people may prefer to have their data stored close to home.
+            Hosting your own storage server from behind a firewall, means that so long as your browser is behind the same
+            firewall, your browser can access the storage host, without this site (note-d.app) ever needing direct access.
+        </p>
+        <img src="{{ asset('build/images/NotedUmlDiagram.svg') }}" title="UML Diagram" alt="UML Diagram" />
+    </div>
+    <div class="question-wrapper">
+        <p class="question">
+            I don't like <code>note-d.app</code> holding my tokens. Can I host my own "Note'd App"?
+        </p>
+        <p class="response">
+            Why yes you can! The <a target="_blank" href="https://github.com/shmolf/noted">repository</a> is open source,
+            and even has a Docker configuration. Please feel free to self-host your own "Note'd" application.
+        </p>
+    </div>
+</div>
+
 <hr>
-<ul class="fun-list">
+
+<ul class="fun-list browser-default">
     <li>
         <a href="https://github.com/shmolf/noted" target="_blank" title="Opens in a new window">This site's repo</a>
     </li>
