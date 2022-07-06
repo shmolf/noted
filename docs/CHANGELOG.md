@@ -1,3 +1,17 @@
+## [3.6.0](https://github.com/shmolf/noted/compare/v3.5.0...v3.6.0) (2022-07-06)
+
+
+### Features
+
+* **images:** add support for images ([867090f](https://github.com/shmolf/noted/commit/867090f34f7bee8dc26593e9c7e092a2598d841e))
+
+
+### Bug Fixes
+
+* **welcome:** improve welcome page presentation & content ([67db7a8](https://github.com/shmolf/noted/commit/67db7a870ab50237d5811f2e7b5898777b689914))
+* remove console.logs ([5671dc6](https://github.com/shmolf/noted/commit/5671dc6ff1ebadcf0319e28a5d3bee5c903c6419))
+* **templates:** reorganize tempaltes into bite-size files ([0cac970](https://github.com/shmolf/noted/commit/0cac97052d678bfcea5a97c35aab75bade9d1fcf))
+
 ## [3.5.0](https://github.com/shmolf/noted/compare/v3.4.0...v3.5.0) (2022-07-05)
 
 
