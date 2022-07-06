@@ -1,238 +1,64 @@
-{% extends 'base.html.twig' %}
-{% import "codemirror.macros.html.twig" as cmMacros %}
-
-{% block stylesheets %}
-    {{ parent() }}
-    {% if is_granted('ROLE_USER') %}
-        {{ encore_entry_link_tags('notes') }}
-    {% else %}
-        {{ encore_entry_link_tags('welcome') }}
-    {% endif %}
-
-    {% for key, highglightTheme in highlightJsThemes %}
-        {% set isSelected = highglightTheme.isSelected %}
-        <link rel="stylesheet" {{ isSelected ? '' : 'disabled' }} title="{{ key }}"
-            class="{{ isSelected ? 'current' : '' }}" href="{{ highglightTheme.url }}" crossorigin="anonymous" />
-    {% endfor %}
-{% endblock %}
-
-
-{% block javascripts %}
-    {{ parent() }}
-    {% if is_granted('ROLE_USER') %}
-        {{ encore_entry_script_tags('notes') }}
-    {% else %}
-        {{ encore_entry_script_tags('welcome') }}
-    {% endif %}
-{% endblock %}
-
-{% block navitems %}
-    {% if is_granted('ROLE_USER') %}
-        <button type="button" id="note-settings-btn" class="modal-trigger" data-target="settings-popup">
-            <i class="fas fa-cog"></i>
-        </button>
-    {% endif %}
-{% endblock %}
-
-{% block body %}
-    {% if is_granted('ROLE_USER') %}
-        {{ _self.settingsPopup(pageThemes, highlightJsThemes) }}
-        {{ _self.notePage(workspaces) }}
-    {% else %}
-        {{ _self.welcomePage() }}
-    {% endif %}
-{% endblock %}
-
-{% macro settingsPopup(pageThemes, highlightJsThemes) %}
-    <div id="settings-popup" class="modal modal-fixed-footer">
-        <div class="modal-content">
-            <div class="row">
-                <div class="col s12">
-                    <div class="row">
-                        <div class="col s6">
-                            Select Page Theme:
-                        </div>
-                        <div class="col s6">
-                            <select id="page-theme">
-                            {% for key, theme in pageThemes %}
-                                {% set selected = theme.isSelected ? 'selected' : '' %}\
-                                <option value="{{ key }}" {{ selected }}>{{ theme.name }}</option>
-                            {% endfor %}
-                            </select>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col s6">
-                            Input Theme:
-                        </div>
-                        <div class="col s6">
-                            {{ cmMacros.codemirrorThemeSelect() }}
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col s6">
-                            Output Theme:
-                        </div>
-                        <div class="col s6">
-                            {{ _self.highlightJsSelect(highlightJsThemes) }}
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col s6">
-                            <button type="button" class="btn show-cookie-pref">
-                                Show Cookie Preferences
-                            </button>
-                        </div>
-                        <div class="col s6">
-                            <button type="button" class="btn export-notes">
-                                Export Notes
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="modal-footer">
-            <button type="button" class="modal-close waves-effect waves-green btn-flat right">Close</button>
-        </div>
-    </div>
-{% endmacro %}
-
-{% macro noteTitleTemplate() %}
-    <button type="button" id="note-item-template" class="note-item btn tooltipped" data-position="right">
-        <span class="title"></span>
-        <span class="last-modified"></span>
-        <span class="tag-container">
-            <span id="note-tag-template" class="note-tag"><span>
-        </span>
-    </button>
-{% endmacro %}
-
-{% macro highlightJsSelect(themes) %}
-    <select id="highlightjs-theme">
-    {% for key, theme in themes %}
-        <option value="{{ key }}" {{ theme.isSelected ? 'selected' }}>{{ key }}</option>
-    {% endfor %}
-    </select>
-{% endmacro %}
-
-{% macro notePage(workspaces) %}
-    <aside id="note-navigation" {{ workspaces|length == 0 ? 'data-no-workspaces="true"' }}>
-        {% if workspaces|length == 0 %}
-        <div id="no-workspaces">
-            <p>
-                Please
-                <a href="/account/" class="bold">
-                    create a workspace
-                </a>
-                first.
-            </p>
-        </div>
-        {% else %}
-        <div id="toolbox">
-            {# {% if workspaces|length == 1 %}
-                {% set workspace = workspaces|first %}
-                <span id="active-workspace" class="active-workspace" value="{{ workspace.getUuid() }}">
-                    {{ workspace.getName() }}
-                </span>
-            {% elseif workspaces|length > 1 %} #}
-                <select id="active-workspace" class="active-workspace">
-                {% for index, workspace in workspaces %}
-                    <option {{ loop.first ? 'selected' : '' }} value="{{ workspace.getUuid() }}">
-                        {{ workspace.getName() }}
-                    </option>
-                {% endfor %}
-                </select>
-            {# {% endif %} #}
-            <button type="button" id="new-note" class="btn">New Note</button>
-        </div>
-        <div id="note-items">
-            {{ _self.noteTitleTemplate() }}
-        </div>
-        <ul id="note-menu">
-            <li id="delete-note" class="menu-item" data-action="delete">Delete</li>
-            {# <li id="copy-note" class="menu-item" data-action="copy">Copy</li> #}
-        </ul>
-        <div id="note-menu-out-click"></div>
-        {% endif %}
-    </aside>
-    <div id="noted">
-        <div id="mobile-menu">
-            <button type="button" class="toggle-nav btn"><i class="fas fa-chevron-right"></i></button>
-            <button type="button" class="toggle-view btn"><i class="fas fa-book-open"></i></button>
-        </div>
-        <div id="input-wrap">
-            <textarea id="markdown-input" data-noteref="" data-theme="" placeholder="Markdown note goes here..."></textarea>
-        </div>
-        <div id="output-wrap" class="expanded">
-            <div id="markdown-output" class="hljs"></div>
-        </div>
-    </div>
-{% endmacro %}
-
-{% macro welcomePage() %}
-    <h1>Note'd Markdown Notes</h1>
-    <h2>
-        <pre class="stylish-code">&lt;inserts amazing graphics here&gt;</pre>
-    </h2>
-    <hr>
-    <p>
-        This project is an expedition to provide a markdown application that works well on desktop and mobile devices,
-        while also providing the security of self-hosting the data using OAuth to validate credentials.
-    </p>
-    <p>
-        This whole project is still in Beta. So long as I'm the only dev, it'll likely be in Beta for a while.
-        But hopefully that doesn't deter you from using the application. Just be sure to export a backup of your notes
-        occasionally.
-    </p>
-    <p>
-        One of the interesting things I like about this application, is that the password supports a wide variety of
-        characters. Spaces, tabs (if you can manage it), emojis, and of course, foreign languages.
-        <br />
-        But be kind to yourself. Not all mobile-device keyboards expect this level of flexibility.
-    </p>
-    <hr>
-    <p class="question">
-       How does it work?
-    </p>
-    <p class="response">
-       This site (note-d.app) is primarily meant to serve the Frontend for writing the notes.
-       This includes the HTML, CSS, JS, and of course, the means to manage your user profile.
-    </p>
-    <p class="question">
-       Where are my notes stored?
-    </p>
-    <p class="response">
-        For now, you'll need to create another user profile on a seprate site, within the domain of this one.
-        That site being <a href="https://book.note-d.app" target="_blank">https://book.note-d.app</a>.
-        That host is responsible for storing the notes, unless you decide to "spin up" your own storage host.
-    </p>
-    <p class="question">
-       How does this site get the notes from <code>book.note-d.app</code>?
-    </p>
-    <p class="response">
-        From your user profile, you'll registre new workspaces. Each workspace would be a host, where you've
-        authenticated with a user login.
-        Similar to how you may go to a blog, and they ask if you'd like to login from a Google or Twitter account.
-        This site will then store the tokens for you, so you can safely create/modify/delete your notes.
-    </p>
-    <p class="question">
-       Why would someone "spin up" their own storage host?
-    </p>
-    <p class="response">
-        Even with all the best security precautions, some people may prefer to have their data stored close to home.
-        Hosting your own storage server from behind a firewall, means that so long as your browser is behind the same
-        firewall, your browser can access the storage host, without this site (note-d.app) ever needing direct access.
-    </p>
-    <hr>
-    <ul class="fun-list">
-        <li>
-            <a href="https://github.com/shmolf/noted" target="_blank" title="Opens in a new window">This site's repo</a>
-        </li>
-        <li>
-            <a href="https://github.com/shmolf/noted-storage-symfony" target="_blank" title="Opens in a new window">
-                Repo to self-host your own note storage.
-            </a>
-        </li>
-    </ul>
-{% endmacro %}
+<h1>Note'd Markdown Notes</h1>
+<h2>
+    <pre class="stylish-code">&lt;inserts amazing graphics here&gt;</pre>
+</h2>
+<hr>
+<p>
+    This project is an expedition to provide a markdown application that works well on desktop and mobile devices,
+    while also providing the security of self-hosting the data using OAuth to validate credentials.
+</p>
+<p>
+    This whole project is still in Beta. So long as I'm the only dev, it'll likely be in Beta for a while.
+    But hopefully that doesn't deter you from using the application. Just be sure to export a backup of your notes
+    occasionally.
+</p>
+<p>
+    One of the interesting things I like about this application, is that the password supports a wide variety of
+    characters. Spaces, tabs (if you can manage it), emojis, and of course, foreign languages.
+    <br />
+    But be kind to yourself. Not all mobile-device keyboards expect this level of flexibility.
+</p>
+<hr>
+<p class="question">
+    How does it work?
+</p>
+<p class="response">
+    This site (note-d.app) is primarily meant to serve the Frontend for writing the notes.
+    This includes the HTML, CSS, JS, and of course, the means to manage your user profile.
+</p>
+<p class="question">
+    Where are my notes stored?
+</p>
+<p class="response">
+    For now, you'll need to create another user profile on a seprate site, within the domain of this one.
+    That site being <a href="https://book.note-d.app" target="_blank">https://book.note-d.app</a>.
+    That host is responsible for storing the notes, unless you decide to "spin up" your own storage host.
+</p>
+<p class="question">
+    How does this site get the notes from <code>book.note-d.app</code>?
+</p>
+<p class="response">
+    From your user profile, you'll registre new workspaces. Each workspace would be a host, where you've
+    authenticated with a user login.
+    Similar to how you may go to a blog, and they ask if you'd like to login from a Google or Twitter account.
+    This site will then store the tokens for you, so you can safely create/modify/delete your notes.
+</p>
+<p class="question">
+    Why would someone "spin up" their own storage host?
+</p>
+<p class="response">
+    Even with all the best security precautions, some people may prefer to have their data stored close to home.
+    Hosting your own storage server from behind a firewall, means that so long as your browser is behind the same
+    firewall, your browser can access the storage host, without this site (note-d.app) ever needing direct access.
+</p>
+<hr>
+<ul class="fun-list">
+    <li>
+        <a href="https://github.com/shmolf/noted" target="_blank" title="Opens in a new window">This site's repo</a>
+    </li>
+    <li>
+        <a href="https://github.com/shmolf/noted-storage-symfony" target="_blank" title="Opens in a new window">
+            Repo to self-host your own note storage.
+        </a>
+    </li>
+</ul>

@@ -1,0 +1,63 @@
+{% macro settingsPopup(pageThemes, highlightJsThemes) %}
+    {% import "notes/codemirror.macros.html.twig" as cmMacros %}
+    <div id="settings-popup" class="modal modal-fixed-footer">
+        <div class="modal-content">
+            <div class="row">
+                <div class="col s12">
+                    <div class="row">
+                        <div class="col s6">
+                            Select Page Theme:
+                        </div>
+                        <div class="col s6">
+                            <select id="page-theme">
+                            {% for key, theme in pageThemes %}
+                                {% set selected = theme.isSelected ? 'selected' : '' %}\
+                                <option value="{{ key }}" {{ selected }}>{{ theme.name }}</option>
+                            {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col s6">
+                            Input Theme:
+                        </div>
+                        <div class="col s6">
+                            {{ cmMacros.codemirrorThemeSelect() }}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col s6">
+                            Output Theme:
+                        </div>
+                        <div class="col s6">
+                            {{ _self.highlightJsSelect(highlightJsThemes) }}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col s6">
+                            <button type="button" class="btn show-cookie-pref">
+                                Show Cookie Preferences
+                            </button>
+                        </div>
+                        <div class="col s6">
+                            <button type="button" class="btn export-notes">
+                                Export Notes
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="modal-close waves-effect waves-green btn-flat right">Close</button>
+        </div>
+    </div>
+{% endmacro %}
+
+{% macro highlightJsSelect(themes) %}
+    <select id="highlightjs-theme">
+    {% for key, theme in themes %}
+        <option value="{{ key }}" {{ theme.isSelected ? 'selected' }}>{{ key }}</option>
+    {% endfor %}
+    </select>
+{% endmacro %}

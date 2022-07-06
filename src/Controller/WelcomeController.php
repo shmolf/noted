@@ -20,7 +20,7 @@ class WelcomeController extends AbstractController
         $highlightJsThemes[$selectedHljsTheme]['isSelected'] = true;
         // dd($workspaceRepository->findBy(['user' => $this->getUser()]));
 
-        return $this->render('welcome.html.twig', [
+        return $this->render('main.html.twig', [
             'pageTheme' => $request->cookies->get('page-theme') ?? 'auto',
             'pageThemes' => $pageThemes,
             'highlightJsThemes' => $highlightJsThemes,
