@@ -13,11 +13,9 @@ const BannerCookies: CookieReference = {
 };
 
 window.onload = () => {
-  console.log('gettin ready');
   banner = document.getElementById('notice-banner');
 
   if (!isDismissed('newStorage')) {
-    console.log('not dismissed');
     revealBanner();
   }
 
@@ -31,7 +29,6 @@ function isDismissed(bannerName: string) {
 }
 
 function revealBanner() {
-  console.log('going to reveal');
   banner?.classList?.add(revealingClass);
 }
 

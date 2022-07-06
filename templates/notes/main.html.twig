@@ -1,0 +1,65 @@
+{% import "notes/settings.html.twig" as settings %}
+
+<aside id="note-navigation" {{ workspaces|length == 0 ? 'data-no-workspaces="true"' }}>
+    {% if workspaces|length == 0 %}
+    <div id="no-workspaces">
+        <p>
+            Please
+            <a href="/account/" class="bold">
+                create a workspace
+            </a>
+            first.
+        </p>
+    </div>
+    {% else %}
+    <div id="toolbox">
+        {# {% if workspaces|length == 1 %}
+            {% set workspace = workspaces|first %}
+            <span id="active-workspace" class="active-workspace" value="{{ workspace.getUuid() }}">
+                {{ workspace.getName() }}
+            </span>
+        {% elseif workspaces|length > 1 %} #}
+            <select id="active-workspace" class="active-workspace">
+            {% for index, workspace in workspaces %}
+                <option {{ loop.first ? 'selected' : '' }} value="{{ workspace.getUuid() }}">
+                    {{ workspace.getName() }}
+                </option>
+            {% endfor %}
+            </select>
+        {# {% endif %} #}
+        <button type="button" id="new-note" class="btn">New Note</button>
+    </div>
+    <div id="note-items">
+        {{ _self.noteTitleTemplate() }}
+    </div>
+    <ul id="note-menu">
+        <li id="delete-note" class="menu-item" data-action="delete">Delete</li>
+        {# <li id="copy-note" class="menu-item" data-action="copy">Copy</li> #}
+    </ul>
+    <div id="note-menu-out-click"></div>
+    {% endif %}
+</aside>
+<div id="noted">
+    <div id="mobile-menu">
+        <button type="button" class="toggle-nav btn"><i class="fas fa-chevron-right"></i></button>
+        <button type="button" class="toggle-view btn"><i class="fas fa-book-open"></i></button>
+    </div>
+    <div id="input-wrap">
+        <textarea id="markdown-input" data-noteref="" data-theme="" placeholder="Markdown note goes here..."></textarea>
+    </div>
+    <div id="output-wrap" class="expanded">
+        <div id="markdown-output" class="hljs"></div>
+    </div>
+</div>
+
+{{ settings.settingsPopup(pageThemes, highlightJsThemes) }}
+
+{% macro noteTitleTemplate() %}
+    <button type="button" id="note-item-template" class="note-item btn tooltipped" data-position="right">
+        <span class="title"></span>
+        <span class="last-modified"></span>
+        <span class="tag-container">
+            <span id="note-tag-template" class="note-tag"><span>
+        </span>
+    </button>
+{% endmacro %}

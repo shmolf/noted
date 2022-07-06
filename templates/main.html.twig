@@ -1,0 +1,41 @@
+{% extends 'base.html.twig' %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    {% if is_granted('ROLE_USER') %}
+        {{ encore_entry_link_tags('notes') }}
+    {% else %}
+        {{ encore_entry_link_tags('welcome') }}
+    {% endif %}
+
+    {% for key, highglightTheme in highlightJsThemes %}
+        {% set isSelected = highglightTheme.isSelected %}
+        <link rel="stylesheet" {{ isSelected ? '' : 'disabled' }} title="{{ key }}"
+            class="{{ isSelected ? 'current' : '' }}" href="{{ highglightTheme.url }}" crossorigin="anonymous" />
+    {% endfor %}
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {% if is_granted('ROLE_USER') %}
+        {{ encore_entry_script_tags('notes') }}
+    {% else %}
+        {{ encore_entry_script_tags('welcome') }}
+    {% endif %}
+{% endblock %}
+
+{% block navitems %}
+    {% if is_granted('ROLE_USER') %}
+        <button type="button" id="note-settings-btn" class="modal-trigger" data-target="settings-popup">
+            <i class="fas fa-cog"></i>
+        </button>
+    {% endif %}
+{% endblock %}
+
+{% block body %}
+    {% if is_granted('ROLE_USER') %}
+        {% include 'notes/main.html.twig' %}
+    {% else %}
+        {% include 'welcome.html.twig' %}
+    {% endif %}
+{% endblock %}
