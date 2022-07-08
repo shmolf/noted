@@ -57,7 +57,9 @@ self.addEventListener('fetch', async (event) => {
 
   event.respondWith(caches.match(event.request).then((cachedResponse) => {
     const fetchedResponse = fetch(event.request).then((networkResponse) => {
-      caches.open(RUNTIME).then((cache) => cache.put(event.request, networkResponse.clone()));
+      // This clone needs it's own variable, or else an error could result.
+      const responseClone = networkResponse.clone();
+      caches.open(RUNTIME).then((cache) => cache.put(event.request, responseClone));
 
       return networkResponse;
     });
