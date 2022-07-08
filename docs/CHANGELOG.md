@@ -1,3 +1,10 @@
+### [3.7.2](https://github.com/shmolf/noted/compare/v3.7.1...v3.7.2) (2022-07-08)
+
+
+### Bug Fixes
+
+* **welcome:** image disrupted page width ([81a0d89](https://github.com/shmolf/noted/commit/81a0d89a531443be69c9a25aa123f94571cbb710))
+
 ### [3.7.1](https://github.com/shmolf/noted/compare/v3.7.0...v3.7.1) (2022-07-08)
 
 
