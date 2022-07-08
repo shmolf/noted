@@ -36,34 +36,35 @@ self.addEventListener('activate', (event) => {
 
 // https://developer.chrome.com/docs/workbox/caching-strategies-overview/
 self.addEventListener('fetch', async (event) => {
+  if (event.request.destination === 'image') {
+    // caches.match(event.request.url).then((cachedResponse) => {
+    //   // Return a cached response if we have one
+    //   if (cachedResponse) {
+    //     return cachedResponse;
+    //   }
 
-  // caches.match(event.request.url).then((cachedResponse) => {
-  //   // Return a cached response if we have one
-  //   if (cachedResponse) {
-  //     return cachedResponse;
-  //   }
+    //   caches.open(RUNTIME).then((cache) => {
+    //     // Otherwise, hit the network
+    //     return fetch(event.request).then((fetchedResponse) => {
+    //       // Add the network response to the cache for later visits
+    //       cache.put(event.request, fetchedResponse.clone());
 
-  //   caches.open(RUNTIME).then((cache) => {
-  //     // Otherwise, hit the network
-  //     return fetch(event.request).then((fetchedResponse) => {
-  //       // Add the network response to the cache for later visits
-  //       cache.put(event.request, fetchedResponse.clone());
+    //       // Return the network response
+    //       return fetchedResponse;
+    //     });
+    //   });
+    // });
 
-  //       // Return the network response
-  //       return fetchedResponse;
-  //     });
-  //   });
-  // });
+    event.respondWith(caches.match(event.request).then((cachedResponse) => {
+      const fetchedResponse = fetch(event.request).then((networkResponse) => {
+        // This clone needs it's own variable, or else an error could result.
+        const responseClone = networkResponse.clone();
+        caches.open(RUNTIME).then((cache) => cache.put(event.request, responseClone));
 
-  event.respondWith(caches.match(event.request).then((cachedResponse) => {
-    const fetchedResponse = fetch(event.request).then((networkResponse) => {
-      // This clone needs it's own variable, or else an error could result.
-      const responseClone = networkResponse.clone();
-      caches.open(RUNTIME).then((cache) => cache.put(event.request, responseClone));
+        return networkResponse;
+      });
 
-      return networkResponse;
-    });
-
-    return cachedResponse || fetchedResponse;
-  }));
+      return cachedResponse || fetchedResponse;
+    }));
+  };
 });
