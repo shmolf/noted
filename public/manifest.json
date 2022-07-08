@@ -23,12 +23,15 @@
     }
   },"shortcuts" : [
     {
-      "name": "Login",
-      "url": "/login"
-    },
-    {
       "name": "Account",
-      "url": "/account"
+      "url": "/account",
+      "icons": [
+        {
+          "src": "/noted-logo-static-96.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
     }
   ],
   "display": "fullscreen",
