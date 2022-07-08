@@ -7,6 +7,11 @@
       "src": "/noted-logo-animated.gif",
       "sizes": "32x32",
       "type": "image/gif"
+    },
+    {
+      "src": "/noted-logo-static-144.png",
+      "sizes": "144x144",
+      "type": "image/png"
     }
   ],
   "app": {
@@ -16,17 +21,16 @@
     "launch": {
       "web_url": "https://note-d.app"
     }
-  },
-  "share_target": {
-    "action": "/create-note/",
-    "method": "POST",
-    "enctype": "application/x-www-form-urlencoded",
-    "params": {
-      "title": "title",
-      "text": "text",
-      "url": "url"
+  },"shortcuts" : [
+    {
+      "name": "Login",
+      "url": "/login"
+    },
+    {
+      "name": "Account",
+      "url": "/account"
     }
-  },
+  ],
   "display": "fullscreen",
   "start_url": "/",
   "orientation": "any",
