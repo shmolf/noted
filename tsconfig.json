@@ -10,7 +10,7 @@
         "allowSyntheticDefaultImports": true,
         "esModuleInterop": true,
         "baseUrl": "./",
-        "lib": ["esnext", "webworker"],
+        "lib": ["esnext", "webworker", "DOM"],
         "paths": {
             "SCRIPTS/*": ["./assets/scripts/*"],
             "STYLES/*": ["./assets/styles/*"],
@@ -21,6 +21,7 @@
     },
     "exclude": [
         "public/build/**/*",
-        "packages-cache"
+        "packages-cache",
+        "public/service-worker.js"
     ]
   }
