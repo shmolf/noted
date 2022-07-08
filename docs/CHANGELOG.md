@@ -1,3 +1,10 @@
+### [3.7.4](https://github.com/shmolf/noted/compare/v3.7.3...v3.7.4) (2022-07-08)
+
+
+### Bug Fixes
+
+* **pwa:** fix url path, to exclude the `public` subdirectory & caching ([3dac584](https://github.com/shmolf/noted/commit/3dac584c345988a18ea79db49401ee40520404ea))
+
 ### [3.7.3](https://github.com/shmolf/noted/compare/v3.7.2...v3.7.3) (2022-07-08)
 
 
