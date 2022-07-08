@@ -1,3 +1,10 @@
+## [3.7.0](https://github.com/shmolf/noted/compare/v3.6.0...v3.7.0) (2022-07-08)
+
+
+### Features
+
+* **pwa:** fixup the PWA configuration ([44e153a](https://github.com/shmolf/noted/commit/44e153a720ce7fc13cf22254748944ca9333f25d))
+
 ## [3.6.0](https://github.com/shmolf/noted/compare/v3.5.0...v3.6.0) (2022-07-06)
 
 
