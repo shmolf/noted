@@ -1,3 +1,10 @@
+### [3.7.6](https://github.com/shmolf/noted/compare/v3.7.5...v3.7.6) (2022-07-08)
+
+
+### Bug Fixes
+
+* **pwa|cache:** should only cache image requests... not all requests ([3b2c92d](https://github.com/shmolf/noted/commit/3b2c92df211f3ad3e64a4150d3c4c20389d55cd6))
+
 ### [3.7.5](https://github.com/shmolf/noted/compare/v3.7.4...v3.7.5) (2022-07-08)
 
 
