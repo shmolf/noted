@@ -1,3 +1,10 @@
+### [3.7.5](https://github.com/shmolf/noted/compare/v3.7.4...v3.7.5) (2022-07-08)
+
+
+### Bug Fixes
+
+* **pwa:** fix caching error with response ([21f0080](https://github.com/shmolf/noted/commit/21f00803cfe261d1c1888793ab98ad1044f05e93))
+
 ### [3.7.4](https://github.com/shmolf/noted/compare/v3.7.3...v3.7.4) (2022-07-08)
 
 
