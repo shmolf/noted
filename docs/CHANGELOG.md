@@ -1,3 +1,10 @@
+### [3.7.3](https://github.com/shmolf/noted/compare/v3.7.2...v3.7.3) (2022-07-08)
+
+
+### Bug Fixes
+
+* **pwa:** enable caching so the app identifies as being offline-able ([bb160bb](https://github.com/shmolf/noted/commit/bb160bbebe3bf6f2aaf37f39aaa80f28ff21fc5c))
+
 ### [3.7.2](https://github.com/shmolf/noted/compare/v3.7.1...v3.7.2) (2022-07-08)
 
 
