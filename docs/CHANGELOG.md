@@ -1,3 +1,10 @@
+### [3.7.1](https://github.com/shmolf/noted/compare/v3.7.0...v3.7.1) (2022-07-08)
+
+
+### Bug Fixes
+
+* **pwa:** shortcut icon ([54f1686](https://github.com/shmolf/noted/commit/54f1686b15ba160fd5af33fceaae50167f87b1c0))
+
 ## [3.7.0](https://github.com/shmolf/noted/compare/v3.6.0...v3.7.0) (2022-07-08)
 
 
