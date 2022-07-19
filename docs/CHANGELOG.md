@@ -1,3 +1,15 @@
+## [3.8.0](https://github.com/shmolf/noted/compare/v3.7.6...v3.8.0) (2022-07-19)
+
+
+### Features
+
+* **password:** add password confirmation ([7dca709](https://github.com/shmolf/noted/commit/7dca709531e1da4271ac34a17af1a617a2acaac7))
+
+
+### Bug Fixes
+
+* **password:** fix sizing ([8067206](https://github.com/shmolf/noted/commit/8067206f01176b59925ee7536a7835823fc52e2f))
+
 ### [3.7.6](https://github.com/shmolf/noted/compare/v3.7.5...v3.7.6) (2022-07-08)
 
 
