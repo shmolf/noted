@@ -10,7 +10,7 @@ $(() => {
 
   $form.on('submit', (e) => {
     e.preventDefault();
-    $form.find('#create-btn').attr('disabled', 'disabled');
+    enableSaveBtn(false);
     saveUser();
   });
 });
@@ -19,8 +19,17 @@ $(() => {
  *
  */
 function saveUser() {
-  $errorOutput.html('');
+  clearErrorOutput();
   const url = decodeURI(String($form.attr('action')));
+  const password = $form.find('#password').val();
+  const passwordConfirmation = $form.find('#password-confirm').val();
+
+  if (password !== passwordConfirmation) {
+    appendToErrorOutput('Passwords must match');
+    enableSaveBtn(true);
+    return;
+  }
+
   const data = {
     'first-name': String($form.find('#first-name').val()).trim(),
     'last-name': String($form.find('#last-name').val()).trim(),
@@ -38,11 +47,24 @@ function saveUser() {
       const { responseJSON } = xhr;
       if ('errors' in responseJSON) {
         const { errors } = responseJSON as AjaxErrorRepsonse;
-        errors.forEach((error) => $errorOutput.append(`<p class="error">${error}</p>`));
+        errors.forEach((error) => appendToErrorOutput(error));
       }
     } catch (exception) {
       // eslint-disable-next-line no-console
       console.debug('Could not identify errors', exception, xhr.responseText);
+      enableSaveBtn(true);
     }
   });
+}
+
+function clearErrorOutput() {
+  $errorOutput.html('');
+}
+
+function appendToErrorOutput(error: string) {
+  $errorOutput.append(`<p class="error">${error}</p>`);
+}
+
+function enableSaveBtn(enabled = true) {
+  $form.find('#create-btn').attr('disabled', enabled ? '' : 'disabled');
 }
