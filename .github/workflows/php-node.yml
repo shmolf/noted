@@ -7,7 +7,7 @@ on:
 
 jobs:
   build-php:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v2
 
@@ -43,7 +43,7 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
         with:
-          node-version: 12
+          node-version: 16
 
       - name: Cache NPM packages
         id: npm-cache
@@ -63,7 +63,7 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
         with:
-          node-version: 12
+          node-version: 16
 
       - name: Install NPM Packages
         if: steps.npm-cache.outputs.cache-hit != 'true'
