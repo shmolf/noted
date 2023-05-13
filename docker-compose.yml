@@ -41,7 +41,7 @@ services:
       - database
 
 # https://nickjanetakis.com/blog/docker-tip-82-using-yaml-anchors-and-x-properties-in-docker-compose
-  x-node: &node-default
+  node-template: &node-default
     image: node:lts-alpine3.15
     volumes:
       - ${APP_PATH}:${DOCUMENT_ROOT}
