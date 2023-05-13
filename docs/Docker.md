@@ -16,6 +16,9 @@ docker-compose --env-file docker.env.local config
 ```
 
 # Build the Images
+Before building the docker images, be sure you have an SSL certificate and key file in the `docker/nginx/config` directory.
+There's instructions at the bottom for auto-creating this file, but it's self-signed and is not meant for a production evnironment.
+
 **To run the entire setup**
 - Make sure you've created a `docker.env.local` file, which'd be based on `docker.env`.
 ```bash
