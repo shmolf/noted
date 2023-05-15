@@ -7,14 +7,14 @@ on:
 
 jobs:
   build-php:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v2
 
-      - name: Install PHP74
+      - name: Install PHP8.1
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '7.4'
+          php-version: '8.1'
           extensions: php-xml
 
       - name: Validate composer.json and composer.lock
@@ -24,7 +24,7 @@ jobs:
         id: composer-cache
         uses: actions/cache@v2
         with:
-          php-version: '7.4'
+          php-version: '8.1'
           path: vendor
           key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
           restore-keys: |
@@ -42,7 +42,7 @@ jobs:
   # Using `check-cache` will ensure the yarn.lock matches installed packages
   cache-node-dependencies:
     needs: build-php
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
@@ -62,7 +62,7 @@ jobs:
 
   asset-linting:
     needs: cache-node-dependencies
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
@@ -78,7 +78,7 @@ jobs:
 
   release:
     needs: asset-linting
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2

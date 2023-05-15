@@ -22,7 +22,7 @@ There's instructions at the bottom for auto-creating this file, but it's self-si
 **To run the entire setup**
 - Make sure you've created a `docker.env.local` file, which'd be based on `docker.env`.
 ```bash
-docker compose --env-file docker.env.local up --build
+docker compose --env-file docker.env.local up -d --build
 ```
 
 # Node Container
