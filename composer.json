@@ -14,7 +14,7 @@
         "doctrine/orm": "^2.8",
         "phpdocumentor/reflection-docblock": "^5.2",
         "ramsey/uuid": "^4.1",
-        "sensio/framework-extra-bundle": "^5.1",
+        "sensio/framework-extra-bundle": "^6.2",
         "shmolf/noted-hydrator": "^2.0",
         "symfony/apache-pack": "^1.0",
         "symfony/asset": "5.4.*",
