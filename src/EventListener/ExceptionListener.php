@@ -12,16 +12,16 @@ use Throwable;
 
 class ExceptionListener
 {
-    public function onKernelException(Request $request, ExceptionEvent $event): void
+    public function onKernelException(ExceptionEvent $event): void
     {
-        $response = $request->isXmlHttpRequest()
-            ? $this->buildJsonRespons($event->getThrowable())
+        $response = $event->getRequest()->isXmlHttpRequest()
+            ? $this->buildJsonResponse($event->getThrowable())
             : $this->buildPageResponse($event->getThrowable());
 
         $event->setResponse($response);
     }
 
-    private function buildJsonRespons(Throwable $exception): JsonResponse
+    private function buildJsonResponse(Throwable $exception): JsonResponse
     {
         $data = [
             'type' => 'Exception',
@@ -29,7 +29,9 @@ class ExceptionListener
             'errors' => $exception->getMessage(),
         ];
 
-        return new JsonResponse($data, $exception->getCode());
+        $statusCode = $exception->getCode() > 0 ? $exception->getCode() : Response::HTTP_INTERNAL_SERVER_ERROR;
+
+        return new JsonResponse($data, $statusCode);
     }
 
     private function buildPageResponse(Throwable $exception): Response
