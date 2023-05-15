@@ -21,7 +21,7 @@
     "@codemirror/lang-html": "^0.20.0",
     "@codemirror/lang-java": "^0.20.0",
     "@codemirror/lang-javascript": "^0.20.0",
-    "@codemirror/lang-json": "^0.20.0",
+    "@codemirror/lang-json": "^6.0.1",
     "@codemirror/lang-lezer": "^0.20.0",
     "@codemirror/lang-markdown": "^0.20.0",
     "@codemirror/lang-php": "^0.20.0",
