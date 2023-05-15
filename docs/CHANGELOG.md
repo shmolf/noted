@@ -1,3 +1,10 @@
+### [3.8.1](https://github.com/shmolf/noted/compare/v3.8.0...v3.8.1) (2023-05-15)
+
+
+### Bug Fixes
+
+* composer php version ([09435c9](https://github.com/shmolf/noted/commit/09435c981127f9f24d500fa72913cd9972e6e5ef))
+
 ## [3.8.0](https://github.com/shmolf/noted/compare/v3.7.6...v3.8.0) (2022-07-19)
 
 
