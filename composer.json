@@ -68,7 +68,7 @@
         },
         "sort-packages": true,
         "platform": {
-            "php": "7.4.3"
+            "php": "8.1"
         },
         "allow-plugins": {
           "symfony/flex": true,
