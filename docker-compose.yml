@@ -19,8 +19,7 @@ services:
       - php
       - node
 
-  php:
-    container_name: noted-php
+  php-template: &php-default
     build:
       context: ./docker/php
       dockerfile: Dockerfile
@@ -29,6 +28,12 @@ services:
       - ${APP_PATH}:${DOCUMENT_ROOT}
       - ./docker/php/www.conf:/usr/local/etc/php-fpm.d/www.conf
     working_dir: ${DOCUMENT_ROOT}
+    networks:
+      - noted-net
+
+  php:
+    <<: *php-default
+    container_name: noted-php
     environment:
       - DATABASE_URL=${SYMFONY_DB_URL}
       - DATABASE_VERSION=${SYMFONY_DB_VERSION}
@@ -39,6 +44,18 @@ services:
     # make 'database' a known service/host inside of 'php'
     links:
       - database
+
+  php-test:
+    <<: *php-default
+    container_name: noted-php-test
+    environment:
+      - DATABASE_URL=${SYMFONY_TEST_DB_URL}
+      - DATABASE_VERSION=${SYMFONY_TEST_DB_VERSION}
+    depends_on:
+      - database-test
+    # make 'database-test' a known service/host inside of 'php'
+    links:
+      - database-test
 
 # https://nickjanetakis.com/blog/docker-tip-82-using-yaml-anchors-and-x-properties-in-docker-compose
   node-template: &node-default
@@ -64,20 +81,14 @@ services:
     command:
       - watch
 
-  database:
-    container_name: noted-database
+  database-template: &database-default
     image: mysql:8.0.25
-    restart: always
+    restart: unless-stopped
     # https://dev.mysql.com/doc/mysql-linuxunix-excerpt/8.0/en/docker-mysql-more-topics.html
     command: [
       '--default-authentication-plugin=mysql_native_password',
       '--character-set-server=utf8mb4'
     ]
-    volumes:
-      - noted-app:/var/lib/mysql
-    hostname: mysql-container
-    ports:
-      - "${DB_PORT}:3306"
     environment:
       - MYSQL_DATABASE=${DB_NAME}
       - MYSQL_ROOT_PASSWORD=${DB_ROOT_PASSWORD}
@@ -86,9 +97,28 @@ services:
     networks:
       - noted-net
 
+  database:
+    <<: *database-default
+    container_name: noted-database
+    restart: always
+    volumes:
+      - noted-app:/var/lib/mysql
+    hostname: mysql-container
+    ports:
+      - "${DB_PORT}:3306"
+    networks:
+      - noted-net
+
+  database-test:
+    <<: *database-default
+    container_name: noted-database-test
+    volumes:
+      - noted-app-test:/var/lib/mysql
+
 networks:
   noted-net:
     driver: "bridge"
 
 volumes:
   noted-app:
+  noted-app-test:
