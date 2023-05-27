@@ -1,3 +1,10 @@
+### [3.8.2](https://github.com/shmolf/noted/compare/v3.8.1...v3.8.2) (2023-05-27)
+
+
+### Bug Fixes
+
+* remove/clarify console outputs ([2b5aaeb](https://github.com/shmolf/noted/commit/2b5aaeb1f2673ec789d8c6424236d20ebe18327b))
+
 ### [3.8.1](https://github.com/shmolf/noted/compare/v3.8.0...v3.8.1) (2023-05-15)
 
 
