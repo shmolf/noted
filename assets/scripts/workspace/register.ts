@@ -135,7 +135,7 @@ function processPipeMessage(event: MessageEvent) {
           clearWorkspaceInputs();
           removeSpinner(registrationForm);
           window.location.reload();
-        }).catch((error) => console.debug(error));
+        }).catch((error) => console.error(error));
         break;
       }
       default:
@@ -155,7 +155,6 @@ function processPipeMessage(event: MessageEvent) {
     case 'ready':
       clearInterval(openChannelIntervalId!);
       openChannelIntervalId = null;
-      console.debug('Connection established');
       // MessageChannel pipe is ready. Don't need to do anything but wait.
       break;
     case 'closing':
@@ -190,7 +189,7 @@ function requestNewWorkspace(tokenData: TokenSourcePayload): Promise<any> {
     })
       .then(() => resolve(true))
       .catch((response) => {
-        console.debug(response instanceof Error ? response.message : response.data);
+        console.error(response instanceof Error ? response.message : response.data);
         removeSpinner(registrationForm);
         reject();
       });

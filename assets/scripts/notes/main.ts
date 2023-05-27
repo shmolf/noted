@@ -383,8 +383,8 @@ function onWorkerMessage(event: MessageEvent) {
       case workerStates.WORKSPACE_DATA.k: {
         // Need to decide who's responsible for refreshing the refresh token. Prolly the worker.
         // They'd also need to update the workspace.
-        const workspace: WorkspacePackage = msg.data;
-        console.debug(workspace);
+        // const workspace: WorkspacePackage = msg.data;
+        // console.debug(workspace);
         worker?.postMessage(clientActions.GET_LIST.f());
         break;
       }

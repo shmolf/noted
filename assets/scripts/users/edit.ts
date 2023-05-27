@@ -39,7 +39,7 @@ function saveUser() {
         }
       } catch (exception) {
         // eslint-disable-next-line no-console
-        console.debug('Could not identify errors', exception, xhr.responseText);
+        console.error('Could not identify errors', exception, xhr.responseText);
       }
     });
 }
