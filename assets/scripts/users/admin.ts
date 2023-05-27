@@ -107,12 +107,11 @@ function saveUser() {
   }).done((response) => {
     M.Modal.getInstance($editUserModal.get(0) as HTMLElement).close();
 
-    const userData = (response as UserData);
+    // const userData = (response as UserData);
+    // console.debug(userData);
+  }).fail((_, __, error) => {
     // eslint-disable-next-line no-console
-    console.debug(userData);
-  }).fail((xhr, status, error) => {
-    // eslint-disable-next-line no-console
-    console.debug(xhr, status, error);
+    console.error(error);
   });
 }
 
