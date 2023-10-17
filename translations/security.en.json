@@ -1,0 +1,6 @@
+{
+  "Username could not be found.": "❌ Invalid login credentials",
+  "Invalid credentials.": "❌ Invalid login credentials",
+  "Too many failed login attempts, please try again in %minutes% minute.": "😭 Too many failed login attempts, please try again in %minutes% minute.",
+  "Remember me": "Remember me"
+}
