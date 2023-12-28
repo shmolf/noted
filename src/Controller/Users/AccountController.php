@@ -7,6 +7,7 @@ use App\Entity\UserAccount;
 use App\Entity\Workspace;
 use App\Utility\QoL;
 use DateTime;
+use Doctrine\Persistence\ManagerRegistry;
 use Exception;
 use Psr\Log\LoggerInterface;
 use Ramsey\Uuid\Uuid;
@@ -70,7 +71,7 @@ class AccountController extends BaseController
         return $this->render('security/create.html.twig', []);
     }
 
-    public function create(Request $request): Response
+    public function create(Request $request, ManagerRegistry $registry): Response
     {
         $requestData = $request->request->all();
         $email = self::trimMb4String($requestData['email'] ?? '');
@@ -83,7 +84,7 @@ class AccountController extends BaseController
             $errors[] = 'Email is invalid';
         }
 
-        $user = $this->getDoctrine()->getRepository(UserAccount::class)->findOneBy([ 'email' => $email ]);
+        $user = $registry->getRepository(UserAccount::class)->findOneBy([ 'email' => $email ]);
 
         if ($user !== null) {
             $errors[] = 'User already exists';
@@ -110,7 +111,7 @@ class AccountController extends BaseController
         $user->createdDate = new DateTime();
 
         try {
-            $entityManager = $this->getDoctrine()->getManager();
+            $entityManager = $registry->getManager();
             $entityManager->persist($user);
             $entityManager->flush();
             $entityManager->clear();
@@ -125,13 +126,13 @@ class AccountController extends BaseController
                 'errors' => [$errors],
             ];
 
-            return new JsonResponse($data, 400);
+            return new JsonResponse($data, Response::HTTP_BAD_REQUEST);
         }
 
         return $this->redirectToRoute('login');
     }
 
-    public function edit(Request $request): Response
+    public function edit(Request $request, ManagerRegistry $registry): Response
     {
         $requestData = $request->request->all();
         $email = self::trimMb4String($requestData['email'] ?? '');
@@ -147,7 +148,7 @@ class AccountController extends BaseController
         }
 
         /** @var UserAccount|null */
-        $user = $this->getDoctrine()->getRepository(UserAccount::class)->findOneBy([ 'email' => $email ]);
+        $user = $registry->getRepository(UserAccount::class)->findOneBy([ 'email' => $email ]);
         $authenticatedUser = $this->getUser();
 
         if ($authenticatedUser === null) {
@@ -176,7 +177,7 @@ class AccountController extends BaseController
         $authenticatedUser->lastName = $lastName;
 
         try {
-            $entityManager = $this->getDoctrine()->getManager();
+            $entityManager = $registry->getManager();
             $entityManager->persist($authenticatedUser);
             $entityManager->flush();
             $entityManager->clear();
@@ -197,8 +198,11 @@ class AccountController extends BaseController
         return new RedirectResponse($this->router->generate('login'));
     }
 
-    public function workspaceRegistration(Request $request, LoggerInterface $logger): Response
-    {
+    public function workspaceRegistration(
+        Request $request,
+        LoggerInterface $logger,
+        ManagerRegistry $registry
+    ): Response {
         $workspace = new Workspace();
 
         $workspace->setCreationDate(new DateTime());
@@ -211,7 +215,7 @@ class AccountController extends BaseController
         $this->getUser()->addWorkspace($workspace);
 
         try {
-            $entityManager = $this->getDoctrine()->getManager();
+            $entityManager = $registry->getManager();
             $entityManager->persist($workspace);
             $entityManager->flush();
             $entityManager->clear();

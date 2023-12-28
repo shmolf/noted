@@ -60,7 +60,7 @@ class ExceptionListenerTest extends TestCase
 
         $jsonData = [
             'type' => 'Exception',
-            'title' => "There was a problem with your request.",
+            'title' => 'There was a problem with your request.',
             'errors' => $event->getThrowable()->getMessage(),
         ];
 
@@ -68,8 +68,6 @@ class ExceptionListenerTest extends TestCase
         self::assertInstanceOf(JsonResponse::class, $event->getResponse());
         self::assertIsString($event->getResponse()->getContent());
         self::assertJsonStringEqualsJsonString(json_encode($jsonData), $event->getResponse()->getContent());
-        // self::assertStringContainsString('message', $event->getResponse()->getContent());
-        // self::assertStringContainsString('code', $event->getResponse()->getContent());
     }
 
     public function testHtmlRequestsWithEntitySaveExceptionReturnsRelativeStatusCode(): void
