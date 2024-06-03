@@ -25,6 +25,11 @@ bin/console doctrine:migrations:migrate
    - This'll provide an interactive commandline UI, that'll help build the commit message that adheres
      to this application's commit message conventions.
 
+- ```shell
+  bin/console c:c
+  ```
+   - Good for clearing your Symfony cache
+
 ## Hooks
 This project uses Husky for hooks. Please run `npx husky install` after cloning this repo.
 

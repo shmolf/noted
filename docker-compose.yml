@@ -32,6 +32,8 @@ services:
     environment:
       - DATABASE_URL=${SYMFONY_DB_URL}
       - DATABASE_VERSION=${SYMFONY_DB_VERSION}
+      - APP_SECRET=${SYMFONY_APP_SECRET}
+      - LOCK_DSN=${LOCK_DSN}
     networks:
       - noted-net
     depends_on:
