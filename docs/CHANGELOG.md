@@ -1,3 +1,14 @@
+## [4.0.0](https://github.com/shmolf/noted/compare/v3.8.2...v4.0.0) (2024-06-03)
+
+
+### ⚠ BREAKING CHANGES
+
+* **yarn deps:** updated yarn deps
+
+### Features
+
+* **yarn deps:** including a bunch of prior, and new yarn dependency caches ([69e6177](https://github.com/shmolf/noted/commit/69e6177d37ecd9cefa23e5dd63a0c541a69bbab5))
+
 ### [3.8.2](https://github.com/shmolf/noted/compare/v3.8.1...v3.8.2) (2023-05-27)
 
 
