@@ -21,10 +21,12 @@
             },
             // Add the IDs of extensions you want installed when the container is created.
             "extensions": [
-                "bmewburn.vscode-intelephense-client",
-                "mrmlnc.vscode-apache",
-                "dbaeumer.vscode-eslint"
-            ]
+				"bmewburn.vscode-intelephense-client",
+				"mrmlnc.vscode-apache",
+				"dbaeumer.vscode-eslint",
+				"TysonAndre.php-phan",
+				"whatwedo.twig"
+			]
         }
     },
 
