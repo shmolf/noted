@@ -47,7 +47,7 @@
                     </ul>
                 </li>
             {% else %}
-                <li><a href="{{ path('login') }}">Login</a></li>
+                <li><a href="{{ path('login') }}">{{ 'Login'|trans([], 'header-nav') }}</a></li>
             {% endif %}
             </ul>
         </div>
