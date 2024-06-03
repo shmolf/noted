@@ -17,6 +17,14 @@ bin/console doctrine:migrations:migrate
 
 - More context [found here](https://github.com/doctrine/migrations/issues/1202#issuecomment-945089795)
 
+## Scripts
+
+- ```shell
+  yarn cz
+  ```
+   - This'll provide an interactive commandline UI, that'll help build the commit message that adheres
+     to this application's commit message conventions.
+
 ## Hooks
 This project uses Husky for hooks. Please run `npx husky install` after cloning this repo.
 

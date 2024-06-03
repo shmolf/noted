@@ -73,19 +73,21 @@
   "devDependencies": {
     "@babel/core": "^7.17.0",
     "@babel/preset-env": "^7.16.0",
-    "@hotwired/stimulus": "^3.0.0",
-    "@symfony/stimulus-bridge": "^3.2.0",
     "@commitlint/cli": "^17.0",
     "@commitlint/config-conventional": "^17.0",
+    "@hotwired/stimulus": "^3.0.0",
     "@semantic-release/changelog": "^5.0",
     "@semantic-release/git": "^9.0",
+    "@symfony/stimulus-bridge": "^3.2.0",
     "@types/codemirror": "^5.60",
     "@types/jquery": "^3.5.5",
     "@types/materialize-css": "^1.0.9",
     "@types/uuid": "^8.3.0",
     "@typescript-eslint/eslint-plugin": "^4.24.0",
     "@typescript-eslint/parser": "^4.24.0",
+    "commitizen": "^4.3.0",
     "conventional-changelog-conventionalcommits": "^4.6",
+    "cz-conventional-changelog": "^3.3.0",
     "eslint": "^7.21.0",
     "eslint-config-airbnb-base": "^14.2.0",
     "eslint-import-resolver-alias": "^1.1.2",
@@ -97,6 +99,11 @@
     "stylelint": "^13.12.0",
     "stylelint-config-standard": "^20.0.0",
     "typescript": "^4.2.4"
+  },
+  "config": {
+    "commitizen": {
+      "path": "cz-conventional-changelog"
+    }
   },
   "license": "SEE LICENSE IN 'LICENSE'",
   "private": false,
