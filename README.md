@@ -14,7 +14,7 @@ house only the server-side logic for recieving and storing notes sent by the **n
 Create an `.env.local` file, with the following environment variables (assign values according to your setup).
 ```ini
 # This application uses Doctrine, so use a DSN that's compatible with that ORM. Doesn't have to be MySQL.
-DATABASE_URL=mysql://someuser:somepassword@127.0.0.1:3306/databaseSchemaName?serverVersion=8.0.25
+DATABASE_URL=mysql://someuser:somepassword@127.0.0.1:3306/databaseSchemaName?serverVersion=8.0.25&charset=utf8mb4
 DATABASE_VERSION='8.0.25'
 # use 'dev' for the APP_ENV if you're wanting Debugging capabilities. See Symfony docs for more info
 APP_ENV=prod
